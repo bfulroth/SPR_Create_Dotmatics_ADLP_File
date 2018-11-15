@@ -2,12 +2,13 @@ from glob import glob
 import os
 import pandas as pd
 
+
 # Global variables for the configuration file and save file. These paths need to be changed for each new experiment.
 config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
                    'E181113-1 SPR Affinity; Test new cmpds in KRAS_SPR_Assay_v5/181113_Config.txt'
 
 adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/E181113-1 ' \
-                 'SPR Affinity; Test new cmpds in KRAS_SPR_Assay_v5/181113_results_ADLP.xls'
+                 'SPR Affinity; Test new cmpds in KRAS_SPR_Assay_v5/181113_results_ADLP_2.xlsx'
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     """
@@ -334,9 +335,15 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
     df_final_for_dot['UNIQUE_ID'] = df_senso_txt['Sample'] + '_' + df_final_for_dot['FC'] + '_' + project_code + \
                                     '_' + experiment_date + '_' + df_senso_txt['img_file_num']
 
-    # Add image file paths
-    df_final_for_dot['SS_IMG_ID'] = path_ss_img + '/' + df_ss_txt['Image File']
-    df_final_for_dot['SENSO_IMG_ID'] = path_senso_img + '/' + df_senso_txt['Image File']
+    # Add steady state image file path
+    # Need to replace /Volumes with //flynn
+    path_ss_img_edit = path_ss_img.replace('/Volumes', '//flynn')
+    df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_txt['Image File']
+
+    # Add sensorgram image file path
+    # Need to replace /Volumes with //flynn
+    path_senso_img_edit = path_senso_img.replace('/Volumes', '//flynn')
+    df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Image File']
 
     # Add the Rmax_theoretical.
     # Note couldn't do this before as I needed to add protein MW and RU first.
