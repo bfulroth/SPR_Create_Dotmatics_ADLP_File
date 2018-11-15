@@ -8,7 +8,7 @@ config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs
                    'E181113-1 SPR Affinity; Test new cmpds in KRAS_SPR_Assay_v5/181113_Config.txt'
 
 adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/E181113-1 ' \
-                 'SPR Affinity; Test new cmpds in KRAS_SPR_Assay_v5/181113_results_ADLP_6.xlsx'
+                 'SPR Affinity; Test new cmpds in KRAS_SPR_Assay_v5/181113_results_ADLP_10.xlsx'
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     """
@@ -372,36 +372,58 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
 
     # Get the xlsxwriter workbook and worksheet objects.
     workbook  = writer.book
-    worksheet = writer.sheets['Sheet1']
+    worksheet1 = writer.sheets['Sheet1']
 
     # Add a drop down list of comments.
+    # Calculate the number of rows to add the drop down menue.
     num_cpds = len(df_cmpd_set.index)
     num_data_pts = (num_cpds * 3) + 1
-    worksheet.data_validation('S1:S' + str(num_data_pts),
+
+    # Write the comments to the comment sheet.
+    comments_list = pd.DataFrame({'Comments':
+                                    ['No binding',
+                                    'Saturation reached. Fast on/off.',
+                                    'Saturation reached. Fast on/off. Insolubility likely.',
+                                    'Saturation reached. Slow on. Fast off.',
+                                    'Saturation reached. Slow on. Fast off. Insolubility likely.',
+                                    'Saturation reached. Slow on. Slow off.',
+                                    'Saturation reached. Slow on. Slow off. Insolubility likely.',
+                                    'Saturation reached. Fast on. Slow off.',
+                                    'Saturation reached. Fast on. Slow off. Insolubility likely.',
+                                    'Saturation approached. Fast on/off.',
+                                    'Saturation approached. Low % binding.',
+                                    'Saturation approached. Low % binding. Insolubility likely',
+                                    'Saturation not reached',
+                                    'Saturation not reached. Fast on/off.',
+                                    'Saturation not reached. Fast on/off. Insolubility likely.',
+                                    'Saturation not reached. Low % binding.',
+                                    'Saturation not reached. Low % binding. Insolubility likely',
+                                    'Superstoichiometric binding.']})
+
+    # Convert comments list to Dataframe
+
+    comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
+
+    worksheet1.data_validation('S1:S' + str(num_data_pts),
                                     {'validate': 'list',
-                                     'source': ['No binding',
-                                                'Saturation reached. Fast on/off. Insolubility likely.',
-                                                'Saturation approached. Fast on/off.',
-                                                'Saturation approached. Low % binding. Insolubility likely.',
-                                                'Saturation not reached. Low % binding. Insolubility likely.',
-                                                'Superstoichiometric binding.'],
+                                     'source': '=Sheet2!$A$2:$A$'+ str(len(comments_list))
                                      })
 
     # Freeze the top row of the excel worksheet.
-    worksheet.freeze_panes(1, 0)
+    worksheet1.freeze_panes(1, 0)
 
     # Add a cell format object to align text center.
     cell_format = workbook.add_format()
     cell_format.set_align('center')
     cell_format.set_align('vcenter')
-    worksheet.set_column('A:AI', 25, cell_format)
+    worksheet1.set_column('A:AI', 25, cell_format)
 
     # Get list of images files in the steady state and senorgram folders
     # File folder path name
     tuple_list = spr_image_file_list_from_folder(path_ss_img)
 
     # Insert images into file.
-    spr_insert_images(tuple_list, worksheet, path_ss_img, path_senso_img)
+    spr_insert_images(tuple_list, worksheet1, path_ss_img, path_senso_img)
 
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
