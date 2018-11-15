@@ -2,7 +2,12 @@ from glob import glob
 import os
 import pandas as pd
 
+# Global variables for the configuration file and save file. These paths need to be changed for each new experiment.
+config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
+                   'E181113-1 SPR Affinity; Test new cmpds in KRAS_SPR_Assay_v5/181113_Config.txt'
 
+adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/E181113-1 ' \
+                 'SPR Affinity; Test new cmpds in KRAS_SPR_Assay_v5/181113_results_ADLP.xls'
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     """
@@ -353,8 +358,7 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
        'RAW_DATA_FILE', 'DIR_FOLDER', 'UNIQUE_ID', 'SS_IMG_ID', 'SENSO_IMG_ID']]
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter('/Users/bfulroth/PycharmProjects/IdeaTesting/181107_test_file_final5.xlsx',
-                            engine='xlsxwriter')
+    writer = pd.ExcelWriter(adlp_save_file, engine='xlsxwriter')
 
     # Convert the DataFrame to an XlsxWriter Excel object.
     df_final_for_dot.to_excel(writer, sheet_name='Sheet1', startcol=0, index=None)
@@ -379,6 +383,6 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
 
-spr_create_dot_upload_file(config_file='/Users/bfulroth/PycharmProjects/IdeaTesting/Test_SPR_Data/Config.txt')
+spr_create_dot_upload_file(config_file=config_file_path)
 
 print("Done!")
