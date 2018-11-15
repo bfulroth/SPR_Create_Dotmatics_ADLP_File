@@ -8,7 +8,7 @@ config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs
                    'E181113-1 SPR Affinity; Test new cmpds in KRAS_SPR_Assay_v5/181113_Config.txt'
 
 adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/E181113-1 ' \
-                 'SPR Affinity; Test new cmpds in KRAS_SPR_Assay_v5/181113_results_ADLP_2.xlsx'
+                 'SPR Affinity; Test new cmpds in KRAS_SPR_Assay_v5/181113_results_ADLP_4.xlsx'
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     """
@@ -373,6 +373,32 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
     # Get the xlsxwriter workbook and worksheet objects.
     workbook  = writer.book
     worksheet = writer.sheets['Sheet1']
+
+    # Add a drop down list of comments.
+    num_cpds = len(df_cmpd_set.index)
+    num_data_pts = (num_cpds * 3) + 1
+    worksheet.data_validation('S1:S' + str(num_data_pts),
+                                    {'validate': 'list',
+                                     'source': ['No binding',
+                                                'No binding. Insolubility likely.',
+                                                'Saturation reached. Fast on/off.',
+                                                'Saturation reached. Fast on/off. Insolubility likely.',
+                                                'Saturation reached. Slow on. Fast off.',
+                                                'Saturation reached. Slow on. Fast off. Insolubility likely.',
+                                                'Saturation reached. Slow on. Slow off.',
+                                                'Saturation reached. Slow on. Slow off. Insolubility likely.',
+                                                'Saturation reached. Fast on. Slow off.',
+                                                'Saturation reached. Fast on. Slow off. Insolubility likely.',
+                                                'Saturation approached. Fast on/off.',
+                                                'Saturation approached. Low % binding.',
+                                                'Saturation approached. Low % binding. Insolubility likely',
+                                                'Saturation not reached',
+                                                'Saturation not reached. Fast on/off.',
+                                                'Saturation not reached. Fast on/off. Insolubility likely.',
+                                                'Saturation not reached. Low % binding.',
+                                                'Saturation not reached. Low % binding. Insolubility likely',
+                                                'Superstoichiometric binding.'],
+                                     })
 
     # Add a cell format object to align text center.
     cell_format = workbook.add_format()
