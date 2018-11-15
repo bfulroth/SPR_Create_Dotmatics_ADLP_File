@@ -2,6 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../CompoundDB/.idea/CompoundDB.iml" filepath="$PROJECT_DIR$/../CompoundDB/.idea/CompoundDB.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../DataProcessing/.idea/DataProcessing.iml" filepath="$PROJECT_DIR$/../DataProcessing/.idea/DataProcessing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Database/.idea/Database.iml" filepath="$PROJECT_DIR$/../Database/.idea/Database.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../IdeaTesting/.idea/IdeaTesting.iml" filepath="$PROJECT_DIR$/../IdeaTesting/.idea/IdeaTesting.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/SPR_Create_Dotmatics_ADLP_File.iml" filepath="$PROJECT_DIR$/.idea/SPR_Create_Dotmatics_ADLP_File.iml" />
     </modules>
   </component>
