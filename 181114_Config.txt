@@ -1,0 +1,27 @@
+[paths]
+path_ss_img: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181114_results_affinity_52-102_PWF
+path_ss_txt: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181114_results_affinity_52-102_PWF/181114_results_affinity.txt
+path_senso_img: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181114_results_affinity_52-102_SPF
+path_senso_txt: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181114_results_affinity_52-102_SPF/181114_results_affinity.txt
+path_report_pt: /Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/E181114-1 SPR Affinity; Test panel aganist KRAS, NRAS, HRAS wild type/181114_results_affinity.xls
+
+[meta]
+num_fc_used: 3
+experiment_date: 2018_11_14
+project_code: 7279
+operator: bfulroth
+instrument: BiacoreS200
+protocol:KRAS_SPR_Assay_v5
+chip_lot: 10269645
+nucleotide: GMPPCP
+raw_data_filename: 181114_results_affinity
+directory_folder: BiacoreS200/Ben/KRAS
+fc2_protein_BIP: BIP-0503-01
+fc2_protein_RU: 2306.9
+fc2_protein_MW: 26812.01
+fc3_protein_BIP: BIP-0508-01
+fc3_protein_RU: 2029.5
+fc3_protein_MW: 26616.64
+fc4_protein_BIP: BIP-0532-01
+fc4_protein_RU: 1956.4
+fc4_protein_MW: 26685.61
