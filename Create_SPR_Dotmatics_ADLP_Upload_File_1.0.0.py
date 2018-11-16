@@ -5,8 +5,7 @@ import pandas as pd
 config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
                    'E181114-1 SPR Affinity; Test panel aganist KRAS, NRAS, HRAS wild type/181114_Config.txt'
 
-adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
-                 'E181114-1 SPR Affinity; Test panel aganist KRAS, NRAS, HRAS wild type/181114_results_ADLP_5.xlsx'
+adlp_save_file = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/181114_test1.xlsx'
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     """
