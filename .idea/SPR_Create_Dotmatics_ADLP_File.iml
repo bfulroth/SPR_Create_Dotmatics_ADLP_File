@@ -8,5 +8,7 @@
     <orderEntry type="module" module-name="CompoundDB" />
     <orderEntry type="module" module-name="DataProcessing" />
     <orderEntry type="module" module-name="IdeaTesting" />
+    <orderEntry type="module" module-name="DataProcessing" />
+    <orderEntry type="module" module-name="Notebook001" />
   </component>
 </module>
