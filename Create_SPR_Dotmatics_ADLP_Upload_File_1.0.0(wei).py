@@ -293,7 +293,7 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
     # Add the unique ID #
     df_final_for_dot['UNIQUE_ID'] = df_senso_txt['Sample'] + '_' + df_final_for_dot['FC'] + '_' + project_code + \
                                     '_' + experiment_date + \
-                                    '_' + df_senso_txt['Image File'].str.split('_', expand=True)[5]
+                                    '_' + df_senso_txt['Image File'].str.split('_', expand=True)[4]
 
     # Add steady state image file path
     # Need to replace /Volumes with //flynn
