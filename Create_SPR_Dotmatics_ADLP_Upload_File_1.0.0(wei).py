@@ -123,8 +123,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
                                       (df_rpt_pts_trim['AssayStep'] != 'Solvent correction')]
 
     # Create a new column of BRD 4 digit numbers to merge
-    df_rpt_pts_trim['BRD_MERGE'] = df_rpt_pts_trim['Sample_1_Sample'].str.split('_', expand=True)[0]
-    df_cmpd_set['BRD_MERGE'] = 'BRD-' + df_cmpd_set['Broad ID'].str[9:13]
+    df_cmpd_set['BRD_MERGE'] = df_cmpd_set['Broad ID'].str[:14]
 
     # Convert compound set concentration column to float so DataFrames can be merged.
     df_cmpd_set['Test [Cpd] uM'] = df_cmpd_set['Test [Cpd] uM'].astype('float')
