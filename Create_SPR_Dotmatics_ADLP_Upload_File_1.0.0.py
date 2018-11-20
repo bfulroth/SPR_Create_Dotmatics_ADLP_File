@@ -3,9 +3,10 @@ import pandas as pd
 
 # Global variables for the configuration file and save file. These paths need to be changed for each new experiment.
 config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
-                   'E181114-1 SPR Affinity; Test panel aganist KRAS, NRAS, HRAS wild type/181114_Config.txt'
+                   'E181119-1 SPR Affinity; Test 6 new cmpds in protocol v5/181119_Config.txt'
 
-adlp_save_file = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/181114_test1.xlsx'
+adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
+                 'E181119-1 SPR Affinity; Test 6 new cmpds in protocol v5/E181119_results.xlsx'
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     """
@@ -343,6 +344,7 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
     comments_list = pd.DataFrame({'Comments':
                                     ['No binding',
                                     'Saturation reached. Fast on/off.',
+                                    'Saturation reached. Fast on/off. Insolubility likely. Removed top.'
                                     'Saturation reached. Fast on/off. Insolubility likely.',
                                     'Saturation reached. Slow on. Fast off.',
                                     'Saturation reached. Slow on. Fast off. Insolubility likely.',
