@@ -3,7 +3,7 @@ path_ss_img: /Volumes/tdts_users/Informatics and computational research/SPR_Imag
 path_ss_txt: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181114_results_affinity_52-102_PWF/181114_results_affinity.txt
 path_senso_img: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181114_results_affinity_52-102_SPF
 path_senso_txt: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181114_results_affinity_52-102_SPF/181114_results_affinity.txt
-path_report_pt: /Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/E181114-1 SPR Affinity; Test panel aganist KRAS, NRAS, HRAS wild type/181114_results_affinity.xls
+path_report_pt: /Users/wjiang/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/181114_results_affinity.xls
 
 [meta]
 num_fc_used: 3
