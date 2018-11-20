@@ -1,0 +1,27 @@
+[paths]
+path_ss_img: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181109_PPM1D_run_1-18_PWF
+path_ss_txt: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181109_PPM1D_run_1-18_PWF/181109_PPM1D_run.txt
+path_senso_img: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181109_PPM1D_run_1-18_SWF
+path_senso_txt: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181109_PPM1D_run_1-18_SWF/181109_PPM1D_run.txt
+path_report_pt: /Users/wjiang/Desktop/SPR data processing/181109_PPM1D_report point.xls
+
+[meta]
+num_fc_used: 1
+experiment_date: 2018_11_09
+project_code: 7260
+operator: WJIANG
+instrument: Biacore3
+protocol:PPM1D_SPR_Assay_v1
+chip_lot: 10269645
+nucleotide: n
+raw_data_filename: 181109_PPM1D_run
+directory_folder: Biacore3/WJIANG
+fc2_protein_BIP: BIP-0474-01
+fc2_protein_RU: 3182
+fc2_protein_MW: 52332
+fc3_protein_BIP: n
+fc3_protein_RU: 1
+fc3_protein_MW: 1
+fc4_protein_BIP: n
+fc4_protein_RU: 1
+fc4_protein_MW: 1

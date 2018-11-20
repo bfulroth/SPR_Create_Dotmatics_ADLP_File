@@ -6,7 +6,7 @@ config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs
                    'E181119-1 SPR Affinity; Test 6 new cmpds in protocol v5/181119_Config_2.txt'
 
 adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
-                 'E181119-1 SPR Affinity; Test 6 new cmpds in protocol v5/E181119_results.xlsx'
+                 'E181119-1 SPR Affinity; Test 6 new cmpds in protocol v5/E181119_results_2.xlsx'
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     """
