@@ -3,10 +3,11 @@ import pandas as pd
 
 # Global variables for the configuration file and save file. These paths need to be changed for each new experiment.
 config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
-                   'E181119-1 SPR Affinity; Test 6 new cmpds in protocol v5/181119_Config_2.txt'
+                   'E181120-1 SPR Affinity; Retest Compounds to KRAS, NRAS, HRAS wild type/181120_Config.txt'
 
-adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
-                 'E181119-1 SPR Affinity; Test 6 new cmpds in protocol v5/E181119_results_2.xlsx'
+adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS ' \
+                 'Experiments/E181120-1 SPR Affinity; Retest Compounds to KRAS, NRAS, HRAS wild ' \
+                 'type/E181120_results_1.xlsx'
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     """
@@ -109,13 +110,16 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
                        'Sample_1_Conc [µM]',
                        'Sample_1_Sample']]
 
-    # For Biacore T200 and T100
+    # For Biacore1 or Biacore3
     else:
         # Remove other not needed columns
         df_rpt_pts_trim = df_rpt_pts_all.loc[:,
-                          ['Cycle', 'Fc', 'Report Point', 'Time', 'RelResp', 'AssayStep', 'CycleType',
-                           'Sample_1_Conc',
+                          ['Cycle', 'Fc', 'Report Point', 'Time', 'RelResp', 'AssayStep', 'CycleType', 'Sample_1_Conc',
                            'Sample_1_Sample']]
+
+    # Reassign columns so that there is consistent naming between BiacoreS200, Biacore1, and Biacore3.
+    df_rpt_pts_trim.columns = ['Cycle', 'Fc', 'Report Point', 'Time [s]', 'RelResp [RU]', 'AssayStep', 'Cycle Type',
+                               'Sample_1_Conc [µM]', 'Sample_1_Sample']
 
     # Remove not needed rows.
     df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Report Point'] == 'binding']

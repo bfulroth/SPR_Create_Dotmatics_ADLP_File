@@ -2,11 +2,9 @@ import pandas as pd
 
 
 # Global variables for the configuration file and save file. These paths need to be changed for each new experiment.
-config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
-                   'E181119-1 SPR Affinity; Test 6 new cmpds in protocol v5/181119_Config_2.txt'
+config_file_path = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Wei/181109_Config.txt'
 
-adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
-                 'E181119-1 SPR Affinity; Test 6 new cmpds in protocol v5/E181119_results.xlsx'
+adlp_save_file = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Wei/E181109_results.xlsx'
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     """
@@ -117,6 +115,10 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
                            'Sample_1_Conc',
                            'Sample_1_Sample']]
 
+    # Reassign columns so that there is consistent naming between BiacoreS200, Biacore1, and Biacore3.
+    df_rpt_pts_trim.columns = ['Cycle', 'Fc', 'Report Point', 'Time [s]', 'RelResp [RU]', 'AssayStep', 'Cycle Type',
+                               'Sample_1_Conc [µM]', 'Sample_1_Sample']
+
     # Remove not needed rows.
     df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Report Point'] == 'binding']
     df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['AssayStep'] != 'Startup') &
@@ -149,7 +151,8 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
 
     return df_rpt_pts_trim['RelResp [RU]']
 
-def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
+def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_csv('/Users/bfulroth/PycharmProjects/SPR_Create_'
+                                                                      'Dotmatics_ADLP_File/Wei/181109_SPR_Setup_PPM1D.csv')):
     import configparser
 
     try:
@@ -193,7 +196,6 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
     num_fc_used = int(num_fc_used)
     df_final_for_dot['BROAD_ID'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='Broad ID',
                                                                  times_dup=num_fc_used))
-
     # Add the Project Code.  Get this from the config file.
     df_final_for_dot['PROJECT_CODE'] = project_code
 
@@ -211,8 +213,9 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
                                                                  times_dup=num_fc_used))
 
     # Extract the RU Max for each compound using the report point file.
+    df_final_for_dot['RU_TOP_CMPD'] = 'blank'
     df_final_for_dot['RU_TOP_CMPD'] = spr_binding_top_for_dot_file(report_pt_file=path_report_pt,
-    df_cmpd_set=df_cmpd_set, instrument=instrument)
+                                                                   df_cmpd_set=df_cmpd_set, instrument=instrument)
 
     # Extract the steady state data and add to DataFrame
     # Read in the steady state text file into a DataFrame
@@ -230,14 +233,18 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
     df_final_for_dot['KD_SS_UM'] = df_ss_txt['KD_SS_UM']
 
     # Add the chi2_steady_state_affinity
-    df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Chi² (RU²)']
+    ### df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Chi² (RU²)']
+    ### Issue with the encoding of the text file???
+    df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Chi≤ (RU≤)']
 
     # Add the Fitted_Rmax_steady_state_affinity
     df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax (RU)']
 
+
     # Extract the sensorgram data and add to DataFrame
     # Read in the sensorgram data into a DataFrame
     df_senso_txt = pd.read_csv(path_senso_txt, sep='\t')
+
     df_senso_txt['sample_order'] = df_senso_txt['Image File'].str.split('_', expand=True)[1]
     df_senso_txt['sample_order'] = pd.to_numeric(df_senso_txt['sample_order'])
     df_senso_txt['fc_num'] = pd.to_numeric(df_senso_txt['Curve'].str[3])
@@ -248,6 +255,7 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
     df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka (1/Ms)']
     df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd (1/s)']
     df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
+
     df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Chi² (RU²)']
 
     # Not sure what this is???
