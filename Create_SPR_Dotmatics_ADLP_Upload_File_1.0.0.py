@@ -7,7 +7,7 @@ config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs
 
 adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS ' \
                  'Experiments/E181120-1 SPR Affinity; Retest Compounds to KRAS, NRAS, HRAS wild ' \
-                 'type/E181120_results_1.xlsx'
+                 'type/E181120_results_2.xlsx'
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     """
@@ -152,7 +152,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
     df_rpt_pts_trim = df_rpt_pts_trim.sort_values(['Cycle', 'sample_order'])
     df_rpt_pts_trim = df_rpt_pts_trim.reset_index(drop=True)
 
-    return df_rpt_pts_trim['RelResp [RU]']
+    return round(df_rpt_pts_trim['RelResp [RU]'], 2)
 
 def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
     import configparser

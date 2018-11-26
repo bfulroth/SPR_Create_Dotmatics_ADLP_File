@@ -149,7 +149,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
     df_rpt_pts_trim = df_rpt_pts_trim.sort_values(['Cycle', 'sample_order'])
     df_rpt_pts_trim = df_rpt_pts_trim.reset_index(drop=True)
 
-    return df_rpt_pts_trim['RelResp [RU]']
+    return round(df_rpt_pts_trim['RelResp [RU]'], 2)
 
 def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_csv('/Users/bfulroth/PycharmProjects/SPR_Create_'
                                                                       'Dotmatics_ADLP_File/Wei/181109_SPR_Setup_PPM1D.csv')):
