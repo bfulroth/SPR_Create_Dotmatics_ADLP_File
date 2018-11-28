@@ -105,7 +105,7 @@ def spr_setup_sheet(df, path='', from_clip=True, to_excel=True):
         if to_excel:
             try:
                 final_df.to_excel('/Volumes/tdts_users/BFULROTH/' + now + '_spr_setup_affinity.xlsx')
-            except:
+            except ConnectionError:
                 print('Issue connecting to Flynn. Mount drive and try again.')
                 print('')
 
@@ -114,7 +114,7 @@ def spr_setup_sheet(df, path='', from_clip=True, to_excel=True):
 
         return final_df
 
-    except:
+    except RuntimeError:
         print("Something is wrong. Check the original file.")
         raise
 
