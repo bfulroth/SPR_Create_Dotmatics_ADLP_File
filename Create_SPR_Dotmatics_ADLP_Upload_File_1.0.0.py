@@ -3,11 +3,10 @@ import pandas as pd
 
 # Global variables for the configuration file and save file. These paths need to be changed for each new experiment.
 config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
-                   'E181120-1 SPR Affinity; Retest Compounds to KRAS, NRAS, HRAS wild type/181120_Config.txt'
+                   'E181127-1 SPR Affinity; Retest 6 compounds from shipment 86/181127_Config.txt'
 
-adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS ' \
-                 'Experiments/E181120-1 SPR Affinity; Retest Compounds to KRAS, NRAS, HRAS wild ' \
-                 'type/E181120_results_2.xlsx'
+adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
+                 'E181127-1 SPR Affinity; Retest 6 compounds from shipment 86/181127_results.xlsx'
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     """
@@ -154,7 +153,8 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
 
     return round(df_rpt_pts_trim['RelResp [RU]'], 2)
 
-def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
+
+def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard(), data_validation=True):
     import configparser
 
     try:
@@ -344,36 +344,37 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
     num_cpds = len(df_cmpd_set.index)
     num_data_pts = (num_cpds * 3) + 1
 
-    # Write the comments to the comment sheet.
-    comments_list = pd.DataFrame({'Comments':
-                                    ['No binding',
-                                    'Saturation reached. Fast on/off.',
-                                    'Saturation reached. Fast on/off. Insolubility likely. Removed top.',
-                                    'Saturation reached. Fast on/off. Insolubility likely.',
-                                    'Saturation reached. Slow on. Fast off.',
-                                    'Saturation reached. Slow on. Fast off. Insolubility likely.',
-                                    'Saturation reached. Slow on. Slow off.',
-                                    'Saturation reached. Slow on. Slow off. Insolubility likely.',
-                                    'Saturation reached. Fast on. Slow off.',
-                                    'Saturation reached. Fast on. Slow off. Insolubility likely.',
-                                    'Saturation approached. Fast on/off.',
-                                    'Saturation approached. Low % binding.',
-                                    'Saturation approached. Low % binding. Insolubility likely.',
-                                    'Saturation not reached',
-                                    'Saturation not reached. Fast on/off.',
-                                    'Saturation not reached. Fast on/off. Insolubility likely.',
-                                    'Saturation not reached. Low % binding.',
-                                    'Saturation not reached. Low % binding. Insolubility likely.',
-                                    'Superstoichiometric binding.']})
+    if data_validation:
+        # Write the comments to the comment sheet.
+        comments_list = pd.DataFrame({'Comments':
+                                        ['No binding',
+                                        'Saturation reached. Fast on/off.',
+                                        'Saturation reached. Fast on/off. Insolubility likely. Removed top.',
+                                        'Saturation reached. Fast on/off. Insolubility likely.',
+                                        'Saturation reached. Slow on. Fast off.',
+                                        'Saturation reached. Slow on. Fast off. Insolubility likely.',
+                                        'Saturation reached. Slow on. Slow off.',
+                                        'Saturation reached. Slow on. Slow off. Insolubility likely.',
+                                        'Saturation reached. Fast on. Slow off.',
+                                        'Saturation reached. Fast on. Slow off. Insolubility likely.',
+                                        'Saturation approached. Fast on/off.',
+                                        'Saturation approached. Low % binding.',
+                                        'Saturation approached. Low % binding. Insolubility likely.',
+                                        'Saturation not reached',
+                                        'Saturation not reached. Fast on/off.',
+                                        'Saturation not reached. Fast on/off. Insolubility likely.',
+                                        'Saturation not reached. Low % binding.',
+                                        'Saturation not reached. Low % binding. Insolubility likely.',
+                                        'Superstoichiometric binding.']})
 
-    # Convert comments list to Dataframe
-    comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
+        # Convert comments list to Dataframe
+        comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
 
-    # For larger drop down lists > 255 characters its necessary to create a list on a seperate worksheet.
-    worksheet1.data_validation('S1:S' + str(num_data_pts),
-                                    {'validate': 'list',
-                                     'source': '=Sheet2!$A$2:$A$' + str(len(comments_list) + 1)
-                                     })
+        # For larger drop down lists > 255 characters its necessary to create a list on a seperate worksheet.
+        worksheet1.data_validation('S1:S' + str(num_data_pts),
+                                        {'validate': 'list',
+                                         'source': '=Sheet2!$A$2:$A$' + str(len(comments_list) + 1)
+                                         })
 
     # Freeze the top row of the excel worksheet.
     worksheet1.freeze_panes(1, 0)

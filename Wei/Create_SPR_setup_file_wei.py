@@ -24,8 +24,7 @@ def spr_setup_sheet(df, path='', from_clip=True, to_excel=True):
             df_setup_ori = pd.read_csv(path, sep='\t')
 
         # Trim the sheet down to only the columns we need for the SPR setup sheet.
-        df_setup_trim = df_setup_ori.loc[:, ['Broad ID','MW', 'Barcode',
-           'Test [Cpd] uM', 'fold_dil', 'num_pts']]
+        df_setup_trim = df_setup_ori.loc[:, ['Broad ID','MW', 'Barcode', 'Test [Cpd] uM', 'fold_dil', 'num_pts']]
 
         # Start building the setup sheet.
         # Store the dimensions of the DataFrame in variables that are used later in the method.
