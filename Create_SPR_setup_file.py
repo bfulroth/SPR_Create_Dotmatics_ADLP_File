@@ -96,8 +96,6 @@ def spr_setup_sheet(df, path='', from_clip=True, to_excel=True):
         # Reorder the columns
         final_df = final_df.loc[:, ['BRD', 'MW', 'CONC', 'BAR']]
 
-        now = datetime.now()
-
         # Truncate the year in the file name.
         now = datetime.now()
         now = now.strftime('%y%m%d')
