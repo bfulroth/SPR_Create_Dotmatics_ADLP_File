@@ -10,7 +10,7 @@ def spr_setup_sheet(df, path='', from_clip=True, to_excel=True):
     :param df: DataFrame containing the data used as a template in my notebook to setup KRAS Biacore binding exps.
     :param path: Directory path of where the DataFrame is located if not using the clipboard.
     :type from_clip: bool
-    :param from_clip: Wheather the DataFrame exists in the clipboard.
+    :param from_clip: Whether the DataFrame exists in the clipboard.
     :type to_excel: bool
     :param to_excel: Write the file to an Excel Workbook.
     """
@@ -24,8 +24,7 @@ def spr_setup_sheet(df, path='', from_clip=True, to_excel=True):
             df_setup_ori = pd.read_csv(path, sep='\t')
 
         # Trim the sheet down to only the columns we need for the SPR setup sheet.
-        df_setup_trim = df_setup_ori.loc[:, ['Broad ID','MW', 'Barcode',
-           'Test [Cpd] uM', 'fold_dil', 'num_pts']]
+        df_setup_trim = df_setup_ori.loc[:, ['Broad ID','MW', 'Barcode', 'Test [Cpd] uM', 'fold_dil', 'num_pts']]
 
         # Start building the setup sheet.
         # Store the dimensions of the DataFrame in variables that are used later in the method.
