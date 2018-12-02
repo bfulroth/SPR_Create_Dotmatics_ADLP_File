@@ -3,12 +3,12 @@ import pandas as pd
 
 # Global variables for the configuration file and save file. These paths need to be changed for each new experiment.
 config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
-                   'E181127-1 SPR Affinity; Retest 6 compounds from shipment 86/181127_Config.txt'
+                   'E181128-1 SPR Affinity; Repeat failed experiment E181127-1/181128_Config_2.txt'
 
-adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
-                 'E181127-1 SPR Affinity; Retest 6 compounds from shipment 86/181127_results_test2.xlsx'
+adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/E181128-1 ' \
+                 'SPR Affinity; Repeat failed experiment E181127-1/181128_results.xlsx'
 
-add_default_comments = False
+add_default_comments = True
 
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
