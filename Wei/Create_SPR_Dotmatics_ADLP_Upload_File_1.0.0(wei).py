@@ -1,8 +1,10 @@
-from glob import glob
-import os
 import pandas as pd
 
 
+# Global variables for the configuration file and save file. These paths need to be changed for each new experiment.
+config_file_path = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Wei/181109_Config.txt'
+
+adlp_save_file = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Wei/E181109_results.xlsx'
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     """
@@ -33,55 +35,17 @@ def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
         print("The DataFrame does not have a " + col_name + " column.")
 
 
-def spr_image_file_list_from_folder(path_ss_img):
+def spr_insert_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
     """
-    This method takes a list path to an SPR image file folder as an argument and returns a list of tuples of all the
-    image names in the correct order.
-
-    Note that image files in the folder must be named as follows:
-    'BRD-0629_4_181029_results_affinity_1.png'
-
-    :param path_ss_img: Directory path to the folder containing the images.
-    :return: List of Tuples containing the image file name , the extracted sample order, and the
-    extracted image file number.
-    """
-    # Generate a list of image file names
-    try:
-        os.chdir(path=path_ss_img)
-        pattern = '*.' + 'png'
-        files_list = glob(pattern)
-
-        # Empty tuple list for storing image file names the order the sample was run so that the impage is inserted
-        # into the right place in the Excel workbook.
-        tuple_list = []
-
-        # Prepare the list of image files for sorting
-        for image in files_list:
-            image_file_split_array = image.split('_')
-            sample_order = int(image_file_split_array[1])
-            image_file_num = int(image_file_split_array[5].strip('.png'))
-            tuple_list.append((image, sample_order, image_file_num))
-
-        # Sort the tuple of image files.
-        tuple_list.sort(key=lambda x: x[2])
-        tuple_list.sort(key=lambda x: x[1])
-        return tuple_list
-    except:
-        raise FileNotFoundError('Something is wrong with the Image File folder or Image File names. Please check. \n '
-                                'Image file names must be of the format: BRD-0629_4_181029_results_affinity_1.png')
-
-
-def spr_insert_images(tuple_list, worksheet, path_ss_img, path_senso_img):
-    """
-
-    :param tuple_list: List of tuples containing (image_file_name, sample_order, image_file_num)
+    Does the work of inserting the spr steady state and sensorgram images into the excel worksheet.
+    :param tuple_list: List of tuples containing (steady state image, sensorgram image)
     :param worksheet: xlsxwriter object used to insert the images to a worksheet
     :param path_ss_img: Directory to the steady state images to insert.
     :param path_senso_img: Directory to the sensorgram images to insert.
     :return: None
     """
     # Format the rows and columns in the worksheet to fit the images.
-    num_images = len(tuple_list)
+    num_images = len(tuple_list_imgs)
 
     # Set height of each row
     for row in range(1, num_images + 1):
@@ -91,9 +55,9 @@ def spr_insert_images(tuple_list, worksheet, path_ss_img, path_senso_img):
     worksheet.set_column(first_col=3, last_col=4, width=58)
 
     row = 2
-    for image, sample_order, image_file_num in tuple_list:
-        worksheet.insert_image('D' + str(row), path_ss_img + '/' + image)
-        worksheet.insert_image('E' + str(row), path_senso_img + '/' + image)
+    for ss_img, senso_img in tuple_list_imgs:
+        worksheet.insert_image('D' + str(row), path_ss_img + '/' + ss_img)
+        worksheet.insert_image('E' + str(row), path_senso_img + '/' + senso_img)
         row += 1
 
 
@@ -106,8 +70,8 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
         :param instrument: The instrument as a string. (e.g. 'BiacoreS200', 'Biacore1, 'Biacore2')
         :returns Series containing the RU at the top concentration tested for each compound in the order tested.
         """
-    if (instrument != 'BiacoreS200') & (instrument != 'Biacore1') & (instrument != 'Biacore2'):
-        raise ValueError('Instrument argument must be BiacoreS200, Biacore1, or Biacore2')
+    if (instrument != 'BiacoreS200') & (instrument != 'Biacore1') & (instrument != 'Biacore3'):
+        raise ValueError('Instrument argument must be BiacoreS200, Biacore1, or Biacore3')
 
     try:
         # Read in data
@@ -117,7 +81,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
 
     # Biacore instrument software for the S200 and T200 instruments exports different column names.
     # Check that the columns in the report point file match the expected values.
-    if (instrument=='Biacore1') | (instrument == 'Biacore2'):
+    if (instrument=='Biacore1') | (instrument == 'Biacore3'):
         expected_cols = ['Cycle', 'Fc', 'Time', 'Window', 'AbsResp', 'SD', 'Slope', 'LRSD', 'Baseline', 'RelResp',
                          'Report Point', 'AssayStep', 'AssayStepPurpose', 'Buffer', 'CycleType', 'Temp',
                          'Sample_1_Sample', 'Sample_1_Ligand', 'Sample_1_Conc', 'Sample_1_MW', 'General_1_Solution']
@@ -151,14 +115,17 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
                            'Sample_1_Conc',
                            'Sample_1_Sample']]
 
+    # Reassign columns so that there is consistent naming between BiacoreS200, Biacore1, and Biacore3.
+    df_rpt_pts_trim.columns = ['Cycle', 'Fc', 'Report Point', 'Time [s]', 'RelResp [RU]', 'AssayStep', 'Cycle Type',
+                               'Sample_1_Conc [µM]', 'Sample_1_Sample']
+
     # Remove not needed rows.
     df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Report Point'] == 'binding']
     df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['AssayStep'] != 'Startup') &
                                       (df_rpt_pts_trim['AssayStep'] != 'Solvent correction')]
 
     # Create a new column of BRD 4 digit numbers to merge
-    df_rpt_pts_trim['BRD_MERGE'] = df_rpt_pts_trim['Sample_1_Sample'].str.split('_', expand=True)[0]
-    df_cmpd_set['BRD_MERGE'] = 'BRD-' + df_cmpd_set['Broad ID'].str[9:13]
+    df_cmpd_set['BRD_MERGE'] = df_cmpd_set['Broad ID'].str[:14]
 
     # Convert compound set concentration column to float so DataFrames can be merged.
     df_cmpd_set['Test [Cpd] uM'] = df_cmpd_set['Test [Cpd] uM'].astype('float')
@@ -182,9 +149,10 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
     df_rpt_pts_trim = df_rpt_pts_trim.sort_values(['Cycle', 'sample_order'])
     df_rpt_pts_trim = df_rpt_pts_trim.reset_index(drop=True)
 
-    return df_rpt_pts_trim['RelResp [RU]']
+    return round(df_rpt_pts_trim['RelResp [RU]'], 2)
 
-def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
+def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_csv('/Users/bfulroth/PycharmProjects/SPR_Create_'
+                                                                      'Dotmatics_ADLP_File/Wei/181109_SPR_Setup_PPM1D.csv')):
     import configparser
 
     try:
@@ -228,7 +196,6 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
     num_fc_used = int(num_fc_used)
     df_final_for_dot['BROAD_ID'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='Broad ID',
                                                                  times_dup=num_fc_used))
-
     # Add the Project Code.  Get this from the config file.
     df_final_for_dot['PROJECT_CODE'] = project_code
 
@@ -246,8 +213,9 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
                                                                  times_dup=num_fc_used))
 
     # Extract the RU Max for each compound using the report point file.
+    df_final_for_dot['RU_TOP_CMPD'] = 'blank'
     df_final_for_dot['RU_TOP_CMPD'] = spr_binding_top_for_dot_file(report_pt_file=path_report_pt,
-    df_cmpd_set=df_cmpd_set, instrument=instrument)
+                                                                   df_cmpd_set=df_cmpd_set, instrument=instrument)
 
     # Extract the steady state data and add to DataFrame
     # Read in the steady state text file into a DataFrame
@@ -256,8 +224,8 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
     # Create new columns to sort the DataFrame as the original is out of order.
     df_ss_txt['sample_order'] = df_ss_txt['Image File'].str.split('_', expand=True)[1]
     df_ss_txt['sample_order'] = pd.to_numeric(df_ss_txt['sample_order'])
-    df_ss_txt['img_file_num'] = df_ss_txt['Image File'].str.split('_', expand=True)[5]
-    df_ss_txt = df_ss_txt.sort_values(by=['sample_order', 'img_file_num'])
+    df_ss_txt['fc_num'] = pd.to_numeric(df_ss_txt['Curve'].str[3])
+    df_ss_txt = df_ss_txt.sort_values(by=['sample_order', 'fc_num'])
     df_ss_txt = df_ss_txt.reset_index(drop=True)
     df_ss_txt['KD_SS_UM'] = df_ss_txt['KD (M)'] * 1000000
 
@@ -265,24 +233,29 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
     df_final_for_dot['KD_SS_UM'] = df_ss_txt['KD_SS_UM']
 
     # Add the chi2_steady_state_affinity
-    df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Chi² (RU²)']
+    ### df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Chi² (RU²)']
+    ### Issue with the encoding of the text file???
+    df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Chi≤ (RU≤)']
 
     # Add the Fitted_Rmax_steady_state_affinity
     df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax (RU)']
 
+
     # Extract the sensorgram data and add to DataFrame
     # Read in the sensorgram data into a DataFrame
     df_senso_txt = pd.read_csv(path_senso_txt, sep='\t')
+
     df_senso_txt['sample_order'] = df_senso_txt['Image File'].str.split('_', expand=True)[1]
     df_senso_txt['sample_order'] = pd.to_numeric(df_senso_txt['sample_order'])
-    df_senso_txt['img_file_num'] = df_senso_txt['Image File'].str.split('_', expand=True)[5]
-    df_senso_txt = df_senso_txt.sort_values(by=['sample_order', 'img_file_num'])
+    df_senso_txt['fc_num'] = pd.to_numeric(df_senso_txt['Curve'].str[3])
+    df_senso_txt = df_senso_txt.sort_values(by=['sample_order', 'fc_num'])
     df_senso_txt = df_senso_txt.reset_index(drop=True)
 
     # Add columns from df_senso_txt
     df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka (1/Ms)']
     df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd (1/s)']
     df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
+
     df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Chi² (RU²)']
 
     # Not sure what this is???
@@ -327,11 +300,18 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
 
     # Add the unique ID #
     df_final_for_dot['UNIQUE_ID'] = df_senso_txt['Sample'] + '_' + df_final_for_dot['FC'] + '_' + project_code + \
-                                    '_' + experiment_date + '_' + df_senso_txt['img_file_num']
+                                    '_' + experiment_date + \
+                                    '_' + df_senso_txt['Image File'].str.split('_', expand=True)[4]
 
-    # Add image file paths
-    df_final_for_dot['SS_IMG_ID'] = path_ss_img + '/' + df_ss_txt['Image File']
-    df_final_for_dot['SENSO_IMG_ID'] = path_senso_img + '/' + df_senso_txt['Image File']
+    # Add steady state image file path
+    # Need to replace /Volumes with //flynn
+    path_ss_img_edit = path_ss_img.replace('/Volumes', '//flynn')
+    df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_txt['Image File']
+
+    # Add sensorgram image file path
+    # Need to replace /Volumes with //flynn
+    path_senso_img_edit = path_senso_img.replace('/Volumes', '//flynn')
+    df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Image File']
 
     # Add the Rmax_theoretical.
     # Note couldn't do this before as I needed to add protein MW and RU first.
@@ -353,32 +333,76 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard()):
        'RAW_DATA_FILE', 'DIR_FOLDER', 'UNIQUE_ID', 'SS_IMG_ID', 'SENSO_IMG_ID']]
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter('/Users/bfulroth/PycharmProjects/IdeaTesting/181107_test_file_final5.xlsx',
-                            engine='xlsxwriter')
+    writer = pd.ExcelWriter(adlp_save_file, engine='xlsxwriter')
 
     # Convert the DataFrame to an XlsxWriter Excel object.
     df_final_for_dot.to_excel(writer, sheet_name='Sheet1', startcol=0, index=None)
 
     # Get the xlsxwriter workbook and worksheet objects.
     workbook  = writer.book
-    worksheet = writer.sheets['Sheet1']
+    worksheet1 = writer.sheets['Sheet1']
+
+    # Add a drop down list of comments.
+    # Calculate the number of rows to add the drop down menu.
+    num_cpds = len(df_cmpd_set.index)
+    num_data_pts = (num_cpds * 3) + 1
+
+    # Write the comments to the comment sheet.
+    comments_list = pd.DataFrame({'Comments':
+                                    ['No binding',
+                                    'Saturation reached. Fast on/off.',
+                                    'Saturation reached. Fast on/off. Insolubility likely. Removed top.',
+                                    'Saturation reached. Fast on/off. Insolubility likely.',
+                                    'Saturation reached. Slow on. Fast off.',
+                                    'Saturation reached. Slow on. Fast off. Insolubility likely.',
+                                    'Saturation reached. Slow on. Slow off.',
+                                    'Saturation reached. Slow on. Slow off. Insolubility likely.',
+                                    'Saturation reached. Fast on. Slow off.',
+                                    'Saturation reached. Fast on. Slow off. Insolubility likely.',
+                                    'Saturation approached. Fast on/off.',
+                                    'Saturation approached. Low % binding.',
+                                    'Saturation approached. Low % binding. Insolubility likely.',
+                                    'Saturation not reached',
+                                    'Saturation not reached. Fast on/off.',
+                                    'Saturation not reached. Fast on/off. Insolubility likely.',
+                                    'Saturation not reached. Low % binding.',
+                                    'Saturation not reached. Low % binding. Insolubility likely.',
+                                    'Superstoichiometric binding.']})
+
+    # Convert comments list to Dataframe
+    comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
+
+    # For larger drop down lists > 255 characters its necessary to create a list on a seperate worksheet.
+    worksheet1.data_validation('S1:S' + str(num_data_pts),
+                                    {'validate': 'list',
+                                     'source': '=Sheet2!$A$2:$A$' + str(len(comments_list) + 1)
+                                     })
+
+    # Freeze the top row of the excel worksheet.
+    worksheet1.freeze_panes(1, 0)
 
     # Add a cell format object to align text center.
     cell_format = workbook.add_format()
     cell_format.set_align('center')
     cell_format.set_align('vcenter')
-    worksheet.set_column('A:AI', 25, cell_format)
+    worksheet1.set_column('A:AI', 25, cell_format)
 
-    # Get list of images files in the steady state and senorgram folders
-    # File folder path name
-    tuple_list = spr_image_file_list_from_folder(path_ss_img)
+    # Start preparing to insert the steady state and sensorgram images.
+    # Get list of image files from df_ss_txt Dataframe.
+    list_ss_img = df_ss_txt['Image File'].tolist()
+
+    # Get list of images files in the df_senso_txt DataFrame.
+    list_sonso_img = df_senso_txt['Image File'].tolist()
+
+    # Create a list of tuples containing the names of the steady state image and sensorgram image.
+    tuple_list_imgs = list(zip(list_ss_img, list_sonso_img))
 
     # Insert images into file.
-    spr_insert_images(tuple_list, worksheet, path_ss_img, path_senso_img)
+    spr_insert_images(tuple_list_imgs, worksheet1, path_ss_img, path_senso_img)
 
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
 
-spr_create_dot_upload_file(config_file='/Users/bfulroth/PycharmProjects/IdeaTesting/Test_SPR_Data/Config.txt')
+spr_create_dot_upload_file(config_file=config_file_path)
 
 print("Done!")

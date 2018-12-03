@@ -1,0 +1,27 @@
+[paths]
+path_ss_img: /Users/bfulroth/PycharmProjects/IdeaTesting/Test_SPR_Data/181029_results_affinity_1-51_PWF
+path_ss_txt: /Users/bfulroth/PycharmProjects/IdeaTesting/Test_SPR_Data/181029_results_affinity_1-51_PWF/181029_results_affinity.txt
+path_senso_img: /Users/bfulroth/PycharmProjects/IdeaTesting/Test_SPR_Data/181029_results_affinity_1-51_SPF
+path_senso_txt: /Users/bfulroth/PycharmProjects/IdeaTesting/Test_SPR_Data/181029_results_affinity_1-51_SPF/181029_results_affinity.txt
+path_report_pt: /Users/bfulroth/PycharmProjects/IdeaTesting/Test_SPR_Data/181029_report_point.xls
+
+[meta]
+num_fc_used: 3
+experiment_date: 2018_11_07
+project_code: 7279
+operator: bfulroth
+instrument: BiacoreS200
+protocol:KRAS_SPR_Assay_v5
+chip_lot: 10269645
+nucleotide: GMPPCP
+raw_data_filename: 181107_results
+directory_folder: Biacore1/Ben/KRAS
+fc2_protein_BIP: BIP-0384-01
+fc2_protein_RU: 1000
+fc2_protein_MW: 26870.04
+fc3_protein_BIP: BIP-0501-01
+fc3_protein_RU: 1000
+fc3_protein_MW: 26856.02
+fc4_protein_BIP: BIP-0503-01
+fc4_protein_RU: 1000
+fc4_protein_MW: 26812.01
