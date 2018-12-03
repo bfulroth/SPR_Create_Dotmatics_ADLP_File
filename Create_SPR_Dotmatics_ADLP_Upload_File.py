@@ -4,7 +4,7 @@ import pandas as pd
 # Global variables for the configuration file and save file. These paths need to be changed for each new experiment.
 config_file_path = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Config.txt'
 
-adlp_save_file = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Test_1.xlsx'
+adlp_save_file = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Test_4.xlsx'
 
 add_default_comments = True
 
@@ -166,7 +166,7 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
 
         # Get all of the file paths from the configuration file and store in variables so they are available
         if master_tbl_as_path:
-            path_master_tbl = config.get('path', 'path_mstr_tbl')
+            path_master_tbl = config.get('paths', 'path_mstr_tbl')
             df_cmpd_set = pd.read_csv(path_master_tbl)
         else:
             df_cmpd_set = pd.read_clipboard()

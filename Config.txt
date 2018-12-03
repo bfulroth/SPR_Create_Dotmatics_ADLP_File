@@ -1,5 +1,5 @@
 [paths]
-path_ss_mstr_cpd_tbl: /Users/bfulroth/PycharmProjects/IdeaTesting/Test_SPR_Data/181029_mstr_cmpd_tbl.csv
+path_mstr_tbl: /Users/bfulroth/PycharmProjects/IdeaTesting/Test_SPR_Data/181029_mstr_cmpd_tbl.csv
 path_ss_img: /Users/bfulroth/PycharmProjects/IdeaTesting/Test_SPR_Data/181029_results_affinity_1-51_PWF
 path_ss_txt: /Users/bfulroth/PycharmProjects/IdeaTesting/Test_SPR_Data/181029_results_affinity_1-51_PWF/181029_results_affinity.txt
 path_senso_img: /Users/bfulroth/PycharmProjects/IdeaTesting/Test_SPR_Data/181029_results_affinity_1-51_SPF
