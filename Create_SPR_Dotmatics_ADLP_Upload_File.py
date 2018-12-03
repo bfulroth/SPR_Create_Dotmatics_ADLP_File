@@ -2,13 +2,13 @@ import pandas as pd
 
 
 # Global variables for the configuration file and save file. These paths need to be changed for each new experiment.
-config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
-                   'E181128-1 SPR Affinity; Repeat failed experiment E181127-1/181128_Config_2.txt'
+config_file_path = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Config.txt'
 
-adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/E181128-1 ' \
-                 'SPR Affinity; Repeat failed experiment E181127-1/181128_results.xlsx'
+adlp_save_file = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Test_1.xlsx'
 
 add_default_comments = True
+
+master_tbl_as_path = True
 
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
@@ -157,7 +157,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
     return round(df_rpt_pts_trim['RelResp [RU]'], 2)
 
 
-def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard(), data_validation=add_default_comments):
+def spr_create_dot_upload_file(config_file, data_validation=add_default_comments):
     import configparser
 
     try:
@@ -165,6 +165,12 @@ def spr_create_dot_upload_file(config_file, df_cmpd_set = pd.read_clipboard(), d
         config.read(config_file)
 
         # Get all of the file paths from the configuration file and store in variables so they are available
+        if master_tbl_as_path:
+            path_master_tbl = config.get('path', 'path_mstr_tbl')
+            df_cmpd_set = pd.read_csv(path_master_tbl)
+        else:
+            df_cmpd_set = pd.read_clipboard()
+
         path_ss_img = config.get('paths', 'path_ss_img')
         path_senso_img = config.get('paths', 'path_senso_img')
         path_ss_txt = config.get('paths', 'path_ss_txt')
