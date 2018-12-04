@@ -367,6 +367,7 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
                                         'Saturation reached. Fast on. Slow off.',
                                         'Saturation reached. Fast on. Slow off. Insolubility likely.',
                                         'Saturation approached. Fast on/off.',
+                                        'Saturation approached. Fast on/off. Insolubility likely.',
                                         'Saturation approached. Low % binding.',
                                         'Saturation approached. Low % binding. Insolubility likely.',
                                         'Saturation not reached',
