@@ -8,6 +8,7 @@ path_report_pt: /Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/W
 
 [meta]
 num_fc_used: 1
+immobilized_fc: 2
 experiment_date: 2018_11_29
 project_code: 7260
 operator: wjiang	

@@ -4,7 +4,7 @@ import pandas as pd
 # Global variables for the configuration file and save file. These paths need to be changed for each new experiment.
 config_file_path = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Wei/Config_181129.txt'
 
-adlp_save_file = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/181109_results_test_1.xlsx'
+adlp_save_file = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/181129_results_test_3.xlsx'
 
 add_default_comments = True
 
@@ -66,13 +66,14 @@ def spr_insert_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
         row += 1
 
 
-def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
+def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_used):
     """This method calculates the binding in RU at the top concentration.
 
         :param report_pt_file: reference to the report point file exported from the Biacore Instrument.
         :param df_cmpd_set: DataFrame containing the compound set data. This is used to extract the binding
         RU at the top concentration of compound tested.
         :param instrument: The instrument as a string. (e.g. 'BiacoreS200', 'Biacore1, 'Biacore2')
+        :param fc_used: The flow channels that were immobilized in the experiment.
         :returns Series containing the RU at the top concentration tested for each compound in the order tested.
         """
     if (instrument != 'BiacoreS200') & (instrument != 'Biacore1') & (instrument != 'Biacore3'):
@@ -128,6 +129,26 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
     df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['AssayStep'] != 'Startup') &
                                       (df_rpt_pts_trim['AssayStep'] != 'Solvent correction')]
 
+    # Filter out non-corrected data.
+    df_rpt_pts_trim['FC_Type'] = df_rpt_pts_trim['Fc'].str.split(' ', expand=True)[1]
+    df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['FC_Type'] == 'corr']
+
+    # Remove not needed flow channels
+    # One channel used
+    if len(fc_used) == 1:
+        if fc_used[0] == 2:
+            df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '2-1 corr']
+        elif fc_used[0] == 3:
+            df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '3-1 corr']
+        else:
+            df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '4-1 corr']
+            
+    # Two channels used
+    elif len(fc_used) == 2:
+        if (fc_used[0] == 2) & fc_used[1] == 3:
+            df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') &
+                                          (df_rpt_pts_trim['Fc'] == '3-1 corr')]
+
     # Create a new column of BRD 4 digit numbers to merge
     df_rpt_pts_trim['BRD_MERGE'] = df_rpt_pts_trim['Sample_1_Sample'].str.split('_', expand=True)[0]
     df_cmpd_set['BRD_MERGE'] = 'BRD-' + df_cmpd_set['Broad ID'].str[9:13]
@@ -140,10 +161,6 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument):
     df_rpt_pts_trim = pd.merge(left=df_rpt_pts_trim, right=df_cmpd_set,
                                left_on=['BRD_MERGE', 'Sample_1_Conc [µM]'],
                                right_on=['BRD_MERGE','Test [Cpd] uM'], how='inner')
-
-    # Filter out non-corrected data.
-    df_rpt_pts_trim['FC_Type'] = df_rpt_pts_trim['Fc'].str.split(' ', expand=True)[1]
-    df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['FC_Type'] == 'corr']
 
     # If a compound was run more than once, such as a control, we need to drop the duplicate values.
     df_rpt_pts_trim = df_rpt_pts_trim.drop_duplicates(['Fc', 'Sample_1_Sample'])
@@ -179,6 +196,21 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
 
         # Get all of the metadata variables
         num_fc_used = config.get('meta','num_fc_used')
+
+        # Get the flow channels immobilized
+        immobilized_fc = str(config.get('meta', 'immobilized_fc'))
+        immobilized_fc = immobilized_fc.strip(" ")
+        immobilized_fc = immobilized_fc.replace(' ', '')
+        immobilized_fc_arr = immobilized_fc.split(',')
+        immobilized_fc_arr = [int(i) for i in immobilized_fc_arr]
+        print(num_fc_used)
+        print(len(immobilized_fc_arr))
+
+        if int(num_fc_used) != len(immobilized_fc_arr):
+            raise RuntimeError ('The number of flow channels used is not equal to the number of immobilized flow '
+                                'channels.')
+
+        # Continue collecting variables from the configuration file.
         experiment_date = config.get('meta','experiment_date')
         project_code = config.get('meta','project_code')
         operator = config.get('meta','operator')
@@ -198,7 +230,7 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
         fc4_protein_RU = float(config.get('meta','fc4_protein_RU'))
         fc4_protein_MW = float(config.get('meta','fc4_protein_MW'))
     except:
-        raise FileNotFoundError('Something is wrong with the config file. Please check.')
+        raise RuntimeError('Something is wrong with the config file. Please check.')
 
     # Start building the final Dotmatics DataFrame
     df_final_for_dot = pd.DataFrame()
@@ -226,7 +258,7 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
 
     # Extract the RU Max for each compound using the report point file.
     df_final_for_dot['RU_TOP_CMPD'] = spr_binding_top_for_dot_file(report_pt_file=path_report_pt,
-    df_cmpd_set=df_cmpd_set, instrument=instrument)
+    df_cmpd_set=df_cmpd_set, instrument=instrument, fc_used=immobilized_fc_arr)
 
     # Extract the steady state data and add to DataFrame
     # Read in the steady state text file into a DataFrame
