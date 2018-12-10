@@ -1,10 +1,10 @@
 [paths]
-path_mstr_tbl: /Users/wjiang/Desktop/SPR data processing/181129_SPR_Setup_PPM1D.csv
+path_mstr_tbl: /Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Wei/181129_SPR_Setup_PPM1D.csv
 path_ss_img: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181129_PPM1D_results_19-36_PWF
 path_ss_txt: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181129_PPM1D_results_19-36_PWF/181129_PPM1D_results.txt
 path_senso_img: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181129_PPM1D_results_19-36_SWF
 path_senso_txt: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2018_11/181129_PPM1D_results_19-36_SWF/181129_PPM1D_results.txt
-path_report_pt: /Users/wjiang/Desktop/SPR data processing/181129_PPM1D_report points.xls
+path_report_pt: /Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Wei/181129_PPM1D_report points.xls
 
 [meta]
 num_fc_used: 1
