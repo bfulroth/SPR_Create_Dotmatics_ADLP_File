@@ -4,7 +4,7 @@ import pandas as pd
 # Global variables for the configuration file and save file. These paths need to be changed for each new experiment.
 config_file_path = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Wei/Config_181129.txt'
 
-adlp_save_file = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/181129_results_test_3.xlsx'
+adlp_save_file = '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/181129_results_test_4.xlsx'
 
 add_default_comments = True
 
