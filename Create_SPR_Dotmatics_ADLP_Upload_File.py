@@ -158,8 +158,13 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
     # Convert compound set concentration column to float so DataFrames can be merged.
     df_cmpd_set['Test [Cpd] uM'] = df_cmpd_set['Test [Cpd] uM'].astype('float')
 
-    # Merge the report point DataFrame and compound set DataFrame which results in a new Dataframe with only the
-    # data for the top concentrations run.
+    # Merge the report point DataFrame and compound set DataFrame on Top concentration which results in a new Dataframe
+    # with only the data for the top concentrations run.
+    # To prevent a merge error it is necessary to round sample concentration in both merged data frames.
+    df_rpt_pts_trim['Sample_1_Conc [µM]'] = round(df_rpt_pts_trim['Sample_1_Conc [µM]'], 2)
+    df_cmpd_set['Test [Cpd] uM'] = round(df_cmpd_set['Test [Cpd] uM'], 2)
+
+    # Conduct the merge.
     df_rpt_pts_trim = pd.merge(left=df_rpt_pts_trim, right=df_cmpd_set,
                                left_on=['BRD_MERGE', 'Sample_1_Conc [µM]'],
                                right_on=['BRD_MERGE','Test [Cpd] uM'], how='inner')
