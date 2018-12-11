@@ -140,14 +140,16 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
             df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '2-1 corr']
         elif fc_used[0] == 3:
             df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '3-1 corr']
-        else:
+        elif fc_used[0] == 4:
             df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '4-1 corr']
-            
+
     # Two channels used
     elif len(fc_used) == 2:
         if (fc_used[0] == 2) & fc_used[1] == 3:
             df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') &
                                           (df_rpt_pts_trim['Fc'] == '3-1 corr')]
+
+    # If 3 channels used than assume we want all the corrected data so no filtering done.
 
     # Create a new column of BRD 4 digit numbers to merge
     df_rpt_pts_trim['BRD_MERGE'] = df_rpt_pts_trim['Sample_1_Sample'].str.split('_', expand=True)[0]
@@ -203,8 +205,6 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
         immobilized_fc = immobilized_fc.replace(' ', '')
         immobilized_fc_arr = immobilized_fc.split(',')
         immobilized_fc_arr = [int(i) for i in immobilized_fc_arr]
-        print(num_fc_used)
-        print(len(immobilized_fc_arr))
 
         if int(num_fc_used) != len(immobilized_fc_arr):
             raise RuntimeError ('The number of flow channels used is not equal to the number of immobilized flow '
