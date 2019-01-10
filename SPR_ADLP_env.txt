@@ -1,0 +1,35 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: osx-64
+@EXPLICIT
+https://repo.anaconda.com/pkgs/main/osx-64/blas-1.0-mkl.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/ca-certificates-2018.03.07-0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/intel-openmp-2019.0-118.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/libcxxabi-4.0.1-hcfea43d_1.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/libgfortran-3.0.1-h93005f0_2.tar.bz2
+https://repo.continuum.io/pkgs/main/osx-64/xz-5.2.4-h1de35cc_4.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/zlib-1.2.11-hf3cbc9b_2.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/libcxx-4.0.1-hcfea43d_1.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/mkl-2019.0-118.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/openssl-1.1.1-h1de35cc_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/tk-8.6.8-ha441bb4_0.tar.bz2
+https://repo.continuum.io/pkgs/main/osx-64/libffi-3.2.1-h475c297_4.tar.bz2
+https://repo.continuum.io/pkgs/main/osx-64/ncurses-6.1-h0a44026_0.tar.bz2
+https://repo.continuum.io/pkgs/main/osx-64/libedit-3.1.20170329-hb402a30_2.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/readline-7.0-h1de35cc_5.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/sqlite-3.25.2-ha441bb4_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/python-3.6.7-haf84260_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/certifi-2018.10.15-py36_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/numpy-base-1.15.4-py36h8a80b8c_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/pytz-2018.7-py36_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/six-1.11.0-py36_1.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/xlrd-1.1.0-py36_1.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/xlsxwriter-1.1.2-py36_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/python-dateutil-2.7.5-py36_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/setuptools-40.5.0-py36_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/wheel-0.32.2-py36_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/pip-18.1-py36_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/mkl_fft-1.0.6-py36hb8a8100_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/mkl_random-1.0.1-py36h5d10147_1.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/numpy-1.15.4-py36h6a91979_0.tar.bz2
+https://repo.anaconda.com/pkgs/main/osx-64/pandas-0.23.4-py36h6440ff4_0.tar.bz2
