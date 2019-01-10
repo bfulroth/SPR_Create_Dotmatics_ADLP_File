@@ -4,13 +4,22 @@ import sys
 
 # Retrieve file name from command line arguments
 command_args = sys.argv
+if len(sys.argv) != 2:
+    print('\nWrong number of command-line arguments for script.\n')
+    print('Please type the name of the script, followed by a space, followed by the full path of the csv file name \n'
+          'containing the compound table.')
+    print('')
+    print('Example: python Create_SPR_setup_file.py '
+          '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/SPR_setup_test_file.csv\n')
+    exit(0)
+
 csv_file_name = command_args[1]
 
 
 def spr_setup_sheet(df_setup_ori):
     """
     Creates the setup file necessary to run a protocol on a Biacore instrument.
-    
+
     :param df_setup_ori: DataFrame containing the data used as a template in my notebook to setup KRAS Biacore binding exps.
     :param path: Directory path of where the DataFrame is located if not using the clipboard.
     :type from_clip: bool
