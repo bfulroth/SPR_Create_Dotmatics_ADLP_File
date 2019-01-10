@@ -10,7 +10,7 @@ __Follow the steps below for initial setup. If initial setup was conducted previ
 
 _Take Note: The following procedure has been tested for Mac OS. Different commands are needed for Windows._
 
-## Setup python on your computer and download 
+## Setup python on your computer and download script files
 
 1. Create a github.com account by clicking the following link. This is free. (https://github.com)
     - This is necessary in order to copy all of the files needed to run the SPR to ADLP scripts.
@@ -37,7 +37,7 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
 8. Navigate *into* the folder containing all of projects files. 
 9. Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
 
-## Create new Conda Environment and Install SPR to ADLP script package dependencies.
+## Create new Conda Environment and Install SPR to ADLP script dependencies.
 
 1. Create a new Python Conda environment.
     - Navigate to terminal.
