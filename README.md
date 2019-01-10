@@ -70,8 +70,27 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
     - Save this file either on flynn or on your hard drive.
 6. Navigate to the following folder using finder: 
     - /Users/user_name/PythonProjects/SPR_Create_Dotmatics_ADLP_File/Example Files
-    - Copy the Config.txt file to another location on your hard drive.
+    - Copy the Config.txt file to *__another location__* on your hard drive.
+7. Update Config.txt for your experiment.
     - Open the Config.txt and replace all the paths as well as variables with those for your experiment.
-    - __Trick:__ To copy file or folder paths, right click on the file or folder and hold the option key. Next, select Copy "File Name" as Pathname.
+    - __Trick:__ 
+        - To copy file or folder paths, right click on the file or folder and *hold* the option key. 
+        - Next, select Copy "File Name" as Pathname.
+8. Run SPR_to_ADLP script
+    - Navigate to the terminal
+    - Make sure the the correct environment is activated.
+        - Type or copy/paste command: __source activate SPR_ADLP_env__
+        - Press 'enter'
+    - Make sure you are in the folder containing the script.
+        - If your are not sure type command: cd ~
+        - Press 'enter'
+        - Type or copy/paste command: __cd PythonProjects__
+        - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
+     - Run the script
+        - Copy the config file path name to the clipboard. See trick in __bold__ above.
+        - Type command: __python SPR_to_ADLP "paste config file path name" 
+        - press 'enter'
+     
+    
  
    
