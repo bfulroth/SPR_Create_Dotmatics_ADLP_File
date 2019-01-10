@@ -94,7 +94,7 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
      - Manual Curation
         - The CURVE_VALID field needs to be fill in with 1 or 0.
             - 1: The data is *valid* and will be uploaded to Dotmatics.
-            - 0: The data is *invalid* and will be excluded with uploading file to Dotmatics.
+            - 0: The data is *invalid* and will be excluded when uploading the file to Dotmatics through ADLP.
         - Comments
             - Under each cell there is a pull down menu with a list of comments to select from.
         - Other
