@@ -5,12 +5,12 @@ Project for processing SPR Data for upload to Dotmatics via ADLP
 
 Takes SPR binding data and reformats the data into an Excel file for upload to Dotmatics through Broad's ADLP data upload portal.
 
-# Environment Setup (Skip this section of done before)
+## Environment Setup (Skip this section if done before)
 __Follow the steps below for initial setup. If initial setup was conducted previously, skip to next section__.
 
 _Take Note: The following procedure has been tested for Mac OS. Different commands are needed for Windows._
 
-## Setup python on your computer and download script files
+### Setup python on your computer and download script files
 
 1. Create a github.com account by clicking the following link. This is free. (https://github.com)
     - This is necessary in order to copy all of the files needed to run the SPR to ADLP scripts.
@@ -37,17 +37,41 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
 8. Navigate *into* the folder containing all of projects files. 
 9. Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
 
-## Create new Conda Environment and Install SPR to ADLP script dependencies.
+### Create new Conda environment and install SPR to ADLP script dependencies.
 
-1. Create a new Python Conda environment.
-    - Navigate to terminal.
-    - Make sure you are in the SPR_Create_Dotmatics_ADLP_File file folder.
-        - If your not sure type command: cd ~
-        - Press 'enter'
-        - Type or copy/paste command: __cd PythonProjects__
-        - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
+ 1. Navigate to terminal.
+ 2. Make sure you are in the SPR_Create_Dotmatics_ADLP_File file folder.
+    - If your are not sure type command: cd ~
+    - Press 'enter'
+    - Type or copy/paste command: __cd PythonProjects__
+    - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
+ 3. Create and activate Conda Environment
     - Type or copy/paste command: __conda env create --file SRP_ADLP_env.txt__
     - Type or copy/paste command: __source activate SPR_ADLP_env__
     
+## Create SPR setup file for dose response experiment
+
+## Create ADLP upload file from Biacore dose response affinity experiment.
+
+1. Create both affinity as well as kinetic analysis of the data in the SPR evaluation software.
+2. Export both affinity as well as kinetic analysis.
+    - Click on *affinity analysis* under 'Screening'
+        - Right click on the sensorgram thumbnails and select 'Export All Graphs And Table'.
+            - Save one Biacore hard drive.
+      Click on *kinetic analysis* under 'Screening'.
+        - Right click on the sensorgram thumbnails and select 'Export All Graphs And Table'
+            - Save on Biacore hard drive.
+3. Transfer both folders from 2. above to SPR image export folder on flynn. 
+    - tdts_users/Informatics and computational research/SPR_Image_import/year_month
+4. Navigate back the the Biacore evaluation software.
+5. Export the 'Report Point Table'
+    - Click on Report Point Table' under the Report Point Section.
+    - Click File --> Export --> Results To Excel
+    - Save this file either on flynn or on your hard drive.
+6. Navigate to the following folder using finder: 
+    - /Users/user_name/PythonProjects/SPR_Create_Dotmatics_ADLP_File/Example Files
+    - Copy the Config.txt file to another location on your hard drive.
+    - Open the Config.txt and replace all the paths as well as variables with those for your experiment.
+    - __Trick:__ To copy file or folder paths, right click on the file or folder and hold the option key. Next, select Copy "File Name" as Pathname.
  
    
