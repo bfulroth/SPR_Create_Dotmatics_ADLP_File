@@ -51,7 +51,19 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
     
 ## Create SPR setup file for dose response experiment
 
-## Create ADLP upload file from Biacore dose response affinity experiment.
+__Important__: For the data processing script to work, you must use the Create_SPR_setup_file.py script described in this section.
+
+__Important__: For the data processing script to work, you must save the Biacore run as: __yy/mm/dd_PROJECT_CODE_affinity__
+
+1. Navigate to the following folder using *Finder*: 
+    - /Users/your_user_name/PythonProjects/SPR_Create_Dotmatics_ADLP_File/Example Files
+    - Copy the file __181113_Cmpd_Setup_Example_Tbl.xlsx__ to another location your hard drive. You can rename this file to anything you want.
+    - Update the file with the information from your experiment.
+    - Note:
+        - The Files headers must not be changed.
+        - The headers in RED are used by the scripts and must be filled out. All others fields can be left blank (Although this is not a best practice).
+            
+## Create ADLP upload file from Biacore dose response affinity experiment
 
 1. Create both affinity as well as kinetic analysis of the data in the SPR evaluation software.
 2. Export both affinity as well as kinetic analysis.
@@ -63,11 +75,11 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
             - Save on Biacore hard drive.
 3. Transfer both folders from 2. above to SPR image export folder on flynn. 
     - tdts_users/Informatics and computational research/SPR_Image_import/year_month
-4. Navigate back the the Biacore evaluation software.
+4. Navigate back to the Biacore evaluation software.
 5. Export the 'Report Point Table'
-    - Click on Report Point Table' under the Report Point Section.
+    - Click on 'Report Point Table' under the Report Point Section.
     - Click File --> Export --> Results To Excel
-    - Save this file either on flynn or on your hard drive. The name does not mater as long as it's an .xlsx file.
+    - Save this file either on flynn or on your hard drive. The name does not matter as long as it's an .xlsx file.
 6. Navigate to the following folder using *Finder*: 
     - /Users/your_user_name/PythonProjects/SPR_Create_Dotmatics_ADLP_File/Example Files
     - Copy the Config.txt file to *__another location__* on your hard drive.
