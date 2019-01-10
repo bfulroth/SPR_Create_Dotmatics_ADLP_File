@@ -68,14 +68,14 @@ __Important__: For the data processing script to work, you must save the Biacore
         - Press 'enter'
         - Type or copy/paste command: __cd PythonProjects__
         - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
-4. Copy the complete file path for the setup table (remember it's a .csv file) you created in 1. above.
+4. Make sure the the correct environment is activated.
+    - Type or copy/paste command: __source activate SPR_ADLP_env__
+    - Press 'enter'
+5. Copy the complete file path for the setup table (remember it's a .csv file) you created in 1. above.
     - __Trick:__ 
         - To copy file or folder paths, right click on the file or folder and __hold__ the 'option' key. 
         - Next, select Copy "File Name" as Pathname.
-5. Run the script
-    - Make sure the the correct environment is activated.
-        - Type or copy/paste command: __source activate SPR_ADLP_env__
-        - Press 'enter'
+6. Run the script
     - Type the command: __Create_SPR_setup_file.py "Paste the contents of your clipboard"__
     - This should create the setup file on your desktop.
     
