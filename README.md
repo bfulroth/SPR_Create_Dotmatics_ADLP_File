@@ -5,12 +5,27 @@ Project for processing SPR Data for upload to Dotmatics via ADLP
 
 Takes SPR binding data and reformats the data into an Excel file for upload to Dotmatics through Broad's ADLP data upload portal.
 
-# Environment Setup
+# Environment Setup 
+__Follow the steps below for initial setup. If initial setup was conducted previously, skip to next section__.
 
-1. Download and Install Anaconda with Python version 3.7 for Mac or PC by clicking link. (https://www.anaconda.com/download/#macos)
-2. Create a new file folder on your hard drive titled "PycharmProjects".
-3. Open Terminal.
-    - Hold command + space to bring up spotlight search. Type terminal and press return.
-4. In terminal create a new folder on your hard drive titled "PycharmProjects".
-    - Type command: mkdir PycharmProjects
-5. In terminal navigate into "PycharmProjects" by typing the command: cd PycharmProjects.
+_Take Note: The following procedure has been tested for Mac OS. Different commands are needed for Windows._
+
+1. Create a github.com account by clicking the following link. This is free. (https://github.com)
+    - This is necessary in order to copy all of the files needed to run the SPR to ADLP scripts.
+    - Another advantage is any bugs or changes made can be easily synced to your local hard drive.
+2. Download and Install Anaconda with Python version 3.7 for Mac by clicking link. (https://www.anaconda.com/download/#macos)
+3. Create a new file folder on your hard drive titled "PycharmProjects" using the terminal.
+    1. Open Terminal.
+        - Hold command + space to bring up spotlight search. Type 'terminal' and press return.
+    2. In terminal create a new folder on your hard drive titled "PycharmProjects".
+        - Type or copy/paste command: mkdir PycharmProjects
+    3. In terminal navigate into "PycharmProjects" by typing or copy/paste the command: cd PycharmProjects.
+4. Fork this repo by clicking 'Fork' in the upper right corner of this webpage.
+    - Forking means that all of the files necessary to run the SPR to ADLP scripts will be copied to your personal github account.
+    - Later we will sync these files to your local hard drive in the PycharmProject folder you created above.
+5. Once this repo is forked to your github account navigate to the top project folder on github and click the green button Clone or download. Then click the button that looks like a clipboard to copy the link to your clipboard.
+5. Navigate back to terminal.
+6. Type command: git clone 'paste contents of clipboard'.
+    - All the files need should be copied to your local hard drive.
+ 
+   
