@@ -35,7 +35,7 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
 7. Press 'return'
     - All the files needed should be copied to your local hard drive in the PythonProjects folder.
 8. Navigate *into* the folder containing all of projects files. 
-9. Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
+    - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
 
 ### Create new Conda environment and install SPR to ADLP script dependencies.
 
@@ -57,7 +57,7 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
 2. Export both affinity as well as kinetic analysis.
     - Click on *affinity analysis* under 'Screening'
         - Right click on the sensorgram thumbnails and select 'Export All Graphs And Table'.
-            - Save one Biacore hard drive.
+            - Save on Biacore hard drive.
       Click on *kinetic analysis* under 'Screening'.
         - Right click on the sensorgram thumbnails and select 'Export All Graphs And Table'
             - Save on Biacore hard drive.
@@ -67,9 +67,9 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
 5. Export the 'Report Point Table'
     - Click on Report Point Table' under the Report Point Section.
     - Click File --> Export --> Results To Excel
-    - Save this file either on flynn or on your hard drive.
-6. Navigate to the following folder using finder: 
-    - /Users/user_name/PythonProjects/SPR_Create_Dotmatics_ADLP_File/Example Files
+    - Save this file either on flynn or on your hard drive. The name does not mater as long as it's an .xlsx file.
+6. Navigate to the following folder using *Finder*: 
+    - /Users/your_user_name/PythonProjects/SPR_Create_Dotmatics_ADLP_File/Example Files
     - Copy the Config.txt file to *__another location__* on your hard drive.
 7. Update Config.txt for your experiment.
     - Open the Config.txt and replace all the paths as well as variables with those for your experiment.
@@ -90,6 +90,18 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
         - Copy the config file path name to the clipboard. See trick in __bold__ above.
         - Type command: __python SPR_to_ADLP "paste config file path name" 
         - press 'enter'
+        - The upload file should be created on your desktop.
+     - Manual Curation
+        - The CURVE_VALID field needs to be fill in with 1 or 0.
+            - 1: The data is *valid* and will be uploaded to Dotmatics.
+            - 0: The data is *invalid* and will be excluded with uploading file to Dotmatics.
+        - Comments
+            - Under each cell there is a pull down menu with a list of comments to select from.
+        - Other
+            - It may be necessary to manually adjust the KD or remove values the KD altogeather if there is no binding.
+            - It may be necessary to remove the stats
+            - As a best practice compounds that are *not saturating* should be reported as >top concentration - 1 dilution. e.g. >25
+            - As a best practice compounds that are *not saturating* should have all stats removed.
      
     
  
