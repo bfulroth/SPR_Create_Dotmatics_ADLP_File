@@ -1,27 +1,22 @@
 import pandas as pd
 from datetime import datetime
+import sys
+
+# Retrieve file name from command line arguments
+command_args = sys.argv
+csv_file_name = command_args[1]
 
 
-def spr_setup_sheet(df, path='', from_clip=True, to_excel=True):
-    """Creates the setup file necessary to run a protocol on a Biacore instrument.  Takes a reference to a text file
+def spr_setup_sheet(df_setup_ori):
+    """
+    Creates the setup file necessary to run a protocol on a Biacore instrument.  Takes a reference to a text file
     that is a copied from the setup compound plate table used to prepare the compound plate in my notebook. E180601-1
     is and example of the table used.
-
-    :param df: DataFrame containing the data used as a template in my notebook to setup KRAS Biacore binding exps.
+    :param df_setup_ori: DataFrame containing the data used as a template in my notebook to setup KRAS Biacore binding exps.
     :param path: Directory path of where the DataFrame is located if not using the clipboard.
     :type from_clip: bool
-    :param from_clip: Whether the DataFrame exists in the clipboard.
-    :type to_excel: bool
-    :param to_excel: Write the file to an Excel Workbook.
     """
     try:
-
-        if from_clip:
-            df_setup_ori = df
-
-        else:
-            # Read in the DataFrame.
-            df_setup_ori = pd.read_csv(path, sep='\t')
 
         # Trim the sheet down to only the columns we need for the SPR setup sheet.
         df_setup_trim = df_setup_ori.loc[:, ['Broad ID','MW', 'Barcode', 'Test [Cpd] uM', 'fold_dil', 'num_pts']]
@@ -64,6 +59,7 @@ def spr_setup_sheet(df, path='', from_clip=True, to_excel=True):
         def dose_conc_list():
 
             for cmpd in range(nRows):
+
                 # empty list to store each concentration in the dose response
                 dose_list = []
 
@@ -95,25 +91,23 @@ def spr_setup_sheet(df, path='', from_clip=True, to_excel=True):
         # Reorder the columns
         final_df = final_df.loc[:, ['BRD', 'MW', 'CONC', 'BAR']]
 
-        # Truncate the year in the file name.
-        now = datetime.now()
-        now = now.strftime('%y%m%d')
-
-        if to_excel:
-            try:
-                final_df.to_excel('/Volumes/tdts_users/BFULROTH/' + now + '_spr_setup_affinity.xlsx')
-            except ConnectionError:
-                print('Issue connecting to Flynn. Mount drive and try again.')
-                print('')
-
-                final_df.to_excel('/Users/bfulroth/Desktop/' + now + '_spr_setup_affinity.xlsx')
-                print('File created on desktop.')
-
-        return final_df
-
     except RuntimeError:
         print("Something is wrong. Check the original file.")
         raise
 
+    # Truncate the year in the file name.
+    now = datetime.now()
+    now = now.strftime('%y%m%d')
 
-spr_setup_sheet(df=pd.read_clipboard(), from_clip=True)
+    try:
+        final_df.to_excel('/Volumes/tdts_users/BFULROTH/' + now + '_spr_setup_affinity.xlsx')
+    except:
+        print('Issue connecting to Flynn. Mount drive and try again.')
+        print('')
+
+        final_df.to_excel('/Users/bfulroth/Desktop/' + now + '_spr_setup_affinity.xlsx')
+        print('File created on desktop.')
+
+
+if __name__ == '__main__':
+    spr_setup_sheet(df_setup_ori = pd.read_csv(csv_file_name))
