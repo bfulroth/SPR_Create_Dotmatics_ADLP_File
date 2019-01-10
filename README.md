@@ -103,7 +103,7 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
             - It may be necessary to remove the stats
             - As a best practice compounds that are *not saturating* should be reported as >top concentration - 1 dilution. e.g. >25
             - As a best practice compounds that are *not saturating* should have all stats removed.
-      - Upload file to ADLP
+9. Upload file to ADLP
      
     
  
