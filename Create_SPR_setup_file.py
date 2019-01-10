@@ -9,9 +9,8 @@ csv_file_name = command_args[1]
 
 def spr_setup_sheet(df_setup_ori):
     """
-    Creates the setup file necessary to run a protocol on a Biacore instrument.  Takes a reference to a text file
-    that is a copied from the setup compound plate table used to prepare the compound plate in my notebook. E180601-1
-    is and example of the table used.
+    Creates the setup file necessary to run a protocol on a Biacore instrument.
+    
     :param df_setup_ori: DataFrame containing the data used as a template in my notebook to setup KRAS Biacore binding exps.
     :param path: Directory path of where the DataFrame is located if not using the clipboard.
     :type from_clip: bool
