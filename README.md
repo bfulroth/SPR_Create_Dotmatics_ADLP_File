@@ -14,7 +14,7 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
 
 1. Create a github.com account by clicking the following link. This is free. (https://github.com)
     - This is necessary in order to copy all of the files needed to run the SPR to ADLP scripts.
-    - Another advantage is any bugs or changes made can be easily synced to your local hard drive.
+    - Another advantage is that any bugs or changes made can be easily synced to your local hard drive.
 2. Download and Install Anaconda with Python version 3.7 for Mac by clicking link. (https://www.anaconda.com/download/#macos)
     - Anaconda is a distribution of software packages that are very useful for data science.
     - With the Anaconda download, python version 3 or greater will be automatically installed. Mac OS comes with version 2.7 but this is an older version that may cause issues.
