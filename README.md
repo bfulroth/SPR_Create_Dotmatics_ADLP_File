@@ -5,7 +5,7 @@ Project for processing SPR Data for upload to Dotmatics via ADLP
 
 Takes SPR binding data and reformats the data into an Excel file for upload to Dotmatics through Broad's ADLP data upload portal.
 
-# Environment Setup 
+# Environment Setup (Skip this section of done before)
 __Follow the steps below for initial setup. If initial setup was conducted previously, skip to next section__.
 
 _Take Note: The following procedure has been tested for Mac OS. Different commands are needed for Windows._
@@ -41,8 +41,13 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
 
 1. Create a new Python Conda environment.
     - Navigate to terminal.
-    - Make sure you are in the SPR_Create_Dotmatics_ADLP_File
-    - Type or copy/paste command: __conda env create --file bio-env.txt__
+    - Make sure you are in the SPR_Create_Dotmatics_ADLP_File file folder.
+        - If your not sure type command: cd ~
+        - Press 'enter'
+        - Type or copy/paste command: __cd PythonProjects__
+        - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
+    - Type or copy/paste command: __conda env create --file SRP_ADLP_env.txt__
+    - Type or copy/paste command: __source activate SPR_ADLP_env__
     
  
    
