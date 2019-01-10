@@ -98,10 +98,12 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
         - Comments
             - Under each cell there is a pull down menu with a list of comments to select from.
         - Other
-            - It may be necessary to manually adjust the KD or remove values the KD altogeather if there is no binding.
+            - It may be necessary to manually adjust the KD in the KD_SS field 
+            __or__ if there is no binding remove the value in the KD_SS field.
             - It may be necessary to remove the stats
             - As a best practice compounds that are *not saturating* should be reported as >top concentration - 1 dilution. e.g. >25
             - As a best practice compounds that are *not saturating* should have all stats removed.
+      - Upload file to ADLP
      
     
  
