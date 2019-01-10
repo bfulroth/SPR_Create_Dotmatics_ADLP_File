@@ -51,7 +51,7 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
     
 ## Create SPR setup file for dose response experiment
 
-__Important__: For the data processing script to work, you must use the Create_SPR_setup_file.py script described in this section.
+__Important__: For the data processing script to work, you must use the __Create_SPR_setup_file.py__ script described in this section.
 
 __Important__: For the data processing script to work, you must save the Biacore run as: __yy/mm/dd_PROJECT_CODE_affinity__
 
@@ -62,6 +62,20 @@ __Important__: For the data processing script to work, you must save the Biacore
     - Note:
         - The Files headers must not be changed.
         - The headers in RED are used by the scripts and must be filled out. All others fields can be left blank (Although this is not a best practice).
+2. Save the file above as a __.csv__ file.
+3. In terminal, navigate to the __SPR_Create_Dotmatics_ADLP_File folder__
+    - Type command: __cd ~__
+        - Press 'enter'
+        - Type or copy/paste command: __cd PythonProjects__
+        - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
+4. Copy the file path for the setup table (remember it's a .csv file) your create in 1. above.
+    - __Trick:__ 
+        - To copy file or folder paths, right click on the file or folder and __hold__ the 'option' key. 
+        - Next, select Copy "File Name" as Pathname.
+5. Run the script
+    - Type the command: __Create_SPR_setup_file.py "Paste the contents of your clipboard"__
+    - This should create the setup file on your desktop.
+    
             
 ## Create ADLP upload file from Biacore dose response affinity experiment
 
@@ -86,7 +100,7 @@ __Important__: For the data processing script to work, you must save the Biacore
 7. Update Config.txt for your experiment.
     - Open the Config.txt and replace all the paths as well as variables with those for your experiment.
     - __Trick:__ 
-        - To copy file or folder paths, right click on the file or folder and *hold* the option key. 
+        - To copy file or folder paths, right click on the file or folder and __hold__ the 'option' key. 
         - Next, select Copy "File Name" as Pathname.
 8. Run SPR_to_ADLP script
     - Navigate to the terminal
@@ -100,7 +114,11 @@ __Important__: For the data processing script to work, you must save the Biacore
         - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
      - Run the script
         - Copy the config file path name to the clipboard. See trick in __bold__ above.
-        - Type command: __python SPR_to_ADLP "paste config file path name" 
+        - Type command: __python SPR_to_ADLP.py 
+        - press 'enter'
+        - Paste in the Config.txt path from the clipboard.
+        - press 'enter'
+        - In the next prompt, name the results file. The name doesn't matter as long as it somthing.xlsx
         - press 'enter'
         - The upload file should be created on your desktop.
      - Manual Curation
