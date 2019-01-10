@@ -6,7 +6,7 @@ Project for processing SPR Data for upload to Dotmatics via ADLP
 Takes SPR binding data and reformats the data into an Excel file for upload to Dotmatics through Broad's ADLP data upload portal.
 
 ## Environment Setup (Skip this section if done before)
-__Follow the steps below for initial setup. If initial setup was conducted previously, skip to section: Create new Conda environment and install SPR to ADLP script dependencies.__.
+__Follow the steps below for initial setup. If initial setup was conducted previously, skip to next section of this document by clicking link:__ (https://github.com/bfulroth/SPR_Create_Dotmatics_ADLP_File/blob/master/README.md#create-spr-setup-file-for-dose-response-experiment).
 
 _Take Note: The following procedure has been tested for Mac OS. Different commands are needed for Windows._
 
