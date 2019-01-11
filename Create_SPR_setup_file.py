@@ -1,6 +1,10 @@
 import pandas as pd
 from datetime import datetime
 import sys
+import os
+
+# Get the users Home Directory
+homedir = os.environ['HOME']
 
 # Retrieve file name from command line arguments
 command_args = sys.argv
@@ -108,12 +112,12 @@ def spr_setup_sheet(df_setup_ori):
     now = now.strftime('%y%m%d')
 
     try:
-        final_df.to_excel('/Volumes/tdts_users/BFULROTH/' + now + '_spr_setup_affinity.xlsx')
+        final_df.to_excel('/Volumes/tdts_users/SPR Setup Files' + now + '_spr_setup_affinity.xlsx')
     except:
         print('Issue connecting to Flynn. Mount drive and try again.')
         print('')
 
-        final_df.to_excel('/Users/bfulroth/Desktop/' + now + '_spr_setup_affinity.xlsx')
+        final_df.to_excel(homedir + '/Desktop/' + now + '_spr_setup_affinity.xlsx')
         print('File created on desktop.')
 
 
