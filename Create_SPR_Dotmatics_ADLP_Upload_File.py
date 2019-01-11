@@ -475,4 +475,5 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
 if __name__ == '__main__':
     menu()
     spr_create_dot_upload_file(config_file=config_file_path)
-    print("Done!")
+    print('Program Done!')
+    print("The ADLP result was saved to your desktop.")
