@@ -23,7 +23,7 @@ def menu():
 
     print('Next...\n\n')
 
-    adlp_save_file = input('Type the name of the ADLP file.\n'
+    adlp_save_file = input('Type the name of the ADLP file with a .xlsx extention.\n'
                            '\nFor example: 180101_SPR_Results.xlsx\n'
                            'Type "Exit" to exit script.')
 
@@ -31,7 +31,7 @@ def menu():
         exit(0)
 
     global adlp_save_file_path
-    adlp_save_file_path = homedir + '/' + 'desktop' + adlp_save_file
+    adlp_save_file_path = homedir + '/' + 'desktop' + '/' + adlp_save_file
 
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
