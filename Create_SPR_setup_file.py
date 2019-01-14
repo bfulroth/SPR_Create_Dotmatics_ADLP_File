@@ -114,6 +114,7 @@ def spr_setup_sheet(df_setup_ori):
 
     try:
         final_df.to_excel('/Volumes/tdts_users/SPR Setup Files' + now + '_spr_setup_affinity.xlsx')
+        print('Setup file has been placed on flynn in folder: SRP Setup Files')
     except:
         print('Issue connecting to Flynn. Mount drive and try again.')
         print('')
