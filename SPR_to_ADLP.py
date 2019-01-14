@@ -1,16 +1,38 @@
 import pandas as pd
+import os
 
-
-# Global variables for the configuration file and save file. These paths need to be changed for each new experiment.
-config_file_path = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/' \
-                   'E181213-1 SPR Affinity; Test Shipment 88 and 89 in KRAS_SPR_Assay_v5/181213_Config.txt'
-
-adlp_save_file = '/Users/bfulroth/Library/Mobile Documents/com~apple~CloudDocs/Broad Files 2/KRAS Experiments/E181213-1 ' \
-                 'SPR Affinity; Test Shipment 88 and 89 in KRAS_SPR_Assay_v5/181213_SPR_results_1.xlsx'
-
+# Global variables
+homedir = os.environ['HOME']
 add_default_comments = True
+master_tbl_as_path = True
 
-master_tbl_as_path = False
+
+def menu():
+    """
+    Simple menu for running the script from the command line.
+    :return:
+    """
+
+    global config_file_path
+    config_file_path = input('Please copy and paste the full configuration file path.\n'
+                             'Alternatively you can drag the file to the terminal window.\n'
+                             'Type "Exit" to exit script.')
+
+    if config_file_path == 'Exit':
+        exit(0)
+
+    print('Next...\n\n')
+
+    adlp_save_file = input('Type the name of the ADLP file with a .xlsx extention.\n'
+                           '\nFor example: 180101_SPR_Results.xlsx\n'
+                           'Type "Exit" to exit script.')
+
+    if adlp_save_file == 'Exit':
+        exit(0)
+
+    global adlp_save_file_path
+    adlp_save_file_path = homedir + '/' + 'desktop' + '/' + adlp_save_file
+
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     """
@@ -377,13 +399,13 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
        'RAW_DATA_FILE', 'DIR_FOLDER', 'UNIQUE_ID', 'SS_IMG_ID', 'SENSO_IMG_ID']]
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter(adlp_save_file, engine='xlsxwriter')
+    writer = pd.ExcelWriter(adlp_save_file_path, engine='xlsxwriter')
 
     # Convert the DataFrame to an XlsxWriter Excel object.
     df_final_for_dot.to_excel(writer, sheet_name='Sheet1', startcol=0, index=None)
 
     # Get the xlsxwriter workbook and worksheet objects.
-    workbook  = writer.book
+    workbook = writer.book
     worksheet1 = writer.sheets['Sheet1']
 
     # Add a drop down list of comments.
@@ -415,7 +437,7 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
                                         'Saturation not reached. Low % binding. Insolubility likely.',
                                         'Superstoichiometric binding.']})
 
-        # Convert comments list to Dataframe
+        # Convert comments list to DataFrame
         comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
 
         # For larger drop down lists > 255 characters its necessary to create a list on a seperate worksheet.
@@ -449,6 +471,9 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
 
-spr_create_dot_upload_file(config_file=config_file_path)
 
-print("Done!")
+if __name__ == '__main__':
+    menu()
+    spr_create_dot_upload_file(config_file=config_file_path)
+    print('Program Done!')
+    print("The ADLP result was saved to your desktop.")
