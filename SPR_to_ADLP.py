@@ -18,6 +18,7 @@ def menu():
                              'Alternatively you can drag the file to the terminal window.\n'
                              'Type "Exit" to exit script.')
 
+
     if config_file_path == 'Exit':
         exit(0)
 
