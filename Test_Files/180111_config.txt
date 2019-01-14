@@ -1,10 +1,10 @@
 [paths]
-path_mstr_tbl: /Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Test Files/E190911_setup_table.csv
+path_mstr_tbl: /Users/bfulroth/PythonProjects/SPR_Create_Dotmatics_ADLP_File/Test_Files/E190911_setup_table.csv
 path_ss_img: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2019_01/190111_7279_affinity_1-60_PWF
 path_ss_txt: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2019_01/190111_7279_affinity_1-60_PWF/190111_7279_affinity.txt
 path_senso_img: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2019_01/190111_7279_affinity_1-60_SPF
 path_senso_txt: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2019_01/190111_7279_affinity_1-60_SPF/190111_7279_affinity.txt
-path_report_pt: /Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/Test Files/190111_7279_affinity_report_pt.xls
+path_report_pt: /Users/bfulroth/PythonProjects/SPR_Create_Dotmatics_ADLP_File/Test_Files/190111_7279_affinity_report_pt.xls
 
 
 [meta]
