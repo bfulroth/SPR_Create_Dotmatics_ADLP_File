@@ -47,7 +47,7 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
     - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
  3. Create and activate Conda Environment
     - Type or copy/paste command: 
-    - conda create __--name SPR_ADLP_env --file /Users/*bfulroth*/PythonProjects/SPR_Create_Dotmatics_ADLP_File/SPR_ADLP_env.txt__
+    - __conda create --name SPR_ADLP_env --file /Users/*bfulroth*/PythonProjects/SPR_Create_Dotmatics_ADLP_File/SPR_ADLP_env.txt__
         - *Important: make sure to replace the user name italics with your own.*
     - Type or copy/paste command: __source activate SPR_ADLP_env__
     
