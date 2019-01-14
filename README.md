@@ -46,7 +46,9 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
     - Type or copy/paste command: __cd PythonProjects__
     - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
  3. Create and activate Conda Environment
-    - Type or copy/paste command: __conda env create --name SPR_ADLP_env --file SRP_ADLP_env.txt__
+    - Type or copy/paste command: 
+    - conda create __--name SPR_ADLP_env --file /Users/*bfulroth*/PythonProjects/SPR_Create_Dotmatics_ADLP_File/SPR_ADLP_env.txt__
+        - *Important: make sure to replace the user name italics with your own.*
     - Type or copy/paste command: __source activate SPR_ADLP_env__
     
 ## Create SPR setup file for dose response experiment
