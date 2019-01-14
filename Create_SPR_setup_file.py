@@ -8,7 +8,7 @@ homedir = os.environ['HOME']
 
 # Retrieve file name from command line arguments
 command_args = sys.argv
-print(len(command_args))
+print(len(command_args[1]))
 if len(sys.argv) != 2:
     print('\nWrong number of command-line arguments for script.\n')
     print('Please type the name of the script, followed by a space, followed by the full path of the csv file name \n'
