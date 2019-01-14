@@ -416,7 +416,7 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
     if data_validation:
         # Write the comments to the comment sheet.
         comments_list = pd.DataFrame({'Comments':
-                                        ['No binding',
+                                        ['No binding.',
                                         'Saturation reached. Fast on/off.',
                                         'Saturation reached. Fast on/off. Insolubility likely. Removed top.',
                                         'Saturation reached. Fast on/off. Insolubility likely.',
@@ -433,8 +433,8 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
                                         'Saturation approached. Fast on/off. Insolubility likely.',
                                         'Saturation approached. Low % binding.',
                                         'Saturation approached. Low % binding. Insolubility likely.',
-                                        'Saturation not reached',
-                                        'Saturation not reached. Insolubility likely',
+                                        'Saturation not reached.',
+                                        'Saturation not reached. Insolubility likely.',
                                         'Saturation not reached. Fast on/off.',
                                         'Saturation not reached. Fast on/off. Insolubility likely.',
                                         'Saturation not reached. Low % binding.',
