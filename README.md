@@ -22,7 +22,7 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
     1. Open Terminal.
         - Hold command + space to bring up spotlight search. Type 'terminal' and press 'return'.
     2. In terminal, create a new folder on your hard drive titled "PythonProjects". 
-        - Type or copy/paste command: __mkdir PycharmProjects__
+        - Type or copy/paste command: __mkdir PythonProjects__
         - Press 'return'
     3. In terminal navigate into "PythonProjects" by typing or copy/paste the command: __cd PythonProjects__
         - Press 'enter'
@@ -84,6 +84,8 @@ __Important__: For the data processing script to work, you must save the Biacore
     
             
 ## Create ADLP upload file from Biacore dose response affinity experiment
+
+__Important__ If your remove points during data analysis you must correct the setup table csv file to reflect the new top concentration.  This is necessary to correctly calculate the percent binding at the top concentration.
 
 1. Create both affinity as well as kinetic analysis of the data in the SPR evaluation software.
 2. Export both affinity as well as kinetic analysis.
