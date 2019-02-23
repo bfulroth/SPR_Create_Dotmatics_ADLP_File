@@ -1,36 +1,33 @@
 import pandas as pd
 from datetime import datetime
-import sys
 import os
+import click
+
 
 # Get the users Home Directory
 homedir = os.environ['HOME']
 
-# Retrieve file name from command line arguments
-command_args = sys.argv
 
-if len(sys.argv) != 2:
-    print('\nPossiable wrong number of command-line arguments for script.\n')
-    print('Please type the name of the script, followed by a space, followed by the full path of the csv file name \n'
-          'containing the compound table.')
-    print('')
-    print('Example: python Create_SPR_setup_file.py '
-          '/Users/bfulroth/PycharmProjects/SPR_Create_Dotmatics_ADLP_File/SPR_setup_test_file.csv\n')
-    exit(0)
-
-csv_file_name = command_args[1]
-
-
-def spr_setup_sheet(df_setup_ori):
+@click.command()
+@click.option('--clip', is_flag=True, help='Option to indicate that the contents of the setup file is on the clipboard')
+def spr_setup_sheet(clip):
     """
     Creates the setup file necessary to run a protocol on a Biacore instrument.
 
-    :param df_setup_ori: DataFrame containing the data used as a template in my notebook to setup KRAS Biacore binding exps.
-    :param path: Directory path of where the DataFrame is located if not using the clipboard.
-    :type from_clip: bool
+    :param clip: Optional flag to indicate that the contents of the setup file are on the clipboard.s
+    :return:
     """
-    try:
 
+    try:
+        if clip:
+            df_setup_ori = pd.read_clipboard()
+        else:
+            file = input("Please paste the path to the setup file: ")
+            df_setup_ori = pd.read_csv(file)
+    except:
+        raise ImportError("Issues reading contents of file.")
+
+    try:
         # Trim the sheet down to only the columns we need for the SPR setup sheet.
         df_setup_trim = df_setup_ori.loc[:, ['Broad ID','MW', 'Barcode', 'Test [Cpd] uM', 'fold_dil', 'num_pts']]
 
@@ -124,4 +121,4 @@ def spr_setup_sheet(df_setup_ori):
 
 
 if __name__ == '__main__':
-    spr_setup_sheet(df_setup_ori = pd.read_csv(csv_file_name))
+    spr_setup_sheet()
