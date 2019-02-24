@@ -12,10 +12,9 @@ homedir = os.environ['HOME']
 @click.option('--clip', is_flag=True, help='Option to indicate that the contents of the setup file is on the clipboard')
 def spr_setup_sheet(clip):
     """
-    Creates the setup file necessary to run a protocol on a Biacore instrument.
+    Creates the setup file necessary to run a dose response protocol on a Biacore instrument.
 
-    :param clip: Optional flag to indicate that the contents of the setup file are on the clipboard.s
-    :return:
+    :param clip: Optional flag to indicate that the contents of the setup file are on the clipboard.
     """
 
     try:
