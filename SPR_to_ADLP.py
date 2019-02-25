@@ -184,25 +184,30 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
 
 
 @click.command()
-@click.option('--config_file', prompt="Please paste the name of the configuration file: ",
-              help="Path of the configuration file. Text file with all of the ")
-@click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension: ",
-              help="Name of the ADLP save which is an Excel file.")
-def spr_create_dot_upload_file(config_file, save_file):
+@click.option('--config_file', prompt="Please paste the path of the configuration file",
+              help="Path of the configuration file. Text file with all of the file paths and meta "
+                   "data for a particular experiment.")
+@click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension",
+              help="Name of the ADLP results file which is an Excel file.")
+@click.option('--clip', is_flag=True,
+              help="Option to indicate that the contents of the setup file are on the clipboard.")
+def spr_create_dot_upload_file(config_file, save_file, clip):
     import configparser
 
+    # ADLP save file path.
     adlp_save_file_path = homedir + '/' + 'desktop' + '/' + save_file
 
     try:
+
         config = configparser.ConfigParser()
         config.read(config_file)
 
         # Get all of the file paths from the configuration file and store in variables so they are available
-        if master_tbl_as_path:
+        if clip:
+            df_cmpd_set = pd.read_clipboard()
+        else:
             path_master_tbl = config.get('paths', 'path_mstr_tbl')
             df_cmpd_set = pd.read_csv(path_master_tbl)
-        else:
-            df_cmpd_set = pd.read_clipboard()
 
         path_ss_img = config.get('paths', 'path_ss_img')
         path_senso_img = config.get('paths', 'path_senso_img')
