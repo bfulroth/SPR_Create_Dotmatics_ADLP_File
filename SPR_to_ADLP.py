@@ -4,7 +4,6 @@ import click
 
 # Global variables
 homedir = os.environ['HOME']
-master_tbl_as_path = True
 
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
@@ -182,7 +181,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
 
     return round(df_rpt_pts_trim['RelResp [RU]'], 2)
 
-
+# Using click to manage the command line interface
 @click.command()
 @click.option('--config_file', prompt="Please paste the path of the configuration file",
               help="Path of the configuration file. Text file with all of the file paths and meta "
