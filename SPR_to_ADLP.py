@@ -1,38 +1,10 @@
 import pandas as pd
 import os
+import click
 
 # Global variables
 homedir = os.environ['HOME']
-add_default_comments = True
 master_tbl_as_path = True
-
-
-def menu():
-    """
-    Simple menu for running the script from the command line.
-    :return:
-    """
-
-    global config_file_path
-    config_file_path = input('Please copy and paste the full configuration file path.\n'
-                             'Alternatively you can drag the file to the terminal window.\n'
-                             'Type "Exit" to exit script.')
-
-
-    if config_file_path == 'Exit':
-        exit(0)
-
-    print('Next...\n\n')
-
-    adlp_save_file = input('Type the name of the ADLP file with a .xlsx extention.\n'
-                           '\nFor example: 180101_SPR_Results.xlsx\n'
-                           'Type "Exit" to exit script.')
-
-    if adlp_save_file == 'Exit':
-        exit(0)
-
-    global adlp_save_file_path
-    adlp_save_file_path = homedir + '/' + 'desktop' + '/' + adlp_save_file
 
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
@@ -211,8 +183,15 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
     return round(df_rpt_pts_trim['RelResp [RU]'], 2)
 
 
-def spr_create_dot_upload_file(config_file, data_validation=add_default_comments):
+@click.command()
+@click.option('--config_file', prompt="Please paste the name of the configuration file: ",
+              help="Path of the configuration file. Text file with all of the ")
+@click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension: ",
+              help="Name of the ADLP save which is an Excel file.")
+def spr_create_dot_upload_file(config_file, save_file):
     import configparser
+
+    adlp_save_file_path = homedir + '/' + 'desktop' + '/' + save_file
 
     try:
         config = configparser.ConfigParser()
@@ -420,42 +399,41 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
     num_cpds = len(df_cmpd_set.index)
     num_data_pts = (num_cpds * 3) + 1
 
-    if data_validation:
-        # Write the comments to the comment sheet.
-        comments_list = pd.DataFrame({'Comments':
-                                        ['No binding.',
-                                        'Saturation reached. Fast on/off.',
-                                        'Saturation reached. Fast on/off. Insolubility likely. Removed top.',
-                                        'Saturation reached. Fast on/off. Insolubility likely.',
-                                        'Saturation reached. Fast on/off. Low % binding.',
-                                        'Saturation reached. Fast on/off. Low % binding. Insolubility likely.',
-                                        'Saturation reached. Slow on. Fast off.',
-                                        'Saturation reached. Slow on. Fast off. Insolubility likely.',
-                                        'Saturation reached. Slow on. Slow off.',
-                                        'Saturation reached. Slow on. Slow off. Insolubility likely.',
-                                        'Saturation reached. Fast on. Slow off.',
-                                        'Saturation reached. Fast on. Slow off. Insolubility likely.',
-                                        'Saturation approached. Fast on/off.',
-                                        'Saturation approached. Insolubility likely.',
-                                        'Saturation approached. Fast on/off. Insolubility likely.',
-                                        'Saturation approached. Low % binding.',
-                                        'Saturation approached. Low % binding. Insolubility likely.',
-                                        'Saturation not reached.',
-                                        'Saturation not reached. Insolubility likely.',
-                                        'Saturation not reached. Fast on/off.',
-                                        'Saturation not reached. Fast on/off. Insolubility likely.',
-                                        'Saturation not reached. Low % binding.',
-                                        'Saturation not reached. Low % binding. Insolubility likely.',
-                                        'Superstoichiometric binding.']})
+    # Write the comments to the comment sheet.
+    comments_list = pd.DataFrame({'Comments':
+                                    ['No binding.',
+                                    'Saturation reached. Fast on/off.',
+                                    'Saturation reached. Fast on/off. Insolubility likely. Removed top.',
+                                    'Saturation reached. Fast on/off. Insolubility likely.',
+                                    'Saturation reached. Fast on/off. Low % binding.',
+                                    'Saturation reached. Fast on/off. Low % binding. Insolubility likely.',
+                                    'Saturation reached. Slow on. Fast off.',
+                                    'Saturation reached. Slow on. Fast off. Insolubility likely.',
+                                    'Saturation reached. Slow on. Slow off.',
+                                    'Saturation reached. Slow on. Slow off. Insolubility likely.',
+                                    'Saturation reached. Fast on. Slow off.',
+                                    'Saturation reached. Fast on. Slow off. Insolubility likely.',
+                                    'Saturation approached. Fast on/off.',
+                                    'Saturation approached. Insolubility likely.',
+                                    'Saturation approached. Fast on/off. Insolubility likely.',
+                                    'Saturation approached. Low % binding.',
+                                    'Saturation approached. Low % binding. Insolubility likely.',
+                                    'Saturation not reached.',
+                                    'Saturation not reached. Insolubility likely.',
+                                    'Saturation not reached. Fast on/off.',
+                                    'Saturation not reached. Fast on/off. Insolubility likely.',
+                                    'Saturation not reached. Low % binding.',
+                                    'Saturation not reached. Low % binding. Insolubility likely.',
+                                    'Superstoichiometric binding.']})
 
-        # Convert comments list to DataFrame
-        comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
+    # Convert comments list to DataFrame
+    comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
 
-        # For larger drop down lists > 255 characters its necessary to create a list on a seperate worksheet.
-        worksheet1.data_validation('S1:S' + str(num_data_pts),
-                                        {'validate': 'list',
-                                         'source': '=Sheet2!$A$2:$A$' + str(len(comments_list) + 1)
-                                         })
+    # For larger drop down lists > 255 characters its necessary to create a list on a seperate worksheet.
+    worksheet1.data_validation('S1:S' + str(num_data_pts),
+                                    {'validate': 'list',
+                                     'source': '=Sheet2!$A$2:$A$' + str(len(comments_list) + 1)
+                                     })
 
     # Freeze the top row of the excel worksheet.
     worksheet1.freeze_panes(1, 0)
@@ -481,10 +459,9 @@ def spr_create_dot_upload_file(config_file, data_validation=add_default_comments
 
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
+    print('Program Done!')
+    print("The ADLP result was saved to your desktop.")
 
 
 if __name__ == '__main__':
-    menu()
-    spr_create_dot_upload_file(config_file=config_file_path)
-    print('Program Done!')
-    print("The ADLP result was saved to your desktop.")
+    spr_create_dot_upload_file()
