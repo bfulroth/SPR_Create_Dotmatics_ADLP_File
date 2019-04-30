@@ -129,15 +129,14 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
     df_rpt_pts_trim['FC_Type'] = df_rpt_pts_trim['Fc'].str.split(' ', expand=True)[1]
     df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['FC_Type'] == 'corr']
 
-    # Remove not needed flow channels
-    # One channel used
+    ## Remove not needed flow channels
 
     # If the reference channel is 3 then assume that the only immobilized channel is 4
     # Take note that this may not always be the case!
-
     if ref_fc_used == 3:
         df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '4-3 corr']
 
+    # If the reference channel is not 3 assume it is 1.
     else:
         if len(fc_used) == 1:
             if fc_used[0] == 2:
@@ -353,7 +352,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         df_final_for_dot['PROTEIN_MW'] = df_final_for_dot['FC'].map(protein_mw_dict)
 
         # Add BIP
-        protein_bip_dict = {'FC4-3Corr':fc4_protein_BIP}
+        protein_bip_dict = {'FC4-3Corr': fc4_protein_BIP}
         df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
 
     # Default is if the reference channel is 1.
@@ -370,7 +369,6 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         # Add BIP
         protein_bip_dict = {'FC2-1Corr': fc2_protein_BIP, 'FC3-1Corr': fc3_protein_BIP, 'FC4-1Corr': fc4_protein_BIP}
         df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
-
 
     # Add the MW for each compound.
     df_final_for_dot['MW'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='MW',
