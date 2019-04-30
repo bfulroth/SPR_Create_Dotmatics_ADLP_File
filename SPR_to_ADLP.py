@@ -61,7 +61,7 @@ def spr_insert_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
         row += 1
 
 
-def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_used):
+def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_used, ref_fc_used=1):
     """This method calculates the binding in RU at the top concentration.
 
         :param report_pt_file: reference to the report point file exported from the Biacore Instrument.
@@ -69,6 +69,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
         RU at the top concentration of compound tested.
         :param instrument: The instrument as a string. (e.g. 'BiacoreS200', 'Biacore1, 'Biacore2')
         :param fc_used: The flow channels that were immobilized in the experiment.
+        :param ref_fc_used: The reference channel used.  Currently only 1 and 3 are supported.
         :returns Series containing the RU at the top concentration tested for each compound in the order tested.
         """
     if (instrument != 'BiacoreS200') & (instrument != 'Biacore1') & (instrument != 'Biacore3'):
@@ -130,25 +131,33 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
 
     # Remove not needed flow channels
     # One channel used
-    if len(fc_used) == 1:
-        if fc_used[0] == 2:
-            df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '2-1 corr']
-        elif fc_used[0] == 3:
-            df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '3-1 corr']
-        elif fc_used[0] == 4:
-            df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '4-1 corr']
 
-    # Two channels used
-    elif len(fc_used) == 2:
-        if (fc_used[0] == 2) & (fc_used[1] == 3):
-            df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') |
-                                          (df_rpt_pts_trim['Fc'] == '3-1 corr')]
-        if (fc_used[0] == 3) & (fc_used[1] == 4):
-            df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '3-1 corr') |
-                                              (df_rpt_pts_trim['Fc'] == '4-1 corr')]
-        if (fc_used[0] == 2) & (fc_used[1] == 4):
-            df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') |
-                                              (df_rpt_pts_trim['Fc'] == '4-1 corr')]
+    # If the reference channel is 3 then assume that the only immobilized channel is 4
+    # Take note that this may not always be the case!
+
+    if ref_fc_used == 3:
+        df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '4-3 corr']
+
+    else:
+        if len(fc_used) == 1:
+            if fc_used[0] == 2:
+                df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '2-1 corr']
+            elif fc_used[0] == 3:
+                df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '3-1 corr']
+            elif fc_used[0] == 4:
+                df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '4-1 corr']
+
+        # Two channels used
+        elif len(fc_used) == 2:
+            if (fc_used[0] == 2) & (fc_used[1] == 3):
+                df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') |
+                                              (df_rpt_pts_trim['Fc'] == '3-1 corr')]
+            if (fc_used[0] == 3) & (fc_used[1] == 4):
+                df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '3-1 corr') |
+                                                  (df_rpt_pts_trim['Fc'] == '4-1 corr')]
+            if (fc_used[0] == 2) & (fc_used[1] == 4):
+                df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') |
+                                                  (df_rpt_pts_trim['Fc'] == '4-1 corr')]
 
     # If 3 channels used than assume we want all the corrected data so no filtering done.
 
@@ -217,6 +226,9 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         # Get all of the metadata variables
         num_fc_used = config.get('meta','num_fc_used')
 
+        # Get the reference channel
+        ref_fc_used = int(config.get('meta', 'ref_fc_used'))
+
         # Get the flow channels immobilized
         immobilized_fc = str(config.get('meta', 'immobilized_fc'))
         immobilized_fc = immobilized_fc.strip(" ")
@@ -276,7 +288,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Extract the RU Max for each compound using the report point file.
     df_final_for_dot['RU_TOP_CMPD'] = spr_binding_top_for_dot_file(report_pt_file=path_report_pt,
-    df_cmpd_set=df_cmpd_set, instrument=instrument, fc_used=immobilized_fc_arr)
+    df_cmpd_set=df_cmpd_set, instrument=instrument, fc_used=immobilized_fc_arr, ref_fc_used=ref_fc_used)
 
     # Extract the steady state data and add to DataFrame
     # Read in the steady state text file into a DataFrame
@@ -329,20 +341,28 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot['FC'] = df_senso_txt['FC']
 
     # Add protein RU
-    protein_ru_dict = {'FC2-1Corr': fc2_protein_RU, 'FC3-1Corr' : fc3_protein_RU, 'FC4-1Corr' : fc4_protein_RU}
-    df_final_for_dot['PROTEIN_RU'] = df_final_for_dot['FC'].map(protein_ru_dict)
+    # Need conditional if the reference channel is fc 3.
+    if ref_fc_used == 3:
+        protein_ru_dict = {'FC4-3Corr': fc4_protein_RU}
+        df_final_for_dot['PROTEIN_RU'] = df_final_for_dot['FC'].map(protein_ru_dict)
 
-    # Add protein MW
-    protein_mw_dict = {'FC2-1Corr': fc2_protein_MW, 'FC3-1Corr' : fc3_protein_MW, 'FC4-1Corr' : fc4_protein_MW}
-    df_final_for_dot['PROTEIN_MW'] = df_final_for_dot['FC'].map(protein_mw_dict)
+    else:
+        protein_ru_dict = {'FC2-1Corr': fc2_protein_RU, 'FC3-1Corr': fc3_protein_RU, 'FC4-1Corr': fc4_protein_RU}
+        df_final_for_dot['PROTEIN_RU'] = df_final_for_dot['FC'].map(protein_ru_dict)
+
+        # Add protein MW
+        protein_mw_dict = {'FC2-1Corr': fc2_protein_MW, 'FC3-1Corr': fc3_protein_MW, 'FC4-1Corr': fc4_protein_MW}
+        df_final_for_dot['PROTEIN_MW'] = df_final_for_dot['FC'].map(protein_mw_dict)
 
     # Add the MW for each compound.
     df_final_for_dot['MW'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='MW',
                                                            times_dup=num_fc_used))
 
     # Add protein BIP
-    protein_bip_dict = {'FC2-1Corr': fc2_protein_BIP, 'FC3-1Corr' : fc3_protein_BIP, 'FC4-1Corr' : fc4_protein_BIP}
-    df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
+    # Need conditional if the reference channel is fc 3.
+    if ref_fc_used == 3:
+        protein_bip_dict = {'FC4-3Corr':fc4_protein_BIP}
+        df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
 
     # Continue adding columns to final DataFrame
     df_final_for_dot['INSTRUMENT'] = instrument
