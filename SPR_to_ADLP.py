@@ -343,10 +343,23 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     # Add protein RU
     # Need conditional if the reference channel is fc 3.
     if ref_fc_used == 3:
+
+        # Add protein RU
         protein_ru_dict = {'FC4-3Corr': fc4_protein_RU}
         df_final_for_dot['PROTEIN_RU'] = df_final_for_dot['FC'].map(protein_ru_dict)
 
+        # Add protein MW
+        protein_mw_dict = {'FC4-3Corr': fc4_protein_MW}
+        df_final_for_dot['PROTEIN_MW'] = df_final_for_dot['FC'].map(protein_mw_dict)
+
+        # Add BIP
+        protein_bip_dict = {'FC4-3Corr':fc4_protein_BIP}
+        df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
+
+    # Default is if the reference channel is 1.
     else:
+
+        # Add protein RU
         protein_ru_dict = {'FC2-1Corr': fc2_protein_RU, 'FC3-1Corr': fc3_protein_RU, 'FC4-1Corr': fc4_protein_RU}
         df_final_for_dot['PROTEIN_RU'] = df_final_for_dot['FC'].map(protein_ru_dict)
 
@@ -354,15 +367,14 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         protein_mw_dict = {'FC2-1Corr': fc2_protein_MW, 'FC3-1Corr': fc3_protein_MW, 'FC4-1Corr': fc4_protein_MW}
         df_final_for_dot['PROTEIN_MW'] = df_final_for_dot['FC'].map(protein_mw_dict)
 
+        # Add BIP
+        protein_bip_dict = {'FC2-1Corr': fc2_protein_BIP, 'FC3-1Corr': fc3_protein_BIP, 'FC4-1Corr': fc4_protein_BIP}
+        df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
+
+
     # Add the MW for each compound.
     df_final_for_dot['MW'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='MW',
                                                            times_dup=num_fc_used))
-
-    # Add protein BIP
-    # Need conditional if the reference channel is fc 3.
-    if ref_fc_used == 3:
-        protein_bip_dict = {'FC4-3Corr':fc4_protein_BIP}
-        df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
 
     # Continue adding columns to final DataFrame
     df_final_for_dot['INSTRUMENT'] = instrument
