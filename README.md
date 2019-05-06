@@ -80,7 +80,7 @@ __Important__: For the data processing script to work, you must save the Biacore
         - To copy file or folder paths, right click on the file or folder and __hold__ the 'option' key. 
         - Next, select Copy "File Name" as Pathname.
 6. Run the script
-    - Type the command: __python Create_SPR_setup_file.py 
+    - Type the command: __python Create_SPR_setup_file.py__ 
 	- You will be prompted to paste the file path of the "Setup Table". Paste and type 'enter'.
     - This should create the setup file on your desktop.
     
