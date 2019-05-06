@@ -82,7 +82,7 @@ __Important__: For the data processing script to work, you must save the Biacore
 6. Run the script
     - Type the command: __python Create_SPR_setup_file.py__ 
 	- You will be prompted to paste the file path of the "Setup Table". Paste and type 'enter'.
-    - This should create the setup file on your desktop OR if you are connect to the flynn server the file will be plated in the folder __SPR Setup Files__ on the root directory of flynn.
+    - This should create the setup file on your desktop OR if you are connect to the flynn server the file will be saved in the folder __SPR Setup Files__ on the root directory of flynn.
     
             
 ## Create ADLP upload file from Biacore dose response affinity experiment
