@@ -9,6 +9,7 @@ path_report_pt: /Users/bfulroth/PythonProjects/SPR_Create_Dotmatics_ADLP_File/Te
 
 [meta]
 num_fc_used: 3
+ref_fc_used: 1
 immobilized_fc: 2,3,4
 experiment_date: 2019_01_11
 project_code: 7279
