@@ -82,7 +82,7 @@ __Important__: For the data processing script to work, you must save the Biacore
 6. Run the script
     - Type the command: __python Create_SPR_setup_file.py__ 
 	- You will be prompted to paste the file path of the "Setup Table". Paste and type 'enter'.
-    - This should create the setup file on your desktop OR if you are connect to the flynn server the file will be saved in the folder __SPR Setup Files__ on the root directory of flynn.
+    - This should create the setup file on your desktop OR if you are connect to the iron server the file will be saved in the folder __SPR Setup Files__ on the root directory of iron.
     
             
 ## Create ADLP upload file from Biacore dose response affinity experiment
@@ -97,13 +97,13 @@ __Important__ If your remove points during data analysis you must correct the se
       Click on *kinetic analysis* under 'Screening'.
         - Right click on the sensorgram thumbnails and select 'Export All Graphs and Table'
             - Save on Biacore hard drive.
-3. Transfer both folders from 2. above to SPR image export folder on flynn. 
+3. Transfer both folders from 2. above to SPR image export folder on iron. 
     - tdts_users/Informatics and computational research/SPR_Image_import/year_month
 4. Navigate back to the Biacore evaluation software.
 5. Export the 'Report Point Table'
     - Click on 'Report Point Table' under the Report Point Section.
     - Click File --> Export --> Results To Excel
-    - Save this file either on flynn or on your hard drive. The name does not matter as long as it's an .xlsx file.
+    - Save this file either on iron or on your hard drive. The name does not matter as long as it's an .xlsx file.
 6. Navigate to the following folder using *Finder*: 
     - /Users/your_user_name/PythonProjects/SPR_Create_Dotmatics_ADLP_File/Example Files
     - Copy the Config.txt file to *__another location__* on your hard drive.
