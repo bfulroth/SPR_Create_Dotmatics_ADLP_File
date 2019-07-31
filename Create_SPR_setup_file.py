@@ -110,9 +110,9 @@ def spr_setup_sheet(clip):
 
     try:
         final_df.to_excel('/Volumes/tdts_users/SPR Setup Files/' + now + '_spr_setup_affinity.xlsx')
-        print('Setup file has been placed on flynn in folder: SRP Setup Files')
+        print('Setup file has been placed on Iron in folder: SRP Setup Files')
     except:
-        print('Issue connecting to Flynn. Mount drive and try again.')
+        print('Issue connecting to Iron. Mount drive and try again.')
         print('')
 
         final_df.to_excel(homedir + '/Desktop/' + now + '_spr_setup_affinity.xlsx')
