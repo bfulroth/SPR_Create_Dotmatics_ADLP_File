@@ -80,7 +80,7 @@ def spr_setup_sheet(clip):
 
                 for i in range(int(df_setup_trim.iloc[cmpd]['num_pts'])):
                     dose_list.append(top)
-                    top = top / int(df_setup_ori.iloc[cmpd]['fold_dil']) # use value in original DataFrame to determine
+                    top = top / float(df_setup_ori.iloc[cmpd]['fold_dil']) # use value in original DataFrame to determine
                     # the fold of dilution.
                 dose_list.sort(reverse=False)
 
