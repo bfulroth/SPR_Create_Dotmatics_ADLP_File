@@ -123,11 +123,11 @@ def spr_setup_sheet(clip):
     except:
         print('Issue connecting to Iron. Mount drive and try again.')
         print('')
-
         if platform == 'win32':
-            final_df.to_excel(homedir + '\\Users\\Desktop')
+            final_df.to_excel(homedir + '\\Desktop' + now + '_spr_setup_affinity.xlsx')
         else:
             final_df.to_excel(homedir + '/Desktop/' + now + '_spr_setup_affinity.xlsx')
+            
         print('File created on desktop.')
 
 
