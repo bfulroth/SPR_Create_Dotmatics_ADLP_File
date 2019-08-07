@@ -2,10 +2,16 @@ import pandas as pd
 from datetime import datetime
 import os
 import click
+from sys import platform
 
 
 # Get the users Home Directory
-homedir = os.environ['HOME']
+if platform == "win32":
+    from pathlib import Path
+
+    homedir = str(Path.home())
+else:
+    homedir = os.environ['HOME']
 
 
 @click.command()
@@ -109,13 +115,19 @@ def spr_setup_sheet(clip):
     now = now.strftime('%y%m%d')
 
     try:
-        final_df.to_excel('/Volumes/tdts_users/SPR Setup Files/' + now + '_spr_setup_affinity.xlsx')
+        if platform == 'win32':
+            final_df.to_excel('\\Volumes\\tdts_users\\SPR Setup Files\\' + now + '_spr_setup_affinity.xlsx')
+        else:
+            final_df.to_excel('/Volumes/tdts_users/SPR Setup Files/' + now + '_spr_setup_affinity.xlsx')
         print('Setup file has been placed on Iron in folder: SRP Setup Files')
     except:
         print('Issue connecting to Iron. Mount drive and try again.')
         print('')
 
-        final_df.to_excel(homedir + '/Desktop/' + now + '_spr_setup_affinity.xlsx')
+        if platform == 'win32':
+            final_df.to_excel(homedir + '\\Users\\Desktop')
+        else:
+            final_df.to_excel(homedir + '/Desktop/' + now + '_spr_setup_affinity.xlsx')
         print('File created on desktop.')
 
 
