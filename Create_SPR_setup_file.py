@@ -6,7 +6,7 @@ from sys import platform
 
 
 # Get the users Home Directory
-if platform == "win32":
+if platform.system() == "Windows":
     from pathlib import Path
 
     homedir = str(Path.home())
@@ -115,7 +115,7 @@ def spr_setup_sheet(clip):
     now = now.strftime('%y%m%d')
 
     try:
-        if platform == 'win32':
+        if platform.system() == 'Windows':
             final_df.to_excel('\\Volumes\\tdts_users\\SPR Setup Files\\' + now + '_spr_setup_affinity.xlsx')
         else:
             final_df.to_excel('/Volumes/tdts_users/SPR Setup Files/' + now + '_spr_setup_affinity.xlsx')
@@ -123,11 +123,11 @@ def spr_setup_sheet(clip):
     except:
         print('Issue connecting to Iron. Mount drive and try again.')
         print('')
-        if platform == 'win32':
+        if platform.system() == 'Windows':
             final_df.to_excel(homedir + '\\Desktop' + now + '_spr_setup_affinity.xlsx')
         else:
             final_df.to_excel(homedir + '/Desktop/' + now + '_spr_setup_affinity.xlsx')
-            
+
         print('File created on desktop.')
 
 
