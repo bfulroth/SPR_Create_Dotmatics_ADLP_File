@@ -2,7 +2,7 @@ import pandas as pd
 from datetime import datetime
 import os
 import click
-from sys import platform
+import platform
 
 
 # Get the users Home Directory
