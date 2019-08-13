@@ -1,9 +1,14 @@
 import pandas as pd
 import os
 import click
+import platform
 
-# Global variables
-homedir = os.environ['HOME']
+# Get the users Home Directory
+if platform.system() == "Windows":
+    from pathlib import Path
+    homedir = str(Path.home())
+else:
+    homedir = os.environ['HOME']
 
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
@@ -202,7 +207,10 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     import configparser
 
     # ADLP save file path.
-    adlp_save_file_path = homedir + '/' + 'desktop' + '/' + save_file
+    if platform.system() == 'Windows':
+        adlp_save_file_path = homedir + '\\Desktop\\' + save_file
+    else:
+        adlp_save_file_path = homedir + '/' + 'desktop' + '/' + save_file
 
     try:
 
