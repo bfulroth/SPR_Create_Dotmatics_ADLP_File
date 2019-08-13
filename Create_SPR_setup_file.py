@@ -8,7 +8,6 @@ import platform
 # Get the users Home Directory
 if platform.system() == "Windows":
     from pathlib import Path
-
     homedir = str(Path.home())
 else:
     homedir = os.environ['HOME']
@@ -19,7 +18,6 @@ else:
 def spr_setup_sheet(clip):
     """
     Creates the setup file necessary to run a dose response protocol on a Biacore instrument.
-
     :param clip: Optional flag to indicate that the contents of the setup file are on the clipboard.
     """
 
@@ -28,6 +26,7 @@ def spr_setup_sheet(clip):
             df_setup_ori = pd.read_clipboard()
         else:
             file = input("Please paste the path to the setup file: ")
+            file = file.strip('\'"')
             df_setup_ori = pd.read_csv(file)
     except:
         raise ImportError("Issues reading contents of file.")
@@ -116,7 +115,7 @@ def spr_setup_sheet(clip):
 
     try:
         if platform.system() == 'Windows':
-            final_df.to_excel('\\Volumes\\tdts_users\\SPR Setup Files\\' + now + '_spr_setup_affinity.xlsx')
+            final_df.to_excel('\\\iron\\tdts_users\\SPR Setup Files\\' + now + '_spr_setup_affinity.xlsx')
         else:
             final_df.to_excel('/Volumes/tdts_users/SPR Setup Files/' + now + '_spr_setup_affinity.xlsx')
         print('Setup file has been placed on Iron in folder: SRP Setup Files')
@@ -124,10 +123,10 @@ def spr_setup_sheet(clip):
         print('Issue connecting to Iron. Mount drive and try again.')
         print('')
         if platform.system() == 'Windows':
-            final_df.to_excel(homedir + '\\Desktop' + now + '_spr_setup_affinity.xlsx')
+            path_desk = homedir + '\\Desktop\\' + now + '_spr_setup_affinity.xlsx'
+            final_df.to_excel(path_desk)
         else:
             final_df.to_excel(homedir + '/Desktop/' + now + '_spr_setup_affinity.xlsx')
-
         print('File created on desktop.')
 
 
