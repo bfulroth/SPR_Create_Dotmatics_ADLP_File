@@ -384,6 +384,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Continue adding columns to final DataFrame
     df_final_for_dot['INSTRUMENT'] = instrument
+    df_final_for_dot['ASSAY_MODE'] = 'Multi-Cycle'
     df_final_for_dot['EXP_DATE'] = experiment_date
     df_final_for_dot['NUCLEOTIDE'] = nucleotide
     df_final_for_dot['CHIP_LOT'] = chip_lot
@@ -422,7 +423,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
        'CHI2_SS_AFFINITY', 'FITTED_RMAX_SS_AFFINITY', 'KA_1_1_BINDING',
        'KD_LITTLE_1_1_BINDING', 'KD_1_1_BINDING_UM', 'chi2_1_1_binding',
        'U_VALUE_1_1_BINDING', 'FITTED_RMAX_1_1_BINDING', 'COMMENTS', 'FC',
-       'PROTEIN_RU', 'PROTEIN_MW', 'PROTEIN_ID', 'MW', 'INSTRUMENT',
+       'PROTEIN_RU', 'PROTEIN_MW', 'PROTEIN_ID', 'MW', 'INSTRUMENT', 'ASSAY_MODE',
        'EXP_DATE', 'NUCLEOTIDE', 'CHIP_LOT', 'OPERATOR', 'PROTOCOL_ID',
        'RAW_DATA_FILE', 'DIR_FOLDER', 'UNIQUE_ID', 'SS_IMG_ID', 'SENSO_IMG_ID']]
 
