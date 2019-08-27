@@ -14,13 +14,10 @@ else:
 
 
 @click.command()
-@click.option('--file', prompt="Please paste the path to the setup file", type=click.Path(exists=True),
-              help="File path to the setup table containing full Broad ID's")
 @click.option('--clip', is_flag=True, help='Option to indicate that the contents of the setup file is on the clipboard')
-def spr_setup_sheet(file, clip):
+def spr_setup_sheet(clip):
     """
     Creates the setup file necessary to run a dose response protocol on a Biacore instrument.
-    :param file: File path to the setup table containing full Broad ID's.
     :param clip: Optional flag to indicate that the contents of the setup file are on the clipboard.
     """
 
@@ -28,6 +25,7 @@ def spr_setup_sheet(file, clip):
         if clip:
             df_setup_ori = pd.read_clipboard()
         else:
+            file = click.prompt("Paste the path to the setup table", type=click.Path(exists=True))
             df_setup_ori = pd.read_csv(file)
     except:
         raise ImportError("Issues reading contents of file.")
