@@ -15,6 +15,7 @@ else:
 
 @click.command()
 @click.option('--clip', is_flag=True, help='Option to indicate that the contents of the setup file is on the clipboard')
+@click.option('--8K', is_flag=True, help='Optional flag to indicate output format to be compatiable with Biacore 8K')
 def spr_setup_sheet(clip):
     """
     Creates the setup file necessary to run a dose response protocol on a Biacore instrument.
