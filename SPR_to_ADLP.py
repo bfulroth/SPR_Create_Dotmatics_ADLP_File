@@ -151,7 +151,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
                 df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '4-1 corr']
 
     # Ref channel is 1 and 2 channels used.
-    elif (len(ref_fc_used_arr) == 1) (len(fc_used) == 2):
+    elif (len(ref_fc_used_arr) == 1) & (len(fc_used) == 2):
         if (fc_used[0] == 2) & (fc_used[1] == 3):
             df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') |
                                               (df_rpt_pts_trim['Fc'] == '3-1 corr')]
