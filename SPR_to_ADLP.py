@@ -199,14 +199,18 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
     return round(df_rpt_pts_trim['RelResp [RU]'], 2)
 
 # Using click to manage the command line interface
-@click.command()
-@click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
-              help="Path of the configuration file. Text file with all of the file paths and meta "
-                   "data for a particular experiment.")
-@click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension"
-                ,help="Name of the ADLP results file which is an Excel file.")
-@click.option('--clip', is_flag=True,
-              help="Option to indicate that the contents of the setup file are on the clipboard.")
+# @click.command()
+# @click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
+#               help="Path of the configuration file. Text file with all of the file paths and meta "
+#                    "data for a particular experiment.")
+# @click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension"
+#                 ,help="Name of the ADLP results file which is an Excel file.")
+# @click.option('--clip', is_flag=True,
+#               help="Option to indicate that the contents of the setup file are on the clipboard.")
+
+config_file ='/Users/bfulroth/Documents/191025_2_aj_debug/191025_config_2_aj.txt'
+save_file = '/Users/bfulroth/Documents/191025_2_aj_debug/test_1.xlxs'
+clip=False
 def spr_create_dot_upload_file(config_file, save_file, clip):
     import configparser
 
@@ -516,4 +520,4 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
 
 if __name__ == '__main__':
-    spr_create_dot_upload_file()
+    spr_create_dot_upload_file(config_file=config_file, save_file=save_file, clip=clip)
