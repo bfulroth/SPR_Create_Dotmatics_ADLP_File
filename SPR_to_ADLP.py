@@ -199,18 +199,14 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
     return round(df_rpt_pts_trim['RelResp [RU]'], 2)
 
 # Using click to manage the command line interface
-# @click.command()
-# @click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
-#               help="Path of the configuration file. Text file with all of the file paths and meta "
-#                    "data for a particular experiment.")
-# @click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension"
-#                 ,help="Name of the ADLP results file which is an Excel file.")
-# @click.option('--clip', is_flag=True,
-#               help="Option to indicate that the contents of the setup file are on the clipboard.")
-
-config_file ='/Users/bfulroth/Documents/191025_2_aj_debug/191025_config_2_aj.txt'
-save_file = '/Users/bfulroth/Documents/191025_2_aj_debug/test_1.xlxs'
-clip=False
+@click.command()
+@click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
+              help="Path of the configuration file. Text file with all of the file paths and meta "
+                   "data for a particular experiment.")
+@click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension"
+                ,help="Name of the ADLP results file which is an Excel file.")
+@click.option('--clip', is_flag=True,
+              help="Option to indicate that the contents of the setup file are on the clipboard.")
 def spr_create_dot_upload_file(config_file, save_file, clip):
     import configparser
 
@@ -361,35 +357,19 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot['FC'] = df_senso_txt['FC']
 
     # Add protein RU
-    # Need conditional if the reference channel is fc 3.
-    if ref_fc_used == 3:
+    protein_ru_dict = {'FC2-1Corr': fc2_protein_RU, 'FC3-1Corr': fc3_protein_RU, 'FC4-1Corr': fc4_protein_RU,
+                       'FC4-3Corr': fc4_protein_RU}
+    df_final_for_dot['PROTEIN_RU'] = df_final_for_dot['FC'].map(protein_ru_dict)
 
-        # Add protein RU
-        protein_ru_dict = {'FC4-3Corr': fc4_protein_RU}
-        df_final_for_dot['PROTEIN_RU'] = df_final_for_dot['FC'].map(protein_ru_dict)
+    # Add protein MW
+    protein_mw_dict = {'FC2-1Corr': fc2_protein_MW, 'FC3-1Corr': fc3_protein_MW, 'FC4-1Corr': fc4_protein_MW,
+                       'FC4-3Corr': fc4_protein_MW }
+    df_final_for_dot['PROTEIN_MW'] = df_final_for_dot['FC'].map(protein_mw_dict)
 
-        # Add protein MW
-        protein_mw_dict = {'FC4-3Corr': fc4_protein_MW}
-        df_final_for_dot['PROTEIN_MW'] = df_final_for_dot['FC'].map(protein_mw_dict)
-
-        # Add BIP
-        protein_bip_dict = {'FC4-3Corr': fc4_protein_BIP}
-        df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
-
-    # Default is if the reference channel is 1.
-    else:
-
-        # Add protein RU
-        protein_ru_dict = {'FC2-1Corr': fc2_protein_RU, 'FC3-1Corr': fc3_protein_RU, 'FC4-1Corr': fc4_protein_RU}
-        df_final_for_dot['PROTEIN_RU'] = df_final_for_dot['FC'].map(protein_ru_dict)
-
-        # Add protein MW
-        protein_mw_dict = {'FC2-1Corr': fc2_protein_MW, 'FC3-1Corr': fc3_protein_MW, 'FC4-1Corr': fc4_protein_MW}
-        df_final_for_dot['PROTEIN_MW'] = df_final_for_dot['FC'].map(protein_mw_dict)
-
-        # Add BIP
-        protein_bip_dict = {'FC2-1Corr': fc2_protein_BIP, 'FC3-1Corr': fc3_protein_BIP, 'FC4-1Corr': fc4_protein_BIP}
-        df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
+    # Add BIP
+    protein_bip_dict = {'FC2-1Corr': fc2_protein_BIP, 'FC3-1Corr': fc3_protein_BIP, 'FC4-1Corr': fc4_protein_BIP,
+                        'FC4-3Corr': fc4_protein_BIP}
+    df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
 
     # Add the MW for each compound.
     df_final_for_dot['MW'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='MW',
@@ -520,4 +500,4 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
 
 if __name__ == '__main__':
-    spr_create_dot_upload_file(config_file=config_file, save_file=save_file, clip=clip)
+    spr_create_dot_upload_file()
