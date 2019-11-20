@@ -77,8 +77,8 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
         :param ref_fc_used_arr: The reference channel(s) used.  Currently only 1 and 3 are supported.
         :returns Series containing the RU at the top concentration tested for each compound in the order tested.
         """
-    if (instrument != 'BiacoreS200') & (instrument != 'Biacore1') & (instrument != 'Biacore3'):
-        raise ValueError('Instrument argument must be BiacoreS200, Biacore1, or Biacore3')
+    if (instrument != 'BiacoreS200') & (instrument != 'Biacore1') & (instrument != 'Biacore3') | (instrument != 'Biacore2'):
+        raise ValueError('Instrument argument must be BiacoreS200, Biacore1, Biacore2, or Biacore3')
 
     try:
         # Read in data
@@ -93,6 +93,12 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
                          'Report Point', 'AssayStep', 'AssayStepPurpose', 'Buffer', 'CycleType', 'Temp',
                          'Sample_1_Sample', 'Sample_1_Ligand', 'Sample_1_Conc', 'Sample_1_MW', 'General_1_Solution']
 
+    if instrument == 'Biacore2':
+        expected_cols = ['Unnamed: 0', 'Cycle', 'Fc', 'Report Point', 'Time [s]', 'Window [s]', 'AbsResp [RU]', 'SD',
+                         'Slope [RU/s]', 'LRSD', 'RelResp [RU]', 'Baseline', 'AssayStep', 'Assay Step Purpose',
+                         'Buffer', 'Cycle Type', 'Temp', 'Sample_1_Conc [µM]', 'Sample_1_Ligand',
+                         'Sample_1_MW [Da]', 'Sample_1_Sample', 'General_1_Solution']
+
     # Check that the columns in the report point file match the expected values.
     if instrument == 'BiacoreS200':
         expected_cols = ['Unnamed: 0', 'Cycle','Fc','Report Point','Time [s]','Window [s]','AbsResp [RU]','SD',
@@ -105,7 +111,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
 
     # For BiacoreS200
     # Remove first column
-    if instrument == 'BiacoreS200':
+    if (instrument == 'BiacoreS200') | (instrument == 'Biacore2'):
         df_rpt_pts_trim = df_rpt_pts_all.iloc[:, 1:]
 
         # Remove other not needed columns
