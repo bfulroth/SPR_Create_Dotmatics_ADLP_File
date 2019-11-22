@@ -77,7 +77,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
         :param ref_fc_used_arr: The reference channel(s) used.  Currently only 1 and 3 are supported.
         :returns Series containing the RU at the top concentration tested for each compound in the order tested.
         """
-    if (instrument != 'BiacoreS200') | (instrument != 'Biacore1') | (instrument != 'Biacore3') | (instrument != 'Biacore2'):
+    if (instrument != 'BiacoreS200') & (instrument != 'Biacore1') & (instrument != 'Biacore3') & (instrument != 'Biacore2'):
         raise ValueError('Instrument argument must be BiacoreS200, Biacore1, Biacore2, or Biacore3')
 
     try:
