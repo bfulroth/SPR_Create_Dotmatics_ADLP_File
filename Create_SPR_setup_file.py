@@ -15,8 +15,8 @@ else:
 
 @click.command()
 @click.option('--clip', is_flag=True, help='Option to indicate that the contents of the setup file is on the clipboard')
-@click.option('--8K', is_flag=True, help='Optional flag to indicate output format to be compatiable with Biacore 8K')
-def spr_setup_sheet(clip):
+@click.option('--b8k', is_flag=True, help='Optional flag to indicate output format to be compatiable with Biacore 8K')
+def spr_setup_sheet(clip, b8k):
     """
     Creates the setup file necessary to run a dose response protocol on a Biacore instrument.
     :param clip: Optional flag to indicate that the contents of the setup file are on the clipboard.
@@ -104,6 +104,39 @@ def spr_setup_sheet(clip):
 
         # Reorder the columns
         final_df = final_df.loc[:, ['BRD', 'MW', 'CONC', 'BAR']]
+
+        # Need to sort the DF if flag b8k is true.
+        # TODO: Limited to only 8 compounds.  If > 8 all zeros are sorted to the beginning. Need to change.
+        if b8k:
+
+            """
+            Need to sort the df for 8k input such that each cmpd is grouped for 8 needles and sorted by conc. 
+            Stategy: 
+            1. Add a row number column. 
+            2. Add logic that address two zero conc. pts for each cmpd run.
+            3. Sort by zero conc., row number, concentration.
+            """
+            # add column for sorting
+            final_df['sort_val'] = [i for i in range(len(final_df))]
+            final_df['sort_zero'] = ""
+
+            zero_num = 2
+            zero_count = 1
+
+            # TODO: Logic only works if you use two blank injections for zero points.  Need to make more genaralized
+            for i in range(zero_num):
+                for index, row in final_df.iterrows():
+                    if row['CONC'] == 0:
+                        if (index % 2 == 0) & (i == 0):
+                            final_df.loc[index, 'sort_zero'] = zero_count
+                            zero_count += 1
+                        elif (index % 2 != 0) & (i != 0):
+                            final_df.loc[index, 'sort_zero'] = zero_count
+                            zero_count += 1
+
+            final_df = final_df.sort_values(['sort_zero', 'CONC', 'sort_val'])
+            del final_df['sort_zero']
+            del final_df['sort_val']
 
     except RuntimeError:
         print("Something is wrong. Check the original file.")
