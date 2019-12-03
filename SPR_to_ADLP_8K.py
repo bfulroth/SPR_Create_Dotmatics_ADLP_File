@@ -330,15 +330,11 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                                                    fc_used=immobilized_fc_arr)
 
     # Extract the steady state data and add to DataFrame
-    # Read in the steady state text file into a DataFrame
-    df_ss_txt = pd.read_csv(path_ss_txt, sep='\t')
-
-    # TODO: Stopped here 12/03/2019 1:01 PM
     # Create new columns to sort the DataFrame as the original is out of order.
-    df_ss_txt['sample_order'] = df_ss_txt['Image File'].str.split('_', expand=True)[1]
+    df_ss_txt['sample_order'] = df_ss_txt['Steady_State_Img'].str.split('_', expand=True)[1]
+    df_ss_txt['sample_order'] = df_ss_txt['sample_order'].str.replace('.png','')
     df_ss_txt['sample_order'] = pd.to_numeric(df_ss_txt['sample_order'])
-    df_ss_txt['fc_num'] = pd.to_numeric(df_ss_txt['Curve'].str[3])
-    df_ss_txt = df_ss_txt.sort_values(by=['sample_order', 'fc_num'])
+    df_ss_txt = df_ss_txt.sort_values(by=['sample_order'])
     df_ss_txt = df_ss_txt.reset_index(drop=True)
     df_ss_txt['KD_SS_UM'] = df_ss_txt['KD (M)'] * 1000000
 
@@ -346,84 +342,79 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot['KD_SS_UM'] = df_ss_txt['KD_SS_UM']
 
     # Add the chi2_steady_state_affinity
+    # TODO: Not sure if the squared value is usually in the file. Looks different in my downloaded file.
     df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Chi² (RU²)']
 
     # Add the Fitted_Rmax_steady_state_affinity
-    df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax (RU)']
+    df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax']
 
     # Extract the sensorgram data and add to DataFrame
-    # Read in the sensorgram data into a DataFrame
-    df_senso_txt = pd.read_csv(path_senso_txt, sep='\t')
-    df_senso_txt['sample_order'] = df_senso_txt['Image File'].str.split('_', expand=True)[1]
+    df_senso_txt['sample_order'] = df_senso_txt['Senso_Img'].str.split('_', expand=True)[1]
+    df_senso_txt['sample_order'] = df_senso_txt['sample_order'].str.replace('.png', '')
     df_senso_txt['sample_order'] = pd.to_numeric(df_senso_txt['sample_order'])
-    df_senso_txt['fc_num'] = pd.to_numeric(df_senso_txt['Curve'].str[3])
-    df_senso_txt = df_senso_txt.sort_values(by=['sample_order', 'fc_num'])
+    df_senso_txt = df_senso_txt.sort_values(by=['sample_order'])
     df_senso_txt = df_senso_txt.reset_index(drop=True)
 
     # Add columns from df_senso_txt
-    df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka (1/Ms)']
-    df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd (1/s)']
+    df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka']
+    df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd']
     df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
-    df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Chi² (RU²)']
+    df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Kinetics Chi≤ (RU≤)']
 
     # Not sure what this is???
     df_final_for_dot['U_VALUE_1_1_BINDING'] = ''
     # Not sure what this is??
 
     # Continue creating new columns
-    df_final_for_dot['FITTED_RMAX_1_1_BINDING'] = df_senso_txt['Rmax (RU)']
+    df_final_for_dot['FITTED_RMAX_1_1_BINDING'] = df_senso_txt['Rmax']
     df_final_for_dot['COMMENTS'] = ''
 
-    # Rename the flow channels and add the flow channel column
-    df_senso_txt['FC'] = df_senso_txt['Curve'].apply(lambda x: x.replace('c', 'C'))
-    df_senso_txt['FC'] = df_senso_txt['FC'].apply(lambda x: x.replace('=', ''))
-    df_senso_txt['FC'] = df_senso_txt['FC'].apply(lambda x: x.replace(' ', ''))
-    df_final_for_dot['FC'] = df_senso_txt['FC']
+    # Add the flow channel column
+    df_final_for_dot.loc[:, 'FC'] = '2-1'
 
     # Add protein RU
-    protein_ru_dict = {'FC2-1Corr': fc2_protein_RU, 'FC3-1Corr': fc3_protein_RU, 'FC4-1Corr': fc4_protein_RU,
-                       'FC4-3Corr': fc4_protein_RU}
-    df_final_for_dot['PROTEIN_RU'] = df_final_for_dot['FC'].map(protein_ru_dict)
+    protein_ru_dict = {1: fc1_protein_RU, 2: fc2_protein_RU, 3: fc3_protein_RU,
+                       4: fc4_protein_RU, 5: fc5_protein_RU, 6: fc6_protein_RU, 7: fc7_protein_RU, 8: fc8_protein_RU}
+    df_final_for_dot['PROTEIN_RU'] = df_senso_txt['Channel'].map(protein_ru_dict)
 
     # Add protein MW
-    protein_mw_dict = {'FC2-1Corr': fc2_protein_MW, 'FC3-1Corr': fc3_protein_MW, 'FC4-1Corr': fc4_protein_MW,
-                       'FC4-3Corr': fc4_protein_MW }
-    df_final_for_dot['PROTEIN_MW'] = df_final_for_dot['FC'].map(protein_mw_dict)
+    protein_mw_dict = {1: fc1_protein_MW, 2: fc2_protein_MW, 3: fc3_protein_MW,
+                       4: fc4_protein_MW, 5: fc5_protein_MW, 6: fc6_protein_MW, 7: fc7_protein_MW, 8: fc8_protein_MW}
+    df_final_for_dot['PROTEIN_MW'] = df_senso_txt['Channel'].map(protein_mw_dict)
 
-    # Add BIP
-    protein_bip_dict = {'FC2-1Corr': fc2_protein_BIP, 'FC3-1Corr': fc3_protein_BIP, 'FC4-1Corr': fc4_protein_BIP,
-                        'FC4-3Corr': fc4_protein_BIP}
-    df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
+    # Add protein BIP
+    protein_bip_dict = {1: fc1_protein_BIP, 2: fc2_protein_BIP, 3: fc3_protein_BIP,
+                        4: fc4_protein_BIP, 5: fc5_protein_BIP, 6: fc6_protein_BIP, 7: fc7_protein_BIP,
+                        8: fc8_protein_BIP}
+    df_final_for_dot['PROTEIN_ID'] = df_senso_txt['Channel'].map(protein_bip_dict)
 
     # Add the MW for each compound.
-    df_final_for_dot['MW'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='MW',
-                                                           times_dup=num_fc_used))
+    df_final_for_dot['MW'] = df_cmpd_set['MW']
 
     # Continue adding columns to final DataFrame
-    df_final_for_dot['INSTRUMENT'] = instrument
-    df_final_for_dot['ASSAY_MODE'] = 'Multi-Cycle'
-    df_final_for_dot['EXP_DATE'] = experiment_date
-    df_final_for_dot['NUCLEOTIDE'] = nucleotide
-    df_final_for_dot['CHIP_LOT'] = chip_lot
-    df_final_for_dot['OPERATOR'] = operator
-    df_final_for_dot['PROTOCOL_ID'] = protocol
-    df_final_for_dot['RAW_DATA_FILE'] = raw_data_filename
-    df_final_for_dot['DIR_FOLDER'] = directory_folder
+    df_final_for_dot.loc[:, 'INSTRUMENT'] = instrument
+    df_final_for_dot.loc[:, 'EXP_DATE'] = experiment_date
+    df_final_for_dot.loc[:, 'NUCLEOTIDE'] = nucleotide
+    df_final_for_dot.loc[:, 'CHIP_LOT'] = chip_lot
+    df_final_for_dot.loc[:, 'OPERATOR'] = operator
+    df_final_for_dot.loc[:, 'PROTOCOL_ID'] = protocol
+    df_final_for_dot.loc[:, 'RAW_DATA_FILE'] = raw_data_filename
+    df_final_for_dot.loc[:, 'DIR_FOLDER'] = directory_folder
 
     # Add the unique ID #
-    df_final_for_dot['UNIQUE_ID'] = df_senso_txt['Sample'] + '_' + df_final_for_dot['FC'] + '_' + project_code + \
+    df_final_for_dot['UNIQUE_ID'] = df_senso_txt['Analyte 1 Solution'] + '_' + df_final_for_dot['FC'] + '_' + project_code + \
                                     '_' + experiment_date + \
-                                    '_' + df_senso_txt['Image File'].str.split('_', expand=True)[5]
+                                    '_' + df_senso_txt['sample_order']
 
     # Add steady state image file path
     # Need to replace /Volumes with //flynn
     path_ss_img_edit = path_ss_img.replace('/Volumes', '//flynn')
-    df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_txt['Image File']
+    df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_txt['Steady_State_Img']
 
     # Add sensorgram image file path
     # Need to replace /Volumes with //flynn
     path_senso_img_edit = path_senso_img.replace('/Volumes', '//flynn')
-    df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Image File']
+    df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Senso_Img']
 
     # Add the Rmax_theoretical.
     # Note couldn't do this before as I needed to add protein MW and RU first.
@@ -457,7 +448,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     # Add a drop down list of comments.
     # Calculate the number of rows to add the drop down menu.
     num_cpds = len(df_cmpd_set.index)
-    num_data_pts = (num_cpds * 3) + 1
+    num_data_pts = num_cpds + 1
 
     # Write the comments to the comment sheet.
     comments_list = pd.DataFrame({'Comments':
@@ -506,10 +497,10 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Start preparing to insert the steady state and sensorgram images.
     # Get list of image files from df_ss_txt Dataframe.
-    list_ss_img = df_ss_txt['Image File'].tolist()
+    list_ss_img = df_ss_txt['Steady_State_Img'].tolist()
 
     # Get list of images files in the df_senso_txt DataFrame.
-    list_sonso_img = df_senso_txt['Image File'].tolist()
+    list_sonso_img = df_senso_txt['Senso_Img'].tolist()
 
     # Create a list of tuples containing the names of the steady state image and sensorgram image.
     tuple_list_imgs = list(zip(list_ss_img, list_sonso_img))
