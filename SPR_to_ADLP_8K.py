@@ -56,10 +56,10 @@ def spr_insert_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
 
     # Set height of each row
     for row in range(1, num_images + 1):
-        worksheet.set_row(row=row, height=235)
+        worksheet.set_row(row=row, height=145)
 
     # Set the width of each column
-    worksheet.set_column(first_col=3, last_col=4, width=58)
+    worksheet.set_column(first_col=3, last_col=4, width=24)
 
     row = 2
     for ss_img, senso_img in tuple_list_imgs:
@@ -93,8 +93,8 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, fc_used):
     cols_in_file = df_rpt_pts_all.columns.tolist()
 
     # Make sure we have the needed columns
-    for col in cols_in_file:
-        if col not in cols_needed:
+    for col in cols_needed:
+        if col not in cols_in_file:
             raise ValueError('The columns in the report point file do not match the expected names.')
 
     # Remove other not needed columns
@@ -112,7 +112,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, fc_used):
     df_cmpd_set['BRD_MERGE'] = 'BRD-' + df_cmpd_set['Broad ID'].str[9:13]
 
     # Convert compound set concentration column to float so DataFrames can be merged.
-    df_cmpd_set['Analyte 1 Concentration (µM)'] = df_cmpd_set['Analyte 1 Concentration (µM)'].astype('float')
+    df_cmpd_set['Test [Cpd] uM'] = df_cmpd_set['Test [Cpd] uM'].astype('float')
 
     # Merge the report point DataFrame and compound set DataFrame on Top concentration which results in a new Dataframe
     # with only the data for the top concentrations run.
@@ -163,6 +163,7 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     df_analysis['Cmpd_Run_Order'] = df_analysis['Analyte 1 Solution'].str.split('_', expand=True)[1]
     df_analysis['Cmpd_Run_Order'] = df_analysis['Cmpd_Run_Order'].astype(int)
     df_analysis = df_analysis.sort_values(['Cmpd_Run_Order'])
+    df_analysis = df_analysis.reset_index(drop=True)
 
     # Create a DataFrame with the file names.
     df_img_files = pd.DataFrame(img_files)
@@ -180,7 +181,7 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     # Add some randomness to the file path so that if the same cmpd on the same day was run, in a second run,
     # it would still be unique
     rand_int = np.random.randint(low=10, high=99)
-    df_img_files['New_Name'] = df_img_files['Analyte 1 Solution'] + '_' + raw_data_file_name + '_' + str(rand_int) + '_' \
+    df_img_files['New_Name'] = df_analysis['Analyte 1 Solution'] + '_' + raw_data_file_name + '_' + str(rand_int) + '_' \
                                + df_img_files['Cmpd_Run_Order'].astype(str) + '.png'
 
     # Rename the files
@@ -200,14 +201,17 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     return df_analysis
 
 # Using click to manage the command line interface
-@click.command()
-@click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
-              help="Path of the configuration file. Text file with all of the file paths and meta "
-                   "data for a particular experiment.")
-@click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension"
-                ,help="Name of the ADLP results file which is an Excel file.")
-@click.option('--clip', is_flag=True,
-              help="Option to indicate that the contents of the setup file are on the clipboard.")
+# @click.command()
+# @click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
+#               help="Path of the configuration file. Text file with all of the file paths and meta "
+#                    "data for a particular experiment.")
+# @click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension"
+#                 ,help="Name of the ADLP results file which is an Excel file.")
+# @click.option('--clip', is_flag=True,
+#               help="Option to indicate that the contents of the setup file are on the clipboard.")
+CONFIG_FILE = '/Users/bfulroth/GitProjects/SPR_Create_Dotmatics_ADLP_File/Test_Files/8K_testing/DATE_config_8K.txt'
+SAVE_FILE = '191203_8K_test.xlsx'
+CLIP = False
 def spr_create_dot_upload_file(config_file, save_file, clip):
     import configparser
 
@@ -289,7 +293,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
 
     # Read in the text files that have the calculated values for steady-state and kinetic analysis.
-    df_ss_txt = pd.read_csv(path_ss_txt)
+    df_ss_txt = pd.read_excel(path_ss_txt)
     df_senso_txt = pd.read_excel(path_senso_txt)
 
     """
@@ -336,7 +340,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_ss_txt['sample_order'] = pd.to_numeric(df_ss_txt['sample_order'])
     df_ss_txt = df_ss_txt.sort_values(by=['sample_order'])
     df_ss_txt = df_ss_txt.reset_index(drop=True)
-    df_ss_txt['KD_SS_UM'] = df_ss_txt['KD (M)'] * 1000000
+    df_ss_txt['KD_SS_UM'] = df_ss_txt['KD'] * 1000000
 
     # Add the KD steady state
     df_final_for_dot['KD_SS_UM'] = df_ss_txt['KD_SS_UM']
@@ -367,7 +371,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Continue creating new columns
     df_final_for_dot['FITTED_RMAX_1_1_BINDING'] = df_senso_txt['Rmax']
-    df_final_for_dot['COMMENTS'] = ''
+    df_final_for_dot.loc[:, 'COMMENTS'] = ''
 
     # Add the flow channel column
     df_final_for_dot.loc[:, 'FC'] = '2-1'
@@ -404,7 +408,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     # Add the unique ID #
     df_final_for_dot['UNIQUE_ID'] = df_senso_txt['Analyte 1 Solution'] + '_' + df_final_for_dot['FC'] + '_' + project_code + \
                                     '_' + experiment_date + \
-                                    '_' + df_senso_txt['sample_order']
+                                    '_' + df_senso_txt['Analyte 1 Solution'].str.split('_', expand=True)[1]
 
     # Add steady state image file path
     # Need to replace /Volumes with //flynn
@@ -493,7 +497,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     cell_format = workbook.add_format()
     cell_format.set_align('center')
     cell_format.set_align('vcenter')
-    worksheet1.set_column('A:AI', 25, cell_format)
+    worksheet1.set_column('A:AJ', 28, cell_format)
 
     # Start preparing to insert the steady state and sensorgram images.
     # Get list of image files from df_ss_txt Dataframe.
@@ -515,4 +519,4 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
 
 if __name__ == '__main__':
-    spr_create_dot_upload_file()
+    spr_create_dot_upload_file(CONFIG_FILE, SAVE_FILE, CLIP)
