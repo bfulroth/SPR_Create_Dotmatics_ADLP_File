@@ -343,7 +343,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Add the chi2_steady_state_affinity
     # TODO: Not sure if the squared value is usually in the file. Looks different in my downloaded file.
-    df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Chi² (RU²)']
+    df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Affinity Chi≤ (RU≤)']
 
     # Add the Fitted_Rmax_steady_state_affinity
     df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax']
