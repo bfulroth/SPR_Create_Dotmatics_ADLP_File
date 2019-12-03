@@ -1,0 +1,46 @@
+[paths]
+path_mstr_tbl: /Users/bfulroth/GitProjects/SPR_Create_Dotmatics_ADLP_File/Test_Files/8K_testing/191126_SPR_Setup_PPM1D_8k.csv
+path_ss_img: /Users/bfulroth/GitProjects/SPR_Create_Dotmatics_ADLP_File/Test_Files/8K_testing/191126_7260_affinity_PWF
+path_ss_txt: /Users/bfulroth/GitProjects/SPR_Create_Dotmatics_ADLP_File/Test_Files/8K_testing/191126_7260_affinity_PWF/101126_7260_affinity.csv
+path_senso_img: /Users/bfulroth/GitProjects/SPR_Create_Dotmatics_ADLP_File/Test_Files/8K_testing/191126_7260_affinity_SPF
+path_senso_txt: /Users/bfulroth/GitProjects/SPR_Create_Dotmatics_ADLP_File/Test_Files/8K_testing/191126_7260_affinity_SPF/101126_7260_kinetic.csv
+path_report_pt:
+
+[meta]
+immobilized_fc: 1,2,3,4,5,6,7,8
+experiment_date: 2019_10_30
+project_code: 7279
+operator: bfulroth
+instrument: Biacore8K
+protocol:KRAS_SPR_Assay_v6
+chip_lot: 10271084
+nucleotide: GMPPCP
+raw_data_filename: 191029_7279_affinity
+directory_folder: Biacore8K/Ben/KRAS
+
+fc1_protein_BIP: BIP-0384-01
+fc2_protein_BIP: BIP-0384-01
+fc3_protein_BIP: BIP-0384-01
+fc4_protein_BIP: BIP-0384-01
+fc5_protein_BIP: BIP-0384-01
+fc6_protein_BIP: BIP-0384-01
+fc7_protein_BIP: BIP-0384-01
+fc8_protein_BIP: BIP-0384-01
+
+fc1_protein_MW: 26870.04
+fc2_protein_MW: 26870.04
+fc3_protein_MW: 26870.04
+fc4_protein_MW: 26870.04
+fc5_protein_MW: 26870.04
+fc6_protein_MW: 26870.04
+fc7_protein_MW: 26870.04
+fc8_protein_MW: 26870.04
+
+fc1_protein_RU: 241.9
+fc2_protein_RU: 241.9
+fc3_protein_RU: 241.7
+fc4_protein_RU: 244.9
+fc5_protein_RU: 241.9
+fc6_protein_RU: 241.9
+fc7_protein_RU: 241.9
+fc8_protein_RU: 241.9
