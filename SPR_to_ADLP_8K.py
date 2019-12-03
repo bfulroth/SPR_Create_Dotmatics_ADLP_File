@@ -397,6 +397,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Continue adding columns to final DataFrame
     df_final_for_dot.loc[:, 'INSTRUMENT'] = instrument
+    df_final_for_dot['ASSAY_MODE'] = 'Multi-Cycle'
     df_final_for_dot.loc[:, 'EXP_DATE'] = experiment_date
     df_final_for_dot.loc[:, 'NUCLEOTIDE'] = nucleotide
     df_final_for_dot.loc[:, 'CHIP_LOT'] = chip_lot
