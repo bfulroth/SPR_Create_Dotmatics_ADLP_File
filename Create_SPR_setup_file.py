@@ -15,12 +15,15 @@ else:
 
 @click.command()
 @click.option('--clip', is_flag=True, help='Option to indicate that the contents of the setup file is on the clipboard')
-@click.option('--b8k', is_flag=True, help='Optional flag to indicate output format to be compatiable with Biacore 8K')
-def spr_setup_sheet(clip, b8k):
+def spr_setup_sheet(clip):
     """
     Creates the setup file necessary to run a dose response protocol on a Biacore instrument.
     :param clip: Optional flag to indicate that the contents of the setup file are on the clipboard.
     """
+    # Determine at runtime if the user wants to format the file for a Biacore 8k run.
+    process_for_8k = False
+    if click.confirm('Do you want to format the file for Biacore 8K?'):
+        process_for_8k = True
 
     try:
         if clip:
@@ -107,7 +110,7 @@ def spr_setup_sheet(clip, b8k):
 
         # Need to sort the DF if flag b8k is true.
         # TODO: Limited to only 8 compounds.  If > 8 all zeros are sorted to the beginning. Need to change.
-        if b8k:
+        if process_for_8k:
 
             """
             Need to sort the df for 8k input such that each cmpd is grouped for 8 needles and sorted by conc. 
