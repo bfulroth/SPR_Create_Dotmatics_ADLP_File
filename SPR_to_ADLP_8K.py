@@ -200,18 +200,15 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     os.chdir(my_dir)
     return df_analysis
 
-# Using click to manage the command line interface
-# @click.command()
-# @click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
-#               help="Path of the configuration file. Text file with all of the file paths and meta "
-#                    "data for a particular experiment.")
-# @click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension"
-#                 ,help="Name of the ADLP results file which is an Excel file.")
-# @click.option('--clip', is_flag=True,
-#               help="Option to indicate that the contents of the setup file are on the clipboard.")
-CONFIG_FILE = '/Users/bfulroth/GitProjects/SPR_Create_Dotmatics_ADLP_File/Test_Files/8K_testing/DATE_config_8K.txt'
-SAVE_FILE = '191205_8K_test.xlsx'
-CLIP = False
+#Using click to manage the command line interface
+@click.command()
+@click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
+              help="Path of the configuration file. Text file with all of the file paths and meta "
+                   "data for a particular experiment.")
+@click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension"
+                ,help="Name of the ADLP results file which is an Excel file.")
+@click.option('--clip', is_flag=True,
+              help="Option to indicate that the contents of the setup file are on the clipboard.")
 def spr_create_dot_upload_file(config_file, save_file, clip):
     import configparser
 
@@ -520,4 +517,4 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
 
 if __name__ == '__main__':
-    spr_create_dot_upload_file(CONFIG_FILE, SAVE_FILE, CLIP)
+    spr_create_dot_upload_file()
