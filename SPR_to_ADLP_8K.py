@@ -2,6 +2,8 @@ import pandas as pd
 import os
 import click
 import platform
+import numpy as np
+from glob import glob
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -54,10 +56,10 @@ def spr_insert_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
 
     # Set height of each row
     for row in range(1, num_images + 1):
-        worksheet.set_row(row=row, height=235)
+        worksheet.set_row(row=row, height=145)
 
     # Set the width of each column
-    worksheet.set_column(first_col=3, last_col=4, width=58)
+    worksheet.set_column(first_col=3, last_col=4, width=24)
 
     row = 2
     for ss_img, senso_img in tuple_list_imgs:
@@ -66,107 +68,47 @@ def spr_insert_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
         row += 1
 
 
-def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_used, ref_fc_used=1):
+def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, fc_used):
+    #TODO: Currently assumes that all 8 channels were used.
     """This method calculates the binding in RU at the top concentration.
 
         :param report_pt_file: reference to the report point file exported from the Biacore Instrument.
         :param df_cmpd_set: DataFrame containing the compound set data. This is used to extract the binding
         RU at the top concentration of compound tested.
-        :param instrument: The instrument as a string. (e.g. 'BiacoreS200', 'Biacore1, 'Biacore2')
         :param fc_used: The flow channels that were immobilized in the experiment.
-        :param ref_fc_used: The reference channel used.  Currently only 1 and 3 are supported.
         :returns Series containing the RU at the top concentration tested for each compound in the order tested.
         """
-    if (instrument != 'BiacoreS200') & (instrument != 'Biacore1') & (instrument != 'Biacore3'):
-        raise ValueError('Instrument argument must be BiacoreS200, Biacore1, or Biacore3')
 
     try:
         # Read in data
-        df_rpt_pts_all = pd.read_excel(report_pt_file, sheet_name='Report Point Table', skiprows=3)
+        df_rpt_pts_all = pd.read_excel(report_pt_file, sheet_name='Report point table', skiprows=2)
     except:
         raise FileNotFoundError('The files could not be imported please check.')
 
-    # Biacore instrument software for the S200 and T200 instruments exports different column names.
-    # Check that the columns in the report point file match the expected values.
-    if (instrument=='Biacore1') | (instrument == 'Biacore3'):
-        expected_cols = ['Cycle', 'Fc', 'Time', 'Window', 'AbsResp', 'SD', 'Slope', 'LRSD', 'Baseline', 'RelResp',
-                         'Report Point', 'AssayStep', 'AssayStepPurpose', 'Buffer', 'CycleType', 'Temp',
-                         'Sample_1_Sample', 'Sample_1_Ligand', 'Sample_1_Conc', 'Sample_1_MW', 'General_1_Solution']
+    # Check that the NEEDED columns are in the report point file.
+    cols_needed = ['Cycle', 'Channel', 'Flow cell',	'Sensorgram type', 'Name', 'Relative response (RU)',
+                   'Step name', 'Analyte 1 Solution', 'Analyte 1 Concentration (µM)']
 
-    # Check that the columns in the report point file match the expected values.
-    if instrument == 'BiacoreS200':
-        expected_cols = ['Unnamed: 0', 'Cycle','Fc','Report Point','Time [s]','Window [s]','AbsResp [RU]','SD',
-                     'Slope [RU/s]','LRSD','RelResp [RU]',	'Baseline',	'AssayStep','Assay Step Purpose',
-                    'Buffer','Cycle Type','Temp','Sample_1_Barcode','Sample_1_Conc [µM]','Sample_1_Ligand',
-                         'Sample_1_MW [Da]', 'Sample_1_Sample', 'General_1_Solution']
+    # Convert to list
+    cols_in_file = df_rpt_pts_all.columns.tolist()
 
-    if df_rpt_pts_all.columns.tolist() != expected_cols:
-        raise ValueError('The columns in the report point file do not match the expected names.')
+    # Make sure we have the needed columns
+    for col in cols_needed:
+        if col not in cols_in_file:
+            raise ValueError('The columns in the report point file do not match the expected names.')
 
-    # For BiacoreS200
-    # Remove first column
-    if instrument == 'BiacoreS200':
-        df_rpt_pts_trim = df_rpt_pts_all.iloc[:, 1:]
+    # Remove other not needed columns
+    df_rpt_pts_trim = df_rpt_pts_all.loc[:, ['Cycle', 'Channel', 'Flow cell', 'Sensorgram type', 'Name',
+                                             'Relative response (RU)', 'Step name', 'Analyte 1 Solution',
+                                             'Analyte 1 Concentration (µM)']]
 
-        # Remove other not needed columns
-        df_rpt_pts_trim = df_rpt_pts_trim.loc[:,
-                      ['Cycle', 'Fc', 'Report Point', 'Time [s]', 'RelResp [RU]', 'AssayStep', 'Cycle Type',
-                       'Sample_1_Conc [µM]',
-                       'Sample_1_Sample']]
-
-    # For Biacore1 or Biacore3
-    else:
-        # Remove other not needed columns
-        df_rpt_pts_trim = df_rpt_pts_all.loc[:,
-                          ['Cycle', 'Fc', 'Report Point', 'Time', 'RelResp', 'AssayStep', 'CycleType', 'Sample_1_Conc',
-                           'Sample_1_Sample']]
-
-    # Reassign columns so that there is consistent naming between BiacoreS200, Biacore1, and Biacore3.
-    df_rpt_pts_trim.columns = ['Cycle', 'Fc', 'Report Point', 'Time [s]', 'RelResp [RU]', 'AssayStep', 'Cycle Type',
-                               'Sample_1_Conc [µM]', 'Sample_1_Sample']
-
-    # Remove not needed rows.
-    df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Report Point'] == 'binding']
-    df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['AssayStep'] != 'Startup') &
-                                      (df_rpt_pts_trim['AssayStep'] != 'Solvent correction')]
-
-    # Filter out non-corrected data.
-    df_rpt_pts_trim['FC_Type'] = df_rpt_pts_trim['Fc'].str.split(' ', expand=True)[1]
-    df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['FC_Type'] == 'corr']
-
-    ## Remove not needed flow channels
-
-    # If the reference channel is 3 then assume that the only immobilized channel is 4
-    # Take note that this may not always be the case!
-    if ref_fc_used == 3:
-        df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '4-3 corr']
-
-    # If the reference channel is not 3 assume it is 1.
-    else:
-        if len(fc_used) == 1:
-            if fc_used[0] == 2:
-                df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '2-1 corr']
-            elif fc_used[0] == 3:
-                df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '3-1 corr']
-            elif fc_used[0] == 4:
-                df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '4-1 corr']
-
-        # Two channels used
-        elif len(fc_used) == 2:
-            if (fc_used[0] == 2) & (fc_used[1] == 3):
-                df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') |
-                                              (df_rpt_pts_trim['Fc'] == '3-1 corr')]
-            if (fc_used[0] == 3) & (fc_used[1] == 4):
-                df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '3-1 corr') |
-                                                  (df_rpt_pts_trim['Fc'] == '4-1 corr')]
-            if (fc_used[0] == 2) & (fc_used[1] == 4):
-                df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') |
-                                                  (df_rpt_pts_trim['Fc'] == '4-1 corr')]
-
-    # If 3 channels used than assume we want all the corrected data so no filtering done.
+    # Filter and removed not needed rows
+    df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Sensorgram type'] == 'Corrected']
+    df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Name'] == 'Analyte binding late_1']
+    df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Step name'] == 'Analysis']
 
     # Create a new column of BRD 4 digit numbers to merge
-    df_rpt_pts_trim['BRD_MERGE'] = df_rpt_pts_trim['Sample_1_Sample'].str.split('_', expand=True)[0]
+    df_rpt_pts_trim['BRD_MERGE'] = df_rpt_pts_trim['Analyte 1 Solution'].str.split('_', expand=True)[0]
     df_cmpd_set['BRD_MERGE'] = 'BRD-' + df_cmpd_set['Broad ID'].str[9:13]
 
     # Convert compound set concentration column to float so DataFrames can be merged.
@@ -175,34 +117,101 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
     # Merge the report point DataFrame and compound set DataFrame on Top concentration which results in a new Dataframe
     # with only the data for the top concentrations run.
     # To prevent a merge error it is necessary to round sample concentration in both merged data frames.
-    df_rpt_pts_trim['Sample_1_Conc [µM]'] = round(df_rpt_pts_trim['Sample_1_Conc [µM]'], 2)
+    df_rpt_pts_trim['Analyte 1 Concentration (µM)'] = round(df_rpt_pts_trim['Analyte 1 Concentration (µM)'], 2)
     df_cmpd_set['Test [Cpd] uM'] = round(df_cmpd_set['Test [Cpd] uM'], 2)
 
     # Conduct the merge.
     df_rpt_pts_trim = pd.merge(left=df_rpt_pts_trim, right=df_cmpd_set,
-                               left_on=['BRD_MERGE', 'Sample_1_Conc [µM]'],
+                               left_on=['BRD_MERGE', 'Analyte 1 Concentration (µM)'],
                                right_on=['BRD_MERGE','Test [Cpd] uM'], how='inner')
 
     # If a compound was run more than once, such as a control, we need to drop the duplicate values.
-    df_rpt_pts_trim = df_rpt_pts_trim.drop_duplicates(['Fc', 'Sample_1_Sample'])
+    df_rpt_pts_trim = df_rpt_pts_trim.drop_duplicates(['Analyte 1 Solution'])
 
     # Need to resort the Dataframe
     # Create sorting column
-    df_rpt_pts_trim['sample_order'] = df_rpt_pts_trim['Sample_1_Sample'].str.split('_', expand=True)[1]
+    df_rpt_pts_trim['sample_order'] = df_rpt_pts_trim['Analyte 1 Solution'].str.split('_', expand=True)[1]
     df_rpt_pts_trim = df_rpt_pts_trim.sort_values(['Cycle', 'sample_order'])
     df_rpt_pts_trim = df_rpt_pts_trim.reset_index(drop=True)
 
-    return round(df_rpt_pts_trim['RelResp [RU]'], 2)
+    return round(df_rpt_pts_trim['Relative response (RU)'], 2)
+
+
+def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
+    """
+    Method that renames the images in a folder.  Also adds the names of the images to the passed in df.
+    :param df_analysis: Dataframe containing the steady state or kinetic fit results.
+    :param path_img: Path to the folder containing the images to rename
+    :param image_type: The type of image 'ss' for steady state or 'senso' for kinetic fits.
+    :param raw_data_file_name: Name of the raw data file used when renaming the images.
+    :return: The df_ss_senso df with the column with the image names added.
+    """
+
+    # Store the current working directory
+    my_dir = os.getcwd()
+
+    # Change the Directory to the ss image folder
+    os.chdir(path_img)
+
+    # Get the image file names.
+    img_files = glob('*.png')
+
+    # Delete legend from folder.
+    #TODO: Need to figure out how to delete the legend from the list of image files.
+
+    # Extract the order the compounds were run.
+    df_analysis['Cmpd_Run_Order'] = df_analysis['Analyte 1 Solution'].str.split('_', expand=True)[1]
+    df_analysis['Cmpd_Run_Order'] = df_analysis['Cmpd_Run_Order'].astype(int)
+    df_analysis = df_analysis.sort_values(['Cmpd_Run_Order'])
+    df_analysis = df_analysis.reset_index(drop=True)
+
+    # Create a DataFrame with the file names.
+    df_img_files = pd.DataFrame(img_files)
+    df_img_files.columns = ['Original_Name']
+
+    # Extract the compound run number and sort.
+    df_img_files['File_name_chunk'] = df_img_files['Original_Name'].str.split('_', expand=True)[1]
+    df_img_files['Cmpd_Run_Order'] = df_img_files['File_name_chunk'].str.split(';', expand=True)[0]
+    df_img_files['Cmpd_Run_Order'] = df_img_files['Cmpd_Run_Order'].astype(int)
+    df_img_files = df_img_files.sort_values(['Cmpd_Run_Order'])
+    df_img_files = df_img_files.reset_index(drop=True)
+
+    # Create a column of what we would like the name of the files to be changed to.
+    # Usual format is BRD-6994_190916_7279_affinity_12.png
+    # Add some randomness to the file path so that if the same cmpd on the same day was run, in a second run,
+    # it would still be unique
+    rand_int = np.random.randint(low=10, high=99)
+    df_img_files['New_Name'] = df_analysis['Analyte 1 Solution'] + '_' + raw_data_file_name + '_' + str(rand_int) + '_' \
+                               + df_img_files['Cmpd_Run_Order'].astype(str) + '.png'
+
+    # Rename the files
+    for idx, row in df_img_files.iterrows():
+        ori_name = row['Original_Name']
+        new_name = row['New_Name']
+        os.rename(ori_name, new_name)
+
+    # Add the image file names to the df_ss_seno DataFrame
+    if image_type == 'ss':
+        df_analysis['Steady_State_Img'] = df_img_files['New_Name']
+    elif image_type == 'senso':
+        df_analysis['Senso_Img'] = df_img_files['New_Name']
+
+    # change the directory back to the working dir.
+    os.chdir(my_dir)
+    return df_analysis
 
 # Using click to manage the command line interface
-@click.command()
-@click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
-              help="Path of the configuration file. Text file with all of the file paths and meta "
-                   "data for a particular experiment.")
-@click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension"
-                ,help="Name of the ADLP results file which is an Excel file.")
-@click.option('--clip', is_flag=True,
-              help="Option to indicate that the contents of the setup file are on the clipboard.")
+# @click.command()
+# @click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
+#               help="Path of the configuration file. Text file with all of the file paths and meta "
+#                    "data for a particular experiment.")
+# @click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension"
+#                 ,help="Name of the ADLP results file which is an Excel file.")
+# @click.option('--clip', is_flag=True,
+#               help="Option to indicate that the contents of the setup file are on the clipboard.")
+CONFIG_FILE = '/Users/bfulroth/GitProjects/SPR_Create_Dotmatics_ADLP_File/Test_Files/8K_testing/DATE_config_8K.txt'
+SAVE_FILE = '191205_8K_test.xlsx'
+CLIP = False
 def spr_create_dot_upload_file(config_file, save_file, clip):
     import configparser
 
@@ -230,22 +239,12 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         path_senso_txt = config.get('paths', 'path_senso_txt')
         path_report_pt = config.get('paths', 'path_report_pt')
 
-        # Get all of the metadata variables
-        num_fc_used = config.get('meta','num_fc_used')
-
-        # Get the reference channel
-        ref_fc_used = int(config.get('meta', 'ref_fc_used'))
-
         # Get the flow channels immobilized
         immobilized_fc = str(config.get('meta', 'immobilized_fc'))
         immobilized_fc = immobilized_fc.strip(" ")
         immobilized_fc = immobilized_fc.replace(' ', '')
         immobilized_fc_arr = immobilized_fc.split(',')
         immobilized_fc_arr = [int(i) for i in immobilized_fc_arr]
-
-        if int(num_fc_used) != len(immobilized_fc_arr):
-            raise RuntimeError ('The number of flow channels used is not equal to the number of immobilized flow '
-                                'channels.')
 
         # Continue collecting variables from the configuration file.
         experiment_date = config.get('meta','experiment_date')
@@ -257,25 +256,62 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         nucleotide = config.get('meta','nucleotide')
         raw_data_filename = config.get('meta','raw_data_filename')
         directory_folder = config.get('meta','directory_folder')
-        fc2_protein_BIP = config.get('meta','fc2_protein_BIP')
-        fc2_protein_RU = float(config.get('meta','fc2_protein_RU'))
-        fc2_protein_MW = float(config.get('meta','fc2_protein_MW'))
-        fc3_protein_BIP = config.get('meta','fc3_protein_BIP')
-        fc3_protein_RU = float(config.get('meta','fc3_protein_RU'))
-        fc3_protein_MW = float(config.get('meta','fc3_protein_MW'))
-        fc4_protein_BIP = config.get('meta','fc4_protein_BIP')
-        fc4_protein_RU = float(config.get('meta','fc4_protein_RU'))
-        fc4_protein_MW = float(config.get('meta','fc4_protein_MW'))
+
+        # Get all of the immobilized protein info.
+        # BIP
+        fc1_protein_BIP = config.get('meta', 'fc1_protein_BIP')
+        fc2_protein_BIP = config.get('meta', 'fc2_protein_BIP')
+        fc3_protein_BIP = config.get('meta', 'fc3_protein_BIP')
+        fc4_protein_BIP = config.get('meta', 'fc4_protein_BIP')
+        fc5_protein_BIP = config.get('meta', 'fc5_protein_BIP')
+        fc6_protein_BIP = config.get('meta', 'fc6_protein_BIP')
+        fc7_protein_BIP = config.get('meta', 'fc7_protein_BIP')
+        fc8_protein_BIP = config.get('meta', 'fc8_protein_BIP')
+
+        # RU
+        fc1_protein_RU = float(config.get('meta', 'fc1_protein_RU'))
+        fc2_protein_RU = float(config.get('meta', 'fc2_protein_RU'))
+        fc3_protein_RU = float(config.get('meta', 'fc3_protein_RU'))
+        fc4_protein_RU = float(config.get('meta', 'fc4_protein_RU'))
+        fc5_protein_RU = float(config.get('meta', 'fc5_protein_RU'))
+        fc6_protein_RU = float(config.get('meta', 'fc6_protein_RU'))
+        fc7_protein_RU = float(config.get('meta', 'fc7_protein_RU'))
+        fc8_protein_RU = float(config.get('meta', 'fc8_protein_RU'))
+
+        # MW
+        fc1_protein_MW = float(config.get('meta', 'fc1_protein_MW'))
+        fc2_protein_MW = float(config.get('meta', 'fc2_protein_MW'))
+        fc3_protein_MW = float(config.get('meta', 'fc3_protein_MW'))
+        fc4_protein_MW = float(config.get('meta', 'fc4_protein_MW'))
+        fc5_protein_MW = float(config.get('meta', 'fc5_protein_MW'))
+        fc6_protein_MW = float(config.get('meta', 'fc6_protein_MW'))
+        fc7_protein_MW = float(config.get('meta', 'fc7_protein_MW'))
+        fc8_protein_MW = float(config.get('meta', 'fc8_protein_MW'))
+
     except:
         raise RuntimeError('Something is wrong with the config file. Please check.')
+
+
+    # Read in the text files that have the calculated values for steady-state and kinetic analysis.
+    df_ss_txt = pd.read_excel(path_ss_txt)
+    df_senso_txt = pd.read_excel(path_senso_txt)
+
+    """
+    Biacore 8k names the images in different way compared to S200 and T200. Therefore, we need to rename the images
+    to be consistent for Dotmatics.
+    """
+    df_ss_txt = rename_images(df_analysis=df_ss_txt, path_img=path_ss_img, image_type='ss',
+                                        raw_data_file_name=raw_data_filename)
+    df_senso_txt = rename_images(df_analysis=df_senso_txt, path_img=path_senso_img,
+                                        image_type='senso', raw_data_file_name=raw_data_filename)
+
 
     # Start building the final Dotmatics DataFrame
     df_final_for_dot = pd.DataFrame()
 
     # Start by adding the Broad ID in the correct order.
-    num_fc_used = int(num_fc_used)
-    df_final_for_dot['BROAD_ID'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='Broad ID',
-                                                                 times_dup=num_fc_used))
+    # NB: For the 8k each compound has it's own channel so no need to replicate the BRD as is required on T200 and S200
+    df_final_for_dot['BROAD_ID'] = df_cmpd_set['Broad ID']
 
     # Add the Project Code.  Get this from the config file.
     df_final_for_dot['PROJECT_CODE'] = project_code
@@ -290,123 +326,100 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot['1to1_IMG'] = ''
 
     # Add the starting compound concentrations
-    df_final_for_dot['TOP_COMPOUND_UM'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='Test [Cpd] uM',
-                                                                 times_dup=num_fc_used))
+    df_final_for_dot['TOP_COMPOUND_UM'] = df_cmpd_set['Test [Cpd] uM']
 
     # Extract the RU Max for each compound using the report point file.
     df_final_for_dot['RU_TOP_CMPD'] = spr_binding_top_for_dot_file(report_pt_file=path_report_pt,
-    df_cmpd_set=df_cmpd_set, instrument=instrument, fc_used=immobilized_fc_arr, ref_fc_used=ref_fc_used)
+                                                                   df_cmpd_set=df_cmpd_set,
+                                                                   fc_used=immobilized_fc_arr)
 
     # Extract the steady state data and add to DataFrame
-    # Read in the steady state text file into a DataFrame
-    df_ss_txt = pd.read_csv(path_ss_txt, sep='\t')
-
     # Create new columns to sort the DataFrame as the original is out of order.
-    df_ss_txt['sample_order'] = df_ss_txt['Image File'].str.split('_', expand=True)[1]
+    df_ss_txt['sample_order'] = df_ss_txt['Steady_State_Img'].str.split('_', expand=True)[1]
+    df_ss_txt['sample_order'] = df_ss_txt['sample_order'].str.replace('.png','')
     df_ss_txt['sample_order'] = pd.to_numeric(df_ss_txt['sample_order'])
-    df_ss_txt['fc_num'] = pd.to_numeric(df_ss_txt['Curve'].str[3])
-    df_ss_txt = df_ss_txt.sort_values(by=['sample_order', 'fc_num'])
+    df_ss_txt = df_ss_txt.sort_values(by=['sample_order'])
     df_ss_txt = df_ss_txt.reset_index(drop=True)
-    df_ss_txt['KD_SS_UM'] = df_ss_txt['KD (M)'] * 1000000
+    df_ss_txt['KD_SS_UM'] = df_ss_txt['KD'] * 1000000
 
     # Add the KD steady state
     df_final_for_dot['KD_SS_UM'] = df_ss_txt['KD_SS_UM']
 
     # Add the chi2_steady_state_affinity
-    df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Chi² (RU²)']
+    # TODO: Not sure if the squared value is usually in the file. Looks different in my downloaded file.
+    df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Affinity Chi≤ (RU≤)']
 
     # Add the Fitted_Rmax_steady_state_affinity
-    df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax (RU)']
+    df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax']
 
     # Extract the sensorgram data and add to DataFrame
-    # Read in the sensorgram data into a DataFrame
-    df_senso_txt = pd.read_csv(path_senso_txt, sep='\t')
-    df_senso_txt['sample_order'] = df_senso_txt['Image File'].str.split('_', expand=True)[1]
+    df_senso_txt['sample_order'] = df_senso_txt['Senso_Img'].str.split('_', expand=True)[1]
+    df_senso_txt['sample_order'] = df_senso_txt['sample_order'].str.replace('.png', '')
     df_senso_txt['sample_order'] = pd.to_numeric(df_senso_txt['sample_order'])
-    df_senso_txt['fc_num'] = pd.to_numeric(df_senso_txt['Curve'].str[3])
-    df_senso_txt = df_senso_txt.sort_values(by=['sample_order', 'fc_num'])
+    df_senso_txt = df_senso_txt.sort_values(by=['sample_order'])
     df_senso_txt = df_senso_txt.reset_index(drop=True)
 
     # Add columns from df_senso_txt
-    df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka (1/Ms)']
-    df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd (1/s)']
+    df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka']
+    df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd']
     df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
-    df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Chi² (RU²)']
+    df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Kinetics Chi≤ (RU≤)']
 
     # Not sure what this is???
     df_final_for_dot['U_VALUE_1_1_BINDING'] = ''
     # Not sure what this is??
 
     # Continue creating new columns
-    df_final_for_dot['FITTED_RMAX_1_1_BINDING'] = df_senso_txt['Rmax (RU)']
-    df_final_for_dot['COMMENTS'] = ''
+    df_final_for_dot['FITTED_RMAX_1_1_BINDING'] = df_senso_txt['Rmax']
+    df_final_for_dot.loc[:, 'COMMENTS'] = ''
 
-    # Rename the flow channels and add the flow channel column
-    df_senso_txt['FC'] = df_senso_txt['Curve'].apply(lambda x: x.replace('c', 'C'))
-    df_senso_txt['FC'] = df_senso_txt['FC'].apply(lambda x: x.replace('=', ''))
-    df_senso_txt['FC'] = df_senso_txt['FC'].apply(lambda x: x.replace(' ', ''))
-    df_final_for_dot['FC'] = df_senso_txt['FC']
+    # Add the flow channel column
+    df_final_for_dot.loc[:, 'FC'] = '2-1'
 
     # Add protein RU
-    # Need conditional if the reference channel is fc 3.
-    if ref_fc_used == 3:
+    protein_ru_dict = {1: fc1_protein_RU, 2: fc2_protein_RU, 3: fc3_protein_RU,
+                       4: fc4_protein_RU, 5: fc5_protein_RU, 6: fc6_protein_RU, 7: fc7_protein_RU, 8: fc8_protein_RU}
+    df_final_for_dot['PROTEIN_RU'] = df_senso_txt['Channel'].map(protein_ru_dict)
 
-        # Add protein RU
-        protein_ru_dict = {'FC4-3Corr': fc4_protein_RU}
-        df_final_for_dot['PROTEIN_RU'] = df_final_for_dot['FC'].map(protein_ru_dict)
+    # Add protein MW
+    protein_mw_dict = {1: fc1_protein_MW, 2: fc2_protein_MW, 3: fc3_protein_MW,
+                       4: fc4_protein_MW, 5: fc5_protein_MW, 6: fc6_protein_MW, 7: fc7_protein_MW, 8: fc8_protein_MW}
+    df_final_for_dot['PROTEIN_MW'] = df_senso_txt['Channel'].map(protein_mw_dict)
 
-        # Add protein MW
-        protein_mw_dict = {'FC4-3Corr': fc4_protein_MW}
-        df_final_for_dot['PROTEIN_MW'] = df_final_for_dot['FC'].map(protein_mw_dict)
-
-        # Add BIP
-        protein_bip_dict = {'FC4-3Corr': fc4_protein_BIP}
-        df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
-
-    # Default is if the reference channel is 1.
-    else:
-
-        # Add protein RU
-        protein_ru_dict = {'FC2-1Corr': fc2_protein_RU, 'FC3-1Corr': fc3_protein_RU, 'FC4-1Corr': fc4_protein_RU}
-        df_final_for_dot['PROTEIN_RU'] = df_final_for_dot['FC'].map(protein_ru_dict)
-
-        # Add protein MW
-        protein_mw_dict = {'FC2-1Corr': fc2_protein_MW, 'FC3-1Corr': fc3_protein_MW, 'FC4-1Corr': fc4_protein_MW}
-        df_final_for_dot['PROTEIN_MW'] = df_final_for_dot['FC'].map(protein_mw_dict)
-
-        # Add BIP
-        protein_bip_dict = {'FC2-1Corr': fc2_protein_BIP, 'FC3-1Corr': fc3_protein_BIP, 'FC4-1Corr': fc4_protein_BIP}
-        df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
+    # Add protein BIP
+    protein_bip_dict = {1: fc1_protein_BIP, 2: fc2_protein_BIP, 3: fc3_protein_BIP,
+                        4: fc4_protein_BIP, 5: fc5_protein_BIP, 6: fc6_protein_BIP, 7: fc7_protein_BIP,
+                        8: fc8_protein_BIP}
+    df_final_for_dot['PROTEIN_ID'] = df_senso_txt['Channel'].map(protein_bip_dict)
 
     # Add the MW for each compound.
-    df_final_for_dot['MW'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='MW',
-                                                           times_dup=num_fc_used))
+    df_final_for_dot['MW'] = df_cmpd_set['MW']
 
     # Continue adding columns to final DataFrame
-    df_final_for_dot['INSTRUMENT'] = instrument
+    df_final_for_dot.loc[:, 'INSTRUMENT'] = instrument
     df_final_for_dot['ASSAY_MODE'] = 'Multi-Cycle'
-    df_final_for_dot['EXP_DATE'] = experiment_date
-    df_final_for_dot['NUCLEOTIDE'] = nucleotide
-    df_final_for_dot['CHIP_LOT'] = chip_lot
-    df_final_for_dot['OPERATOR'] = operator
-    df_final_for_dot['PROTOCOL_ID'] = protocol
-    df_final_for_dot['RAW_DATA_FILE'] = raw_data_filename
-    df_final_for_dot['DIR_FOLDER'] = directory_folder
+    df_final_for_dot.loc[:, 'EXP_DATE'] = experiment_date
+    df_final_for_dot.loc[:, 'NUCLEOTIDE'] = nucleotide
+    df_final_for_dot.loc[:, 'CHIP_LOT'] = chip_lot
+    df_final_for_dot.loc[:, 'OPERATOR'] = operator
+    df_final_for_dot.loc[:, 'PROTOCOL_ID'] = protocol
+    df_final_for_dot.loc[:, 'RAW_DATA_FILE'] = raw_data_filename
+    df_final_for_dot.loc[:, 'DIR_FOLDER'] = directory_folder
 
     # Add the unique ID #
-    df_final_for_dot['UNIQUE_ID'] = df_senso_txt['Sample'] + '_' + df_final_for_dot['FC'] + '_' + project_code + \
+    df_final_for_dot['UNIQUE_ID'] = df_senso_txt['Analyte 1 Solution'] + '_' + df_final_for_dot['FC'] + '_' + project_code + \
                                     '_' + experiment_date + \
-                                    '_' + df_senso_txt['Image File'].str.split('_', expand=True)[5]
+                                    '_' + df_senso_txt['Analyte 1 Solution'].str.split('_', expand=True)[1]
 
     # Add steady state image file path
     # Need to replace /Volumes with //flynn
     path_ss_img_edit = path_ss_img.replace('/Volumes', '//flynn')
-    df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_txt['Image File']
+    df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_txt['Steady_State_Img']
 
     # Add sensorgram image file path
     # Need to replace /Volumes with //flynn
     path_senso_img_edit = path_senso_img.replace('/Volumes', '//flynn')
-    df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Image File']
+    df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Senso_Img']
 
     # Add the Rmax_theoretical.
     # Note couldn't do this before as I needed to add protein MW and RU first.
@@ -440,7 +453,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     # Add a drop down list of comments.
     # Calculate the number of rows to add the drop down menu.
     num_cpds = len(df_cmpd_set.index)
-    num_data_pts = (num_cpds * 3) + 1
+    num_data_pts = num_cpds + 1
 
     # Write the comments to the comment sheet.
     comments_list = pd.DataFrame({'Comments':
@@ -485,14 +498,14 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     cell_format = workbook.add_format()
     cell_format.set_align('center')
     cell_format.set_align('vcenter')
-    worksheet1.set_column('A:AI', 25, cell_format)
+    worksheet1.set_column('A:AJ', 28, cell_format)
 
     # Start preparing to insert the steady state and sensorgram images.
     # Get list of image files from df_ss_txt Dataframe.
-    list_ss_img = df_ss_txt['Image File'].tolist()
+    list_ss_img = df_ss_txt['Steady_State_Img'].tolist()
 
     # Get list of images files in the df_senso_txt DataFrame.
-    list_sonso_img = df_senso_txt['Image File'].tolist()
+    list_sonso_img = df_senso_txt['Senso_Img'].tolist()
 
     # Create a list of tuples containing the names of the steady state image and sensorgram image.
     tuple_list_imgs = list(zip(list_ss_img, list_sonso_img))
@@ -507,4 +520,4 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
 
 if __name__ == '__main__':
-    spr_create_dot_upload_file()
+    spr_create_dot_upload_file(CONFIG_FILE, SAVE_FILE, CLIP)
