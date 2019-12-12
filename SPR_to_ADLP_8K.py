@@ -210,7 +210,7 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
 # @click.option('--clip', is_flag=True,
 #               help="Option to indicate that the contents of the setup file are on the clipboard.")
 CONFIG_FILE = '/Users/bfulroth/GitProjects/SPR_Create_Dotmatics_ADLP_File/Test_Files/8K_testing/DATE_config_8K.txt'
-SAVE_FILE = '191203_8K_test.xlsx'
+SAVE_FILE = '191205_8K_test.xlsx'
 CLIP = False
 def spr_create_dot_upload_file(config_file, save_file, clip):
     import configparser
