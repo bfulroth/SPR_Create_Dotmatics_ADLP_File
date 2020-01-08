@@ -13,10 +13,10 @@ project_code: 7260
 operator: Wei
 instrument: Biacore8K
 protocol:PPM1D_V1
-chip_lot: 10271084
+chip_lot: Fill This In
 nucleotide: None
 raw_data_filename: 191126_7260_affinity
-directory_folder: Biacore8K/Ben/KRAS
+directory_folder: Biacore8K/Wei/KRAS
 
 fc1_protein_BIP: BIP-0474-01
 fc2_protein_BIP: BIP-0474-01
