@@ -1,4 +1,7 @@
 # SPR_Create_Dotmatics_ADLP_File
+
+[![Build Status](https://travis-ci.com/bfulroth/SPR_Create_Dotmatics_ADLP_File.svg?branch=master)](https://travis-ci.com/bfulroth/SPR_Create_Dotmatics_ADLP_File)
+
 Project for processing SPR Data for upload to Dotmatics via ADLP
 
 **Overview**
