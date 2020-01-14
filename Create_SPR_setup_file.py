@@ -1,42 +1,64 @@
 import pandas as pd
 from datetime import datetime
 import os
-import click
 import platform
-
+import argparse
 
 # Get the users Home Directory
 if platform.system() == "Windows":
     from pathlib import Path
+
     homedir = str(Path.home())
 else:
     homedir = os.environ['HOME']
 
+# Use argparse to parse the arguments instead of click.
+parser = argparse.ArgumentParser(description='Script for Creating an SPR setup file.')
+parser.add_argument("-c", "--clip", action='store_true', default=False)
 
-@click.command()
-@click.option('--clip', is_flag=True, help='Option to indicate that the contents of the setup file is on the clipboard')
-def spr_setup_sheet(clip):
+
+def spr_setup_sheet(args=None):
     """
     Creates the setup file necessary to run a dose response protocol on a Biacore instrument.
     :param clip: Optional flag to indicate that the contents of the setup file are on the clipboard.
     """
+
+    # Extract the command line arguments
+    args = parser.parse_args(args=args)
+
     # Determine at runtime if the user wants to format the file for a Biacore 8k run.
     process_for_8k = False
-    if click.confirm('Do you want to format the file for Biacore 8K?'):
-        process_for_8k = True
+
+    # TODO: How to test using click?
+    # Ask user if they want the output table to be formatted for the 8K
+    while True:
+        process_for_8k_confirm = input("Do you want to format the file for Biacore 8K [y/N]?")
+
+        if (process_for_8k_confirm == 'y') | (process_for_8k_confirm == 'Y'):
+            process_for_8k = True
+            print('Process for 8K:', process_for_8k)
+
+        if ((process_for_8k_confirm == 'y') |
+            (process_for_8k_confirm == 'Y') |
+            (process_for_8k_confirm == 'n') |
+            (process_for_8k_confirm == 'N')):
+            break
 
     try:
-        if clip:
+        if args.clip:
             df_setup_ori = pd.read_clipboard()
         else:
-            file = click.prompt("Paste the path to the setup table", type=click.Path(exists=True))
+
+            #TODO: How to test using click?
+            #file = click.prompt("Paste the path to the setup table", type=click.Path(exists=True))
+            file = input('Paste the path to the setup table')
             df_setup_ori = pd.read_csv(file)
     except:
         raise ImportError("Issues reading contents of file.")
 
     try:
         # Trim the sheet down to only the columns we need for the SPR setup sheet.
-        df_setup_trim = df_setup_ori.loc[:, ['Broad ID','MW', 'Barcode', 'Test [Cpd] uM', 'fold_dil', 'num_pts']]
+        df_setup_trim = df_setup_ori.loc[:, ['Broad ID', 'MW', 'Barcode', 'Test [Cpd] uM', 'fold_dil', 'num_pts']]
 
         # Start building the setup sheet.
         # Store the dimensions of the DataFrame in variables that are used later in the method.
@@ -84,11 +106,12 @@ def spr_setup_sheet(clip):
                 dose_list.append(0)
                 dose_list.append(0)
 
-                top = df_setup_trim.iloc[cmpd]['Test [Cpd] uM']  #store top dose in a variable.
+                top = df_setup_trim.iloc[cmpd]['Test [Cpd] uM']  # store top dose in a variable.
 
                 for i in range(int(df_setup_trim.iloc[cmpd]['num_pts'])):
                     dose_list.append(top)
-                    top = top / float(df_setup_ori.iloc[cmpd]['fold_dil']) # use value in original DataFrame to determine
+                    top = top / float(
+                        df_setup_ori.iloc[cmpd]['fold_dil'])  # use value in original DataFrame to determine
                     # the fold of dilution.
                 dose_list.sort(reverse=False)
 
@@ -145,24 +168,31 @@ def spr_setup_sheet(clip):
         print("Something is wrong. Check the original file.")
         raise
 
+    # Save the file to the desktop
+    save_output_file(df_final=final_df)
+
+    return final_df
+
+
+def save_output_file(df_final):
     # Truncate the year in the file name.
     now = datetime.now()
     now = now.strftime('%y%m%d')
 
     try:
         if platform.system() == 'Windows':
-            final_df.to_excel('\\\iron\\tdts_users\\SPR Setup Files\\' + now + '_spr_setup_affinity.xlsx')
+            df_final.to_excel('\\\iron\\tdts_users\\SPR Setup Files\\' + now + '_spr_setup_affinity.xlsx')
         else:
-            final_df.to_excel('/Volumes/tdts_users/SPR Setup Files/' + now + '_spr_setup_affinity.xlsx')
+            df_final.to_excel('/Volumes/tdts_users/SPR Setup Files/' + now + '_spr_setup_affinity.xlsx')
         print('Setup file has been placed on Iron in folder: SRP Setup Files')
     except:
         print('Issue connecting to Iron. Mount drive and try again.')
         print('')
         if platform.system() == 'Windows':
             path_desk = homedir + '\\Desktop\\' + now + '_spr_setup_affinity.xlsx'
-            final_df.to_excel(path_desk)
+            df_final.to_excel(path_desk)
         else:
-            final_df.to_excel(homedir + '/Desktop/' + now + '_spr_setup_affinity.xlsx')
+            df_final.to_excel(homedir + '/Desktop/' + now + '_spr_setup_affinity.xlsx')
         print('File created on desktop.')
 
 
