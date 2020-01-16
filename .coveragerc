@@ -1,0 +1,5 @@
+[report]
+omit =
+    */tests_spr_setup_file.py
+    */spr_to_ADLP.py
+    */spr_to_ADLP_8K.py
