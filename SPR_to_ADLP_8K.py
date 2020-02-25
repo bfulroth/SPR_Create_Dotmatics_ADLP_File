@@ -337,7 +337,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_ss_txt['sample_order'] = pd.to_numeric(df_ss_txt['sample_order'])
     df_ss_txt = df_ss_txt.sort_values(by=['sample_order'])
     df_ss_txt = df_ss_txt.reset_index(drop=True)
-    df_ss_txt['KD_SS_UM'] = df_ss_txt['KD'] * 1000000
+    df_ss_txt['KD_SS_UM'] = df_ss_txt['KD (M)'] * 1000000
 
     # Add the KD steady state
     df_final_for_dot['KD_SS_UM'] = df_ss_txt['KD_SS_UM']
@@ -347,7 +347,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Affinity Chi≤ (RU≤)']
 
     # Add the Fitted_Rmax_steady_state_affinity
-    df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax']
+    df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax (RU)']
 
     # Extract the sensorgram data and add to DataFrame
     df_senso_txt['sample_order'] = df_senso_txt['Senso_Img'].str.split('_', expand=True)[1]
@@ -359,7 +359,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     # Add columns from df_senso_txt
     df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka']
     df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd']
-    df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
+    df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD'] * 1000000
     df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Kinetics Chi≤ (RU≤)']
 
     # Not sure what this is???
