@@ -290,8 +290,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
 
     # Read in the text files that have the calculated values for steady-state and kinetic analysis.
-    df_ss_txt = pd.read_excel(path_ss_txt)
-    df_senso_txt = pd.read_excel(path_senso_txt)
+    df_ss_txt = pd.read_csv(path_ss_txt)
+    df_senso_txt = pd.read_csv(path_senso_txt)
 
     """
     Biacore 8k names the images in different way compared to S200 and T200. Therefore, we need to rename the images
@@ -344,7 +344,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Add the chi2_steady_state_affinity
     # TODO: Not sure if the squared value is usually in the file. Looks different in my downloaded file.
-    df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Affinity Chi≤ (RU≤)']
+    df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Affinity Chi']
 
     # Add the Fitted_Rmax_steady_state_affinity
     df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax (RU)']
@@ -359,8 +359,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     # Add columns from df_senso_txt
     df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka']
     df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd']
-    df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD'] * 1000000
-    df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Kinetics Chi≤ (RU≤)']
+    df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
+    df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Kinetics Chi']
 
     # Not sure what this is???
     df_final_for_dot['U_VALUE_1_1_BINDING'] = ''
