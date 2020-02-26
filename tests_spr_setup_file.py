@@ -67,7 +67,7 @@ class SetupFileScriptRegularAffinity(TestCase):
 
     @patch('spr_setup.Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
-    def test_correct_column_headers(self, mock_input1, mock_input2):
+    def test_correct_column_headers(self, monkeypatch, mock_input2):
         """
 
         :return:
