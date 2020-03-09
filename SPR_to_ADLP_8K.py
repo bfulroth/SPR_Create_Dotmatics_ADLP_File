@@ -129,9 +129,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, fc_used):
     df_rpt_pts_trim = df_rpt_pts_trim.drop_duplicates(['Analyte 1 Solution'])
 
     # Need to resort the Dataframe
-    # Create sorting column
-    df_rpt_pts_trim['sample_order'] = df_rpt_pts_trim['Analyte 1 Solution'].str.split('_', expand=True)[1]
-    df_rpt_pts_trim = df_rpt_pts_trim.sort_values(['Cycle', 'sample_order'])
+    df_rpt_pts_trim = df_rpt_pts_trim.sort_values(['Cycle', 'Channel'])
     df_rpt_pts_trim = df_rpt_pts_trim.reset_index(drop=True)
 
     return round(df_rpt_pts_trim['Relative response (RU)'], 2)
