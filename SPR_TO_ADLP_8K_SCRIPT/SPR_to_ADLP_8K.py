@@ -4,6 +4,7 @@ import click
 import platform
 import numpy as np
 from glob import glob
+import tempfile
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -148,6 +149,12 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     # Store the current working directory
     my_dir = os.getcwd()
 
+    # TODO: Need to atomically rename
+    """
+    1. Create temp directory
+    2. 
+    """
+
     # Change the Directory to the ss image folder
     os.chdir(path_img)
 
@@ -155,7 +162,11 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     img_files = glob('*.png')
 
     # Delete legend from folder.
-    #TODO: Need to figure out how to delete the legend from the list of image files.
+    # TODO: Need to test if the legend file is actually deleted
+    ls_legend_file = glob('*[legend]*.png')
+    if not len(ls_legend_file):
+        legend_file_path = os.path.join(my_dir, ls_legend_file[0])
+        os.unlink(legend_file_path)
 
     # Extract the order the compounds were run.
     df_analysis['Cmpd_Run_Order'] = df_analysis['Analyte 1 Solution'].str.split('_', expand=True)[1]
@@ -295,6 +306,10 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     Biacore 8k names the images in different way compared to S200 and T200. Therefore, we need to rename the images
     to be consistent for Dotmatics.
     """
+    # TODO: Save images in case of a crash
+    # Save images in a temporary directory in case of a crash.
+    dir_temp_ss_img =
+
     df_ss_txt = rename_images(df_analysis=df_ss_txt, path_img=path_ss_img, image_type='ss',
                                         raw_data_file_name=raw_data_filename)
     df_senso_txt = rename_images(df_analysis=df_senso_txt, path_img=path_senso_img,
@@ -510,6 +525,9 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
+
+
+
     print('Program Done!')
     print("The ADLP result was saved to your desktop.")
 
