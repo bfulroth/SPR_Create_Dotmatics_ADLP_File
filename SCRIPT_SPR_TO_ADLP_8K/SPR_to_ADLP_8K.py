@@ -4,7 +4,6 @@ import click
 import platform
 import numpy as np
 from glob import glob
-import tempfile
 import shutil
 
 # Get the users Home Directory
@@ -149,12 +148,6 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
 
     # Store the current working directory
     my_dir = os.getcwd()
-
-    # TODO: Need to atomically rename
-    """
-    1. Create temp directory
-    2. 
-    """
 
     # Change the Directory to the ss image folder
     os.chdir(path_img)
@@ -304,7 +297,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_senso_txt = pd.read_csv(path_senso_txt)
 
     """
-    Biacore 8k names the images in different way compared to S200 and T200. Therefore, we need to rename the images
+    Biacore 8k names the images in a different way compared to S200 and T200. Therefore, we need to rename the images
     to be consistent for Dotmatics. Unfortunately, if a crash occures during runtime then the all images are renamed and
     the script will fail during the next attempt. Therefore, image renaming must be atomic. 
     """
@@ -537,7 +530,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         print("The ADLP result was saved to your desktop.")
 
     except:
-        # Remove the original folders
+        # Recover original names after crash...
+        # Remove the original image file folders
         shutil.rmtree(path_ss_img)
         shutil.rmtree(path_senso_img)
 
