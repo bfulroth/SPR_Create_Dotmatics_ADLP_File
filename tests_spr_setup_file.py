@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch
 import os
-from spr_setup.Create_SPR_setup_file import spr_setup_sheet, save_output_file
+from Create_SPR_setup_file import spr_setup_sheet, save_output_file
 import pandas as pd
 
 
@@ -55,7 +55,7 @@ class SetupFileScriptRegularAffinity(TestCase):
 
         self.assertEqual(list(df_test_setup_tbl_csv.columns), list(df_setup_tbl.columns))
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_spr_setup_sheet_method_input(self, mock_input1, mock_input2):
         """
@@ -65,7 +65,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         result = spr_setup_sheet()
         self.assertEqual(result.__class__, pd.DataFrame)
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_column_headers(self, monkeypatch, mock_input2):
         """
@@ -76,7 +76,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         df_result = spr_setup_sheet()
         self.assertEqual(expected_headers, list(df_result.columns))
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_BRD_format(self, mock_input1, mock_input2):
         """
@@ -86,7 +86,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         df_result = spr_setup_sheet()
         self.assertEqual(10, len(str(df_result.iloc[1]['BRD'])))
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_two_zero_conc_points_first_cmpd(self, mock_input1, mock_input2):
         """
@@ -100,7 +100,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(0, zero_one)
         self.assertEqual(0, zero_two)
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_num_points_for_10pt_curves(self, mock_input1, mock_input2):
 
@@ -109,7 +109,7 @@ class SetupFileScriptRegularAffinity(TestCase):
 
         self.assertEqual(12, len(df_result))
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_num_points_for_8pt_curves(self, mock_input1, mock_input2):
 
@@ -118,7 +118,7 @@ class SetupFileScriptRegularAffinity(TestCase):
 
         self.assertEqual(10, len(df_result))
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_num_points_for_6pt_curves(self, mock_input1, mock_input2):
 
@@ -127,7 +127,7 @@ class SetupFileScriptRegularAffinity(TestCase):
 
         self.assertEqual(8, len(df_result))
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_two_fold_dilution_10_pts(self, mock_input1, mock_input2):
 
@@ -138,7 +138,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         con_series = list(df_result.loc[:, 'CONC'])
         self.assertEqual(ls_corr, con_series)
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_1pt5_fold_dilution_8_pts(self, mock_input1, mock_input2):
 
@@ -150,7 +150,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         con_series = list(df_result.loc[:, 'CONC'])
         self.assertEqual(ls_corr, con_series)
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_3_fold_dilution_6_pts(self, mock_input1, mock_input2):
 
@@ -242,7 +242,7 @@ class SetupFileScriptAffinity_8k(TestCase):
         # Export this table to a csv file for testing
         df_setup_tbl.to_csv('./Test_Files/setup_table_test.csv', index=False)
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
     def test_spr_setup_sheet_method_input(self, mock_input1, mock_input2):
         """
@@ -252,7 +252,7 @@ class SetupFileScriptAffinity_8k(TestCase):
         result = spr_setup_sheet()
         self.assertEqual(result.__class__, pd.DataFrame)
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
     def test_correct_column_headers(self, mock_input1, mock_input2):
         """
@@ -263,7 +263,7 @@ class SetupFileScriptAffinity_8k(TestCase):
         df_result = spr_setup_sheet()
         self.assertEqual(expected_headers, list(df_result.columns))
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
     def test_correct_BRD_format(self, mock_input1, mock_input2):
         """
@@ -273,7 +273,7 @@ class SetupFileScriptAffinity_8k(TestCase):
         df_result = spr_setup_sheet()
         self.assertEqual(10, len(str(df_result.iloc[1]['BRD'])))
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
     def test_correct_cmpd_order(self, mock_input1, mock_input2):
         """
@@ -289,7 +289,7 @@ class SetupFileScriptAffinity_8k(TestCase):
 
 
     #TODO: Left off here
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
     def test_correct_order_and_calc_off_concentrations(self, mock_input1, mock_input2):
         """
@@ -318,7 +318,7 @@ class SetupFileScriptAffinity_8k(TestCase):
 
         self.assertEqual(ls_corr, list(df_result))
 
-    @patch('spr_setup.Create_SPR_setup_file.save_output_file')
+    @patch('Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
     def test_correct_output_barcodes(self, mock_input1, mock_input2):
         """

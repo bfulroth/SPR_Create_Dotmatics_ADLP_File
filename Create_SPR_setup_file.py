@@ -180,21 +180,13 @@ def save_output_file(df_final):
     now = now.strftime('%y%m%d')
 
     try:
-        if platform.system() == 'Windows':
-            df_final.to_excel('\\\iron\\tdts_users\\SPR Setup Files\\' + now + '_spr_setup_affinity.xlsx')
-        else:
-            df_final.to_excel('/Volumes/tdts_users/SPR Setup Files/' + now + '_spr_setup_affinity.xlsx')
+        df_final.to_excel(os.path.join('iron', 'tdts_users', 'SPR Setup Files', + now + '_spr_setup_affinity.xlsx'))
         print('Setup file has been placed on Iron in folder: SRP Setup Files')
     except:
         print('Issue connecting to Iron. Mount drive and try again.')
         print('')
-        if platform.system() == 'Windows':
-            path_desk = homedir + '\\Desktop\\' + now + '_spr_setup_affinity.xlsx'
-            df_final.to_excel(path_desk)
-        else:
-            df_final.to_excel(homedir + '/Desktop/' + now + '_spr_setup_affinity.xlsx')
+        df_final.to_excel(os.path.join(homedir, 'Desktop', now + '_spr_setup_affinity.xlsx'))
         print('File created on desktop.')
-
 
 if __name__ == '__main__':
     spr_setup_sheet()
