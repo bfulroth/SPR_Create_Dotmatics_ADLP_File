@@ -50,7 +50,7 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
     - Type or copy/paste command: __git remote add upstream 'paste url of upstream'__
     - Type or copy/paste command: __git pull upstream master'__
     
-    *Anytime you want to make sure you have the most up-to-date changes invoke command: __git pull upstream master'__*
+    *Anytime you want to make sure you have the most up-to-date changes invoke command: __git pull upstream master__*
     
 ### Create a new virtual environment and install SPR to ADLP script dependencies.
 
