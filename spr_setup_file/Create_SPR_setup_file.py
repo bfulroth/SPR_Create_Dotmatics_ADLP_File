@@ -188,5 +188,6 @@ def save_output_file(df_final):
         df_final.to_excel(os.path.join(homedir, 'Desktop', now + '_spr_setup_affinity.xlsx'))
         print('File created on desktop.')
 
+
 if __name__ == '__main__':
     spr_setup_sheet()
