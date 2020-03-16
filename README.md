@@ -70,7 +70,7 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
  6. Active your new pipenv created virtual environment:
     - Type or copy/paste command: __pipenv shell__
     
-    - *__Important:__ Every time you run these scripts you MUST activate your virtual environment by invoking command: __pipenv shell__ while inside the SPR_Create_Dotmatics_ADLP_File project folder.  This will allow the scripts to access the needed packages and their subsequent versions.__*
+*__Important:__ Every time you run these scripts you MUST activate your virtual environment by invoking command: __pipenv shell__ while inside the SPR_Create_Dotmatics_ADLP_File project folder.  This will allow the scripts to access the needed packages and their subsequent versions.*
     
     
 ## Create SPR setup file for dose response experiment
