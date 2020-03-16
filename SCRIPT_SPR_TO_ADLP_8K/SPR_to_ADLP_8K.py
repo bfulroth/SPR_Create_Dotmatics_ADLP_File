@@ -5,6 +5,7 @@ import platform
 import numpy as np
 from glob import glob
 import tempfile
+import shutil
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -304,232 +305,250 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     """
     Biacore 8k names the images in different way compared to S200 and T200. Therefore, we need to rename the images
-    to be consistent for Dotmatics.
+    to be consistent for Dotmatics. Unfortunately, if a crash occures during runtime then the all images are renamed and
+    the script will fail during the next attempt. Therefore, image renaming must be atomic. 
     """
-    # TODO: Save images in case of a crash
+
     # Save images in a temporary directory in case of a crash.
-    dir_temp_ss_img =
+    dir_temp_ss_img = path_ss_img + '_TEMP'
+    dir_temp_senso_img = path_senso_img + '_TEMP'
+    shutil.copytree(path_ss_img, dir_temp_ss_img)
+    shutil.copytree(path_senso_img, dir_temp_senso_img)
 
-    df_ss_txt = rename_images(df_analysis=df_ss_txt, path_img=path_ss_img, image_type='ss',
-                                        raw_data_file_name=raw_data_filename)
-    df_senso_txt = rename_images(df_analysis=df_senso_txt, path_img=path_senso_img,
-                                        image_type='senso', raw_data_file_name=raw_data_filename)
+    try:
 
-
-    # Start building the final Dotmatics DataFrame
-    df_final_for_dot = pd.DataFrame()
-
-    # Start by adding the Broad ID in the correct order.
-    # NB: For the 8k each compound has it's own channel so no need to replicate the BRD as is required on T200 and S200
-    df_final_for_dot['BROAD_ID'] = df_cmpd_set['Broad ID']
-
-    # Add the Project Code.  Get this from the config file.
-    df_final_for_dot['PROJECT_CODE'] = project_code
-
-    #  Add an empty column called curve_valid
-    df_final_for_dot['CURVE_VALID'] = ''
-
-    # Add an empty column called steady_state_img
-    df_final_for_dot['STEADY_STATE_IMG'] = ''
-
-    # Add an empty column called 1to1_img
-    df_final_for_dot['1to1_IMG'] = ''
-
-    # Add the starting compound concentrations
-    df_final_for_dot['TOP_COMPOUND_UM'] = df_cmpd_set['Test [Cpd] uM']
-
-    # Extract the RU Max for each compound using the report point file.
-    df_final_for_dot['RU_TOP_CMPD'] = spr_binding_top_for_dot_file(report_pt_file=path_report_pt,
-                                                                   df_cmpd_set=df_cmpd_set,
-                                                                   fc_used=immobilized_fc_arr)
-
-    # Extract the steady state data and add to DataFrame
-    # Create new columns to sort the DataFrame as the original is out of order.
-    df_ss_txt['sample_order'] = df_ss_txt['Steady_State_Img'].str.split('_', expand=True)[1]
-    df_ss_txt['sample_order'] = df_ss_txt['sample_order'].str.replace('.png','')
-    df_ss_txt['sample_order'] = pd.to_numeric(df_ss_txt['sample_order'])
-    df_ss_txt = df_ss_txt.sort_values(by=['sample_order'])
-    df_ss_txt = df_ss_txt.reset_index(drop=True)
-    df_ss_txt['KD_SS_UM'] = df_ss_txt['KD (M)'] * 1000000
-
-    # Add the KD steady state
-    df_final_for_dot['KD_SS_UM'] = df_ss_txt['KD_SS_UM']
-
-    # Add the chi2_steady_state_affinity
-    # TODO: Not sure if the squared value is usually in the file. Looks different in my downloaded file.
-    df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Affinity Chi']
-
-    # Add the Fitted_Rmax_steady_state_affinity
-    df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax (RU)']
-
-    # Extract the sensorgram data and add to DataFrame
-    df_senso_txt['sample_order'] = df_senso_txt['Senso_Img'].str.split('_', expand=True)[1]
-    df_senso_txt['sample_order'] = df_senso_txt['sample_order'].str.replace('.png', '')
-    df_senso_txt['sample_order'] = pd.to_numeric(df_senso_txt['sample_order'])
-    df_senso_txt = df_senso_txt.sort_values(by=['sample_order'])
-    df_senso_txt = df_senso_txt.reset_index(drop=True)
-
-    # Add columns from df_senso_txt
-    df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka']
-    df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd']
-    df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
-    df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Kinetics Chi']
-
-    # Not sure what this is???
-    df_final_for_dot['U_VALUE_1_1_BINDING'] = ''
-    # Not sure what this is??
-
-    # Continue creating new columns
-    df_final_for_dot['FITTED_RMAX_1_1_BINDING'] = df_senso_txt['Rmax']
-    df_final_for_dot.loc[:, 'COMMENTS'] = ''
-
-    # Add the flow channel column
-    df_final_for_dot.loc[:, 'FC'] = '2-1'
-
-    # Add protein RU
-    protein_ru_dict = {1: fc1_protein_RU, 2: fc2_protein_RU, 3: fc3_protein_RU,
-                       4: fc4_protein_RU, 5: fc5_protein_RU, 6: fc6_protein_RU, 7: fc7_protein_RU, 8: fc8_protein_RU}
-    df_final_for_dot['PROTEIN_RU'] = df_senso_txt['Channel'].map(protein_ru_dict)
-
-    # Add protein MW
-    protein_mw_dict = {1: fc1_protein_MW, 2: fc2_protein_MW, 3: fc3_protein_MW,
-                       4: fc4_protein_MW, 5: fc5_protein_MW, 6: fc6_protein_MW, 7: fc7_protein_MW, 8: fc8_protein_MW}
-    df_final_for_dot['PROTEIN_MW'] = df_senso_txt['Channel'].map(protein_mw_dict)
-
-    # Add protein BIP
-    protein_bip_dict = {1: fc1_protein_BIP, 2: fc2_protein_BIP, 3: fc3_protein_BIP,
-                        4: fc4_protein_BIP, 5: fc5_protein_BIP, 6: fc6_protein_BIP, 7: fc7_protein_BIP,
-                        8: fc8_protein_BIP}
-    df_final_for_dot['PROTEIN_ID'] = df_senso_txt['Channel'].map(protein_bip_dict)
-
-    # Add the MW for each compound.
-    df_final_for_dot['MW'] = df_cmpd_set['MW']
-
-    # Continue adding columns to final DataFrame
-    df_final_for_dot.loc[:, 'INSTRUMENT'] = instrument
-    df_final_for_dot['ASSAY_MODE'] = 'Multi-Cycle'
-    df_final_for_dot.loc[:, 'EXP_DATE'] = experiment_date
-    df_final_for_dot.loc[:, 'NUCLEOTIDE'] = nucleotide
-    df_final_for_dot.loc[:, 'CHIP_LOT'] = chip_lot
-    df_final_for_dot.loc[:, 'OPERATOR'] = operator
-    df_final_for_dot.loc[:, 'PROTOCOL_ID'] = protocol
-    df_final_for_dot.loc[:, 'RAW_DATA_FILE'] = raw_data_filename
-    df_final_for_dot.loc[:, 'DIR_FOLDER'] = directory_folder
-
-    # Add the unique ID #
-    df_final_for_dot['UNIQUE_ID'] = df_senso_txt['Analyte 1 Solution'] + '_' + df_final_for_dot['FC'] + '_' + project_code + \
-                                    '_' + experiment_date + \
-                                    '_' + df_senso_txt['Analyte 1 Solution'].str.split('_', expand=True)[1]
-
-    # Add steady state image file path
-    # Need to replace /Volumes with //flynn
-    path_ss_img_edit = path_ss_img.replace('/Volumes', '//flynn')
-    df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_txt['Steady_State_Img']
-
-    # Add sensorgram image file path
-    # Need to replace /Volumes with //flynn
-    path_senso_img_edit = path_senso_img.replace('/Volumes', '//flynn')
-    df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Senso_Img']
-
-    # Add the Rmax_theoretical.
-    # Note couldn't do this before as I needed to add protein MW and RU first.
-    df_final_for_dot['RMAX_THEORETICAL'] = round((df_final_for_dot['MW'] / df_final_for_dot['PROTEIN_MW']) \
-                                           * df_final_for_dot['PROTEIN_RU'], 2)
-
-    # Calculate Percent Binding
-    df_final_for_dot['%_BINDING_TOP'] = round((df_final_for_dot['RU_TOP_CMPD'] / df_final_for_dot[
-        'RMAX_THEORETICAL']) * 100, 2)
-
-    # Rearrange the columns for the final DataFrame (without images)
-    df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'PROJECT_CODE', 'CURVE_VALID', 'STEADY_STATE_IMG',
-       '1to1_IMG', 'TOP_COMPOUND_UM', 'RMAX_THEORETICAL', 'RU_TOP_CMPD', '%_BINDING_TOP', 'KD_SS_UM',
-       'CHI2_SS_AFFINITY', 'FITTED_RMAX_SS_AFFINITY', 'KA_1_1_BINDING',
-       'KD_LITTLE_1_1_BINDING', 'KD_1_1_BINDING_UM', 'chi2_1_1_binding',
-       'U_VALUE_1_1_BINDING', 'FITTED_RMAX_1_1_BINDING', 'COMMENTS', 'FC',
-       'PROTEIN_RU', 'PROTEIN_MW', 'PROTEIN_ID', 'MW', 'INSTRUMENT', 'ASSAY_MODE',
-       'EXP_DATE', 'NUCLEOTIDE', 'CHIP_LOT', 'OPERATOR', 'PROTOCOL_ID',
-       'RAW_DATA_FILE', 'DIR_FOLDER', 'UNIQUE_ID', 'SS_IMG_ID', 'SENSO_IMG_ID']]
-
-    # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter(adlp_save_file_path, engine='xlsxwriter')
-
-    # Convert the DataFrame to an XlsxWriter Excel object.
-    df_final_for_dot.to_excel(writer, sheet_name='Sheet1', startcol=0, index=None)
-
-    # Get the xlsxwriter workbook and worksheet objects.
-    workbook = writer.book
-    worksheet1 = writer.sheets['Sheet1']
-
-    # Add a drop down list of comments.
-    # Calculate the number of rows to add the drop down menu.
-    num_cpds = len(df_cmpd_set.index)
-    num_data_pts = num_cpds + 1
-
-    # Write the comments to the comment sheet.
-    comments_list = pd.DataFrame({'Comments':
-                                    ['No binding.',
-                                    'Saturation reached. Fast on/off.',
-                                    'Saturation reached. Fast on/off. Insolubility likely. Removed top.',
-                                    'Saturation reached. Fast on/off. Insolubility likely.',
-                                    'Saturation reached. Fast on/off. Low % binding.',
-                                    'Saturation reached. Fast on/off. Low % binding. Insolubility likely.',
-                                    'Saturation reached. Slow on. Fast off.',
-                                    'Saturation reached. Slow on. Fast off. Insolubility likely.',
-                                    'Saturation reached. Slow on. Slow off.',
-                                    'Saturation reached. Slow on. Slow off. Insolubility likely.',
-                                    'Saturation reached. Fast on. Slow off.',
-                                    'Saturation reached. Fast on. Slow off. Insolubility likely.',
-                                    'Saturation approached. Fast on/off.',
-                                    'Saturation approached. Insolubility likely.',
-                                    'Saturation approached. Fast on/off. Insolubility likely.',
-                                    'Saturation approached. Low % binding.',
-                                    'Saturation approached. Low % binding. Insolubility likely.',
-                                    'Saturation not reached.',
-                                    'Saturation not reached. Insolubility likely.',
-                                    'Saturation not reached. Fast on/off.',
-                                    'Saturation not reached. Fast on/off. Insolubility likely.',
-                                    'Saturation not reached. Low % binding.',
-                                    'Saturation not reached. Low % binding. Insolubility likely.',
-                                    'Superstoichiometric binding.']})
-
-    # Convert comments list to DataFrame
-    comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
-
-    # For larger drop down lists > 255 characters its necessary to create a list on a seperate worksheet.
-    worksheet1.data_validation('S1:S' + str(num_data_pts),
-                                    {'validate': 'list',
-                                     'source': '=Sheet2!$A$2:$A$' + str(len(comments_list) + 1)
-                                     })
-
-    # Freeze the top row of the excel worksheet.
-    worksheet1.freeze_panes(1, 0)
-
-    # Add a cell format object to align text center.
-    cell_format = workbook.add_format()
-    cell_format.set_align('center')
-    cell_format.set_align('vcenter')
-    worksheet1.set_column('A:AJ', 28, cell_format)
-
-    # Start preparing to insert the steady state and sensorgram images.
-    # Get list of image files from df_ss_txt Dataframe.
-    list_ss_img = df_ss_txt['Steady_State_Img'].tolist()
-
-    # Get list of images files in the df_senso_txt DataFrame.
-    list_sonso_img = df_senso_txt['Senso_Img'].tolist()
-
-    # Create a list of tuples containing the names of the steady state image and sensorgram image.
-    tuple_list_imgs = list(zip(list_ss_img, list_sonso_img))
-
-    # Insert images into file.
-    spr_insert_images(tuple_list_imgs, worksheet1, path_ss_img, path_senso_img)
-
-    # Close the Pandas Excel writer and output the Excel file.
-    writer.save()
+        df_ss_txt = rename_images(df_analysis=df_ss_txt, path_img=path_ss_img, image_type='ss',
+                                            raw_data_file_name=raw_data_filename)
+        df_senso_txt = rename_images(df_analysis=df_senso_txt, path_img=path_senso_img,
+                                            image_type='senso', raw_data_file_name=raw_data_filename)
 
 
+        # Start building the final Dotmatics DataFrame
+        df_final_for_dot = pd.DataFrame()
 
-    print('Program Done!')
-    print("The ADLP result was saved to your desktop.")
+        # Start by adding the Broad ID in the correct order.
+        # NB: For the 8k each compound has it's own channel so no need to replicate the BRD as is required on T200 and S200
+        df_final_for_dot['BROAD_ID'] = df_cmpd_set['Broad ID']
+
+        # Add the Project Code.  Get this from the config file.
+        df_final_for_dot['PROJECT_CODE'] = project_code
+
+        #  Add an empty column called curve_valid
+        df_final_for_dot['CURVE_VALID'] = ''
+
+        # Add an empty column called steady_state_img
+        df_final_for_dot['STEADY_STATE_IMG'] = ''
+
+        # Add an empty column called 1to1_img
+        df_final_for_dot['1to1_IMG'] = ''
+
+        # Add the starting compound concentrations
+        df_final_for_dot['TOP_COMPOUND_UM'] = df_cmpd_set['Test [Cpd] uM']
+
+        # Extract the RU Max for each compound using the report point file.
+        df_final_for_dot['RU_TOP_CMPD'] = spr_binding_top_for_dot_file(report_pt_file=path_report_pt,
+                                                                       df_cmpd_set=df_cmpd_set,
+                                                                       fc_used=immobilized_fc_arr)
+
+        # Extract the steady state data and add to DataFrame
+        # Create new columns to sort the DataFrame as the original is out of order.
+        df_ss_txt['sample_order'] = df_ss_txt['Steady_State_Img'].str.split('_', expand=True)[1]
+        df_ss_txt['sample_order'] = df_ss_txt['sample_order'].str.replace('.png','')
+        df_ss_txt['sample_order'] = pd.to_numeric(df_ss_txt['sample_order'])
+        df_ss_txt = df_ss_txt.sort_values(by=['sample_order'])
+        df_ss_txt = df_ss_txt.reset_index(drop=True)
+        df_ss_txt['KD_SS_UM'] = df_ss_txt['KD (M)'] * 1000000
+
+        # Add the KD steady state
+        df_final_for_dot['KD_SS_UM'] = df_ss_txt['KD_SS_UM']
+
+        # Add the chi2_steady_state_affinity
+        # TODO: Not sure if the squared value is usually in the file. Looks different in my downloaded file.
+        df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Affinity Chi']
+
+        # Add the Fitted_Rmax_steady_state_affinity
+        df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax (RU)']
+
+        # Extract the sensorgram data and add to DataFrame
+        df_senso_txt['sample_order'] = df_senso_txt['Senso_Img'].str.split('_', expand=True)[1]
+        df_senso_txt['sample_order'] = df_senso_txt['sample_order'].str.replace('.png', '')
+        df_senso_txt['sample_order'] = pd.to_numeric(df_senso_txt['sample_order'])
+        df_senso_txt = df_senso_txt.sort_values(by=['sample_order'])
+        df_senso_txt = df_senso_txt.reset_index(drop=True)
+
+        # Add columns from df_senso_txt
+        df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka']
+        df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd']
+        df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
+        df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Kinetics Chi']
+
+        # Not sure what this is???
+        df_final_for_dot['U_VALUE_1_1_BINDING'] = ''
+        # Not sure what this is??
+
+        # Continue creating new columns
+        df_final_for_dot['FITTED_RMAX_1_1_BINDING'] = df_senso_txt['Rmax']
+        df_final_for_dot.loc[:, 'COMMENTS'] = ''
+
+        # Add the flow channel column
+        df_final_for_dot.loc[:, 'FC'] = '2-1'
+
+        # Add protein RU
+        protein_ru_dict = {1: fc1_protein_RU, 2: fc2_protein_RU, 3: fc3_protein_RU,
+                           4: fc4_protein_RU, 5: fc5_protein_RU, 6: fc6_protein_RU, 7: fc7_protein_RU, 8: fc8_protein_RU}
+        df_final_for_dot['PROTEIN_RU'] = df_senso_txt['Channel'].map(protein_ru_dict)
+
+        # Add protein MW
+        protein_mw_dict = {1: fc1_protein_MW, 2: fc2_protein_MW, 3: fc3_protein_MW,
+                           4: fc4_protein_MW, 5: fc5_protein_MW, 6: fc6_protein_MW, 7: fc7_protein_MW, 8: fc8_protein_MW}
+        df_final_for_dot['PROTEIN_MW'] = df_senso_txt['Channel'].map(protein_mw_dict)
+
+        # Add protein BIP
+        protein_bip_dict = {1: fc1_protein_BIP, 2: fc2_protein_BIP, 3: fc3_protein_BIP,
+                            4: fc4_protein_BIP, 5: fc5_protein_BIP, 6: fc6_protein_BIP, 7: fc7_protein_BIP,
+                            8: fc8_protein_BIP}
+        df_final_for_dot['PROTEIN_ID'] = df_senso_txt['Channel'].map(protein_bip_dict)
+
+        # Add the MW for each compound.
+        df_final_for_dot['MW'] = df_cmpd_set['MW']
+
+        # Continue adding columns to final DataFrame
+        df_final_for_dot.loc[:, 'INSTRUMENT'] = instrument
+        df_final_for_dot['ASSAY_MODE'] = 'Multi-Cycle'
+        df_final_for_dot.loc[:, 'EXP_DATE'] = experiment_date
+        df_final_for_dot.loc[:, 'NUCLEOTIDE'] = nucleotide
+        df_final_for_dot.loc[:, 'CHIP_LOT'] = chip_lot
+        df_final_for_dot.loc[:, 'OPERATOR'] = operator
+        df_final_for_dot.loc[:, 'PROTOCOL_ID'] = protocol
+        df_final_for_dot.loc[:, 'RAW_DATA_FILE'] = raw_data_filename
+        df_final_for_dot.loc[:, 'DIR_FOLDER'] = directory_folder
+
+        # Add the unique ID #
+        df_final_for_dot['UNIQUE_ID'] = df_senso_txt['Analyte 1 Solution'] + '_' + df_final_for_dot['FC'] + '_' + project_code + \
+                                        '_' + experiment_date + \
+                                        '_' + df_senso_txt['Analyte 1 Solution'].str.split('_', expand=True)[1]
+
+        # Add steady state image file path
+        # Need to replace /Volumes with //flynn
+        path_ss_img_edit = path_ss_img.replace('/Volumes', '//flynn')
+        df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_txt['Steady_State_Img']
+
+        # Add sensorgram image file path
+        # Need to replace /Volumes with //flynn
+        path_senso_img_edit = path_senso_img.replace('/Volumes', '//flynn')
+        df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Senso_Img']
+
+        # Add the Rmax_theoretical.
+        # Note couldn't do this before as I needed to add protein MW and RU first.
+        df_final_for_dot['RMAX_THEORETICAL'] = round((df_final_for_dot['MW'] / df_final_for_dot['PROTEIN_MW']) \
+                                               * df_final_for_dot['PROTEIN_RU'], 2)
+
+        # Calculate Percent Binding
+        df_final_for_dot['%_BINDING_TOP'] = round((df_final_for_dot['RU_TOP_CMPD'] / df_final_for_dot[
+            'RMAX_THEORETICAL']) * 100, 2)
+
+        # Rearrange the columns for the final DataFrame (without images)
+        df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'PROJECT_CODE', 'CURVE_VALID', 'STEADY_STATE_IMG',
+           '1to1_IMG', 'TOP_COMPOUND_UM', 'RMAX_THEORETICAL', 'RU_TOP_CMPD', '%_BINDING_TOP', 'KD_SS_UM',
+           'CHI2_SS_AFFINITY', 'FITTED_RMAX_SS_AFFINITY', 'KA_1_1_BINDING',
+           'KD_LITTLE_1_1_BINDING', 'KD_1_1_BINDING_UM', 'chi2_1_1_binding',
+           'U_VALUE_1_1_BINDING', 'FITTED_RMAX_1_1_BINDING', 'COMMENTS', 'FC',
+           'PROTEIN_RU', 'PROTEIN_MW', 'PROTEIN_ID', 'MW', 'INSTRUMENT', 'ASSAY_MODE',
+           'EXP_DATE', 'NUCLEOTIDE', 'CHIP_LOT', 'OPERATOR', 'PROTOCOL_ID',
+           'RAW_DATA_FILE', 'DIR_FOLDER', 'UNIQUE_ID', 'SS_IMG_ID', 'SENSO_IMG_ID']]
+
+        # Create a Pandas Excel writer using XlsxWriter as the engine.
+        writer = pd.ExcelWriter(adlp_save_file_path, engine='xlsxwriter')
+
+        # Convert the DataFrame to an XlsxWriter Excel object.
+        df_final_for_dot.to_excel(writer, sheet_name='Sheet1', startcol=0, index=None)
+
+        # Get the xlsxwriter workbook and worksheet objects.
+        workbook = writer.book
+        worksheet1 = writer.sheets['Sheet1']
+
+        # Add a drop down list of comments.
+        # Calculate the number of rows to add the drop down menu.
+        num_cpds = len(df_cmpd_set.index)
+        num_data_pts = num_cpds + 1
+
+        # Write the comments to the comment sheet.
+        comments_list = pd.DataFrame({'Comments':
+                                        ['No binding.',
+                                        'Saturation reached. Fast on/off.',
+                                        'Saturation reached. Fast on/off. Insolubility likely. Removed top.',
+                                        'Saturation reached. Fast on/off. Insolubility likely.',
+                                        'Saturation reached. Fast on/off. Low % binding.',
+                                        'Saturation reached. Fast on/off. Low % binding. Insolubility likely.',
+                                        'Saturation reached. Slow on. Fast off.',
+                                        'Saturation reached. Slow on. Fast off. Insolubility likely.',
+                                        'Saturation reached. Slow on. Slow off.',
+                                        'Saturation reached. Slow on. Slow off. Insolubility likely.',
+                                        'Saturation reached. Fast on. Slow off.',
+                                        'Saturation reached. Fast on. Slow off. Insolubility likely.',
+                                        'Saturation approached. Fast on/off.',
+                                        'Saturation approached. Insolubility likely.',
+                                        'Saturation approached. Fast on/off. Insolubility likely.',
+                                        'Saturation approached. Low % binding.',
+                                        'Saturation approached. Low % binding. Insolubility likely.',
+                                        'Saturation not reached.',
+                                        'Saturation not reached. Insolubility likely.',
+                                        'Saturation not reached. Fast on/off.',
+                                        'Saturation not reached. Fast on/off. Insolubility likely.',
+                                        'Saturation not reached. Low % binding.',
+                                        'Saturation not reached. Low % binding. Insolubility likely.',
+                                        'Superstoichiometric binding.']})
+
+        # Convert comments list to DataFrame
+        comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
+
+        # For larger drop down lists > 255 characters its necessary to create a list on a seperate worksheet.
+        worksheet1.data_validation('S1:S' + str(num_data_pts),
+                                        {'validate': 'list',
+                                         'source': '=Sheet2!$A$2:$A$' + str(len(comments_list) + 1)
+                                         })
+
+        # Freeze the top row of the excel worksheet.
+        worksheet1.freeze_panes(1, 0)
+
+        # Add a cell format object to align text center.
+        cell_format = workbook.add_format()
+        cell_format.set_align('center')
+        cell_format.set_align('vcenter')
+        worksheet1.set_column('A:AJ', 28, cell_format)
+
+        # Start preparing to insert the steady state and sensorgram images.
+        # Get list of image files from df_ss_txt Dataframe.
+        list_ss_img = df_ss_txt['Steady_State_Img'].tolist()
+
+        # Get list of images files in the df_senso_txt DataFrame.
+        list_sonso_img = df_senso_txt['Senso_Img'].tolist()
+
+        # Create a list of tuples containing the names of the steady state image and sensorgram image.
+        tuple_list_imgs = list(zip(list_ss_img, list_sonso_img))
+
+        # Insert images into file.
+        spr_insert_images(tuple_list_imgs, worksheet1, path_ss_img, path_senso_img)
+
+        # Close the Pandas Excel writer and output the Excel file.
+        writer.save()
+
+        print('Program Done!')
+        print("The ADLP result was saved to your desktop.")
+
+    except:
+        # Remove the original folders
+        shutil.rmtree(path_ss_img)
+        shutil.rmtree(path_senso_img)
+
+        # Recreate the original folders with the original files saved to the temp directories.
+        shutil.copytree(dir_temp_ss_img, path_ss_img)
+        shutil.copytree(dir_temp_senso_img, path_senso_img)
+
+        # Remove the temp directories.
+        shutil.rmtree(dir_temp_ss_img)
+        shutil.rmtree(dir_temp_senso_img)
+        raise RuntimeError('An error occurred during runtime.  All images have been returned to their original names.')
 
 
 if __name__ == '__main__':
