@@ -12,6 +12,7 @@ xlrd = "*"
 click = "*"
 xlsxwriter = "*"
 pandas = "*"
+setuptools-scm = "*"
 
 [requires]
 python_version = "3.7"
