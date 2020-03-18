@@ -4,3 +4,15 @@
 #Test_Files/
 Untitled.ipynb
 test_scratch.py
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
