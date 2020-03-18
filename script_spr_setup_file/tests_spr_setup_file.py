@@ -32,7 +32,7 @@ class SetupFileScriptRegularAffinity(TestCase):
                         'DMSO to Add (uL)': [9, 6, 6]})
 
         # Export this table to a csv file for testing
-        df_setup_tbl.to_csv('../Test_Files/setup_table_test.csv', index=False)
+        df_setup_tbl.to_csv('./Test_Files/setup_table_test.csv', index=False)
 
     def test_correct_headers(self) -> None:
         """
@@ -51,12 +51,12 @@ class SetupFileScriptRegularAffinity(TestCase):
         Test that the correct headers are read back from the test csv file.
         """
 
-        df_test_setup_tbl_csv = pd.read_csv('../Test_Files/setup_table_test.csv')
+        df_test_setup_tbl_csv = pd.read_csv('./Test_Files/setup_table_test.csv')
 
         self.assertEqual(list(df_test_setup_tbl_csv.columns), list(df_setup_tbl.columns))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_spr_setup_sheet_method_input(self, mock_input1, mock_input2):
         """
         Test that confirms that the a DataFrame is returned from spr setup sheet method.
@@ -66,7 +66,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(result.__class__, pd.DataFrame)
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_column_headers(self, monkeypatch, mock_input2):
         """
 
@@ -77,7 +77,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(expected_headers, list(df_result.columns))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_BRD_format(self, mock_input1, mock_input2):
         """
         Test that confirms that the length of the BRD's are truncated to 10 characters.
@@ -87,7 +87,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(10, len(str(df_result.iloc[1]['BRD'])))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_two_zero_conc_points_first_cmpd(self, mock_input1, mock_input2):
         """
         Test to verify that the first to concentration points are zero
@@ -101,7 +101,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(0, zero_two)
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_num_points_for_10pt_curves(self, mock_input1, mock_input2):
 
         df_result = spr_setup_sheet()
@@ -110,7 +110,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(12, len(df_result))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_num_points_for_8pt_curves(self, mock_input1, mock_input2):
 
         df_result = spr_setup_sheet()
@@ -119,7 +119,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(10, len(df_result))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_num_points_for_6pt_curves(self, mock_input1, mock_input2):
 
         df_result = spr_setup_sheet()
@@ -128,7 +128,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(8, len(df_result))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_two_fold_dilution_10_pts(self, mock_input1, mock_input2):
 
         ls_corr = [0, 0, 0.09765625, 0.1953125, 0.390625, 0.78125, 1.5625, 3.125, 6.25, 12.5, 25, 50]
@@ -139,7 +139,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(ls_corr, con_series)
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_1pt5_fold_dilution_8_pts(self, mock_input1, mock_input2):
 
         ls_corr = [0.0, 0.0, 2.9263831732967542, 4.389574759945131, 6.584362139917697,
@@ -151,7 +151,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(ls_corr, con_series)
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
     def test_correct_3_fold_dilution_6_pts(self, mock_input1, mock_input2):
 
         ls_corr = [0.0, 0.0, 0.20576131687242802, 0.617283950617284,
@@ -168,7 +168,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         classmethod that removes the csv file used to test
         :return None:
         """
-        os.unlink('../Test_Files/setup_table_test.csv')
+        os.unlink('./Test_Files/setup_table_test.csv')
 
 
 class SetupFileScriptAffinity_8k(TestCase):
@@ -240,10 +240,10 @@ class SetupFileScriptAffinity_8k(TestCase):
                         'DMSO to Add (uL)': [9, 6, 6, 6, 6, 6, 6, 6, 6, 6, 9, 8, 8, 8, 8, 8]})
 
         # Export this table to a csv file for testing
-        df_setup_tbl.to_csv('../Test_Files/setup_table_test.csv', index=False)
+        df_setup_tbl.to_csv('./Test_Files/setup_table_test.csv', index=False)
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['y', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
     def test_spr_setup_sheet_method_input(self, mock_input1, mock_input2):
         """
         Test that confirms that the a DataFrame is returned from spr setup sheet method.
@@ -253,7 +253,7 @@ class SetupFileScriptAffinity_8k(TestCase):
         self.assertEqual(result.__class__, pd.DataFrame)
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['y', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
     def test_correct_column_headers(self, mock_input1, mock_input2):
         """
 
@@ -264,7 +264,7 @@ class SetupFileScriptAffinity_8k(TestCase):
         self.assertEqual(expected_headers, list(df_result.columns))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['y', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
     def test_correct_BRD_format(self, mock_input1, mock_input2):
         """
         Test that confirms that the length of the BRD's are truncated to 10 characters.
@@ -275,7 +275,7 @@ class SetupFileScriptAffinity_8k(TestCase):
 
     # TODO: Left off here: Sorting is wrong need to fix. 3/18/2020
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['y', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
     def test_correct_cmpd_order(self, mock_input1, mock_input2):
         """
         Test to verify that the compounds have been sorted correctly
@@ -291,7 +291,7 @@ class SetupFileScriptAffinity_8k(TestCase):
 
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['y', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
     def test_correct_order_and_calc_off_concentrations(self, mock_input1, mock_input2):
         """
         Using the test setup tbl verify that the correct concentrations are calculated and sorted given different
@@ -320,7 +320,7 @@ class SetupFileScriptAffinity_8k(TestCase):
         self.assertEqual(ls_corr, list(df_result))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['y', '../Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
     def test_correct_output_barcodes(self, mock_input1, mock_input2):
         """
         Test to verify that the barcodes for the output file are in the correct order.
@@ -362,7 +362,7 @@ class SetupFileScriptAffinity_8k(TestCase):
         classmethod that removes the csv file used to test
         :return None:
         """
-        os.unlink('../Test_Files/setup_table_test.csv')
+        os.unlink('./Test_Files/setup_table_test.csv')
 
 
 
