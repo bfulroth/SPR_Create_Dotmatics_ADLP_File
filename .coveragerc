@@ -3,4 +3,5 @@ omit =
     */tests_spr_setup_file.py
     */spr_to_ADLP.py
     */spr_to_ADLP_8K.py
-    */spr_setup/__init__.py
+    */script_spr_setup_file/__init__.py
+    */script_spr_setup_file/__main__.py
