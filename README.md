@@ -1,4 +1,7 @@
 # SPR_Create_Dotmatics_ADLP_File
+
+[![Build Status](https://travis-ci.com/bfulroth/SPR_Create_Dotmatics_ADLP_File.svg?branch=master)](https://travis-ci.com/bfulroth/SPR_Create_Dotmatics_ADLP_File)
+
 Project for processing SPR Data for upload to Dotmatics via ADLP
 
 **Overview**
@@ -7,6 +10,8 @@ Takes SPR binding data and reformats the data into an Excel file for upload to D
 
 ## Environment Setup ([Skip](https://github.com/bfulroth/SPR_Create_Dotmatics_ADLP_File/blob/master/README.md#create-spr-setup-file-for-dose-response-experiment) this section if done before)
 __Follow the steps below for initial setup. If initial setup was conducted previously, skip to next section of this document by clicking link above.__
+
+*__Important:__ Every time you run these scripts you MUST activate your virtual environment by invoking command: __pipenv shell__ while inside the SPR_Create_Dotmatics_ADLP_File project folder.  See steps below.*
 
 _Take Note: The following procedure has been tested for Mac OS. Different commands are needed for Windows._
 
@@ -36,20 +41,37 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
     - All the files needed should be copied to your local hard drive in the PythonProjects folder.
 8. Navigate *into* the folder containing all of projects files. 
     - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
-
-### Create new Conda environment and install SPR to ADLP script dependencies.
+9. Sync your fork with my *upstream* repo.
+    - This step will allow any changes/ bug fixes that I initiate to be easily synced to your forked repo on your computer.
+    - Navigate to my repo by clicking the following link: (https://github.com/bfulroth/SPR_Create_Dotmatics_ADLP_File)
+    - Click the green button 'Clone or download'. 
+    - Next, click the button that looks like a clipboard to copy the link to your clipboard.
+    - Navigate back to terminal.
+    - Type or copy/paste command: __git remote add upstream 'paste url of upstream'__
+    - Type or copy/paste command: __git pull upstream master'__
+    
+    *Anytime you want to make sure you have the most up-to-date changes invoke command: __git pull upstream master__*
+    
+### Create a new virtual environment and install SPR to ADLP script dependencies.
 
  1. Navigate to terminal.
- 2. Make sure you are in the SPR_Create_Dotmatics_ADLP_File file folder.
+ 2. install Homebrew for macOS: 
+    - Type or copy/paste command: __/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"__
+ 3. Install pipenv using Homebrew
+    - Type or copy/paste command: __brew install pipenv__
+ 4. Make sure you are in the SPR_Create_Dotmatics_ADLP_File file folder.
     - If your are not sure type command: cd ~
     - Press 'enter'
     - Type or copy/paste command: __cd PythonProjects__
     - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
- 3. Create and activate Conda Environment
-    - Type or copy/paste command: 
-    - __conda create --name SPR_ADLP_env --file /Users/*bfulroth*/PythonProjects/SPR_Create_Dotmatics_ADLP_File/SPR_ADLP_env.txt__
-        - *Important: make sure to replace the user name italics with your own.*
-    - Type or copy/paste command: __source activate SPR_ADLP_env__
+ 5. Install all dependencies for the scripts:
+    - Type or copy/paste command: __pipenv install__
+    - This may take a few minutes as all of the projects dependencies are being downloaded.
+ 6. Active your new pipenv created virtual environment:
+    - Type or copy/paste command: __pipenv shell__
+    
+*__Important:__ Every time you run these scripts you MUST activate your virtual environment by invoking command: __pipenv shell__ while inside the SPR_Create_Dotmatics_ADLP_File project folder.  This will allow the scripts to access the needed packages and their subsequent versions.*
+    
     
 ## Create SPR setup file for dose response experiment
 
@@ -73,14 +95,14 @@ __Important__: For the data processing script to work, you must save the Biacore
         - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
         - Press 'enter'
 4. Make sure the the correct environment is activated.
-    - Type or copy/paste command: __source activate SPR_ADLP_env__
+    - Type or copy/paste command: __pipenv shell__
     - Press 'enter'
 5. Copy the complete file path for the setup table (remember it's a .csv file) you created in 1. above.
     - __Trick:__ 
         - To copy file or folder paths, right click on the file or folder and __hold__ the 'option' key. 
         - Next, select Copy "File Name" as Pathname.
 6. Run the script
-    - Type the command: __python Create_SPR_setup_file.py__ 
+    - Type the command: __python -m script_spr_setup_file__ 
 	- You will be prompted to paste the file path of the "Setup Table". Paste and type 'enter'.
     - This should create the setup file on your desktop OR if you are connect to the iron server the file will be saved in the folder __SPR Setup Files__ on the root directory of iron.
     
@@ -114,17 +136,17 @@ __Important__ If your remove points during data analysis you must correct the se
         - Next, select Copy "File Name" as Pathname.
 8. Run SPR_to_ADLP script
     - Navigate to the terminal
-    - Make sure the the correct environment is activated.
-        - Type or copy/paste command: __source activate SPR_ADLP_env__
-        - Press 'enter'
     - Make sure you are in the folder containing the script.
         - If your are not sure type command: cd ~
         - Press 'enter'
         - Type or copy/paste command: __cd PythonProjects__
         - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
+    - Make sure the the correct environment is activated.
+        - Type or copy/paste command: __pipenv shell__
+        - Press 'enter'
      - Run the script
         - Copy the config file path name to the clipboard. See trick in __bold__ above.
-        - Type command: __python SPR_to_ADLP.py__ 
+        - Type command: __python -m script_spr_to_adlp_not_8k__ 
         - Press 'enter'
         - Paste in the Config.txt path from the clipboard.
         - Press 'enter'
