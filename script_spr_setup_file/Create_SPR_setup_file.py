@@ -4,7 +4,6 @@ import os
 import platform
 import argparse
 import numpy as np
-import sys
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -182,7 +181,7 @@ def spr_setup_sheet(args=None):
             total_pts_per_pass = num_pts_curve * num_active_needles
 
             # add column for sorting
-            final_df['sort_zero'] = ""
+            final_df.loc[:, 'sort_zero'] = ''
 
             # Variables needed to keep track of where a zero is located in original df
             zero_num = 2
@@ -224,8 +223,8 @@ def spr_setup_sheet(args=None):
 
             # At this point the blanks ordered are placed into separate DF's of length 8 for the 8 needles of the 8k.
             # Now the non-blank concentrations must be handled...
-            df_non_zero = final_df[final_df['sort_zero'].isna()]
-            df_non_zero['sort_non_zero'] = ""
+            df_non_zero = final_df[final_df['sort_zero'].isna()].copy()
+            df_non_zero.loc[:,'sort_non_zero'] = ''
             df_non_zero = df_non_zero.reset_index(drop=True)
 
             # As done with the blanks, split DF into groups of 8 for the 8 needles
@@ -243,8 +242,6 @@ def spr_setup_sheet(args=None):
 
             # For each df in the non zero df list..
             # Pull out the df and label the sorting column so that sorting can be done.
-            row_start = 0
-            row_end = total_pts_per_pass
             ls_dfs_non_zeros_sorted = []
 
             for df_active in ls_dfs_non_zeros:
@@ -320,6 +317,7 @@ def spr_setup_sheet(args=None):
     save_output_file(df_final=final_df)
 
     return final_df
+
 
 def save_output_file(df_final):
     # Truncate the year in the file name.
