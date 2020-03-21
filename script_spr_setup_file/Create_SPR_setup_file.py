@@ -228,7 +228,7 @@ def spr_setup_sheet(args=None):
             # At this point the blanks ordered are placed into separate DF's of length 8 for the 8 needles of the 8k.
             # Now the non-blank concentrations must be handled...
             df_non_zero = final_df[final_df['sort_zero'].isna()]
-            df_non_zero.loc[:,'sort_non_zero'] = ""
+            df_non_zero.loc[:,'sort_non_zero'] = ''
             df_non_zero = df_non_zero.reset_index(drop=True)
 
             # As done with the blanks, split DF into groups of 8 for the 8 needles
