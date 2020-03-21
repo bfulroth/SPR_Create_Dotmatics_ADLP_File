@@ -1,3 +1,4 @@
+
 # SPR_Create_Dotmatics_ADLP_File
 
 [![Build Status](https://travis-ci.com/bfulroth/SPR_Create_Dotmatics_ADLP_File.svg?branch=master)](https://travis-ci.com/bfulroth/SPR_Create_Dotmatics_ADLP_File)
@@ -7,6 +8,19 @@ Project for processing SPR Data for upload to Dotmatics via ADLP
 **Overview**
 
 Takes SPR binding data and reformats the data into an Excel file for upload to Dotmatics through Broad's ADLP data upload portal.
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [SPR_Create_Dotmatics_ADLP_File](#spr_create_dotmatics_adlp_file)
+  - [Environment Setup (Skip this section if done before)](#environment-setup-skip-this-section-if-done-before)
+    - [Setup Python on your computer and download script files](#setup-python-on-your-computer-and-download-script-files)
+    - [Create a new virtual environment and install SPR to ADLP script dependencies.](#create-a-new-virtual-environment-and-install-spr-to-adlp-script-dependencies)
+  - [Create SPR setup file for dose response experiment](#create-spr-setup-file-for-dose-response-experiment)
+  - [Create ADLP upload file from Biacore dose response affinity experiment](#create-adlp-upload-file-from-biacore-dose-response-affinity-experiment)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Environment Setup ([Skip](https://github.com/bfulroth/SPR_Create_Dotmatics_ADLP_File/blob/master/README.md#create-spr-setup-file-for-dose-response-experiment) this section if done before)
 __Follow the steps below for initial setup. If initial setup was conducted previously, skip to next section of this document by clicking link above.__
