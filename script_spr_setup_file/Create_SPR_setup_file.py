@@ -4,7 +4,6 @@ import os
 import platform
 import argparse
 import numpy as np
-import warnings
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -24,9 +23,6 @@ def spr_setup_sheet(args=None):
     Creates the setup file necessary to run a dose response protocol on a Biacore instrument.
     :param clip: Optional flag to indicate that the contents of the setup file are on the clipboard.
     """
-
-    # TODO: Fix Warning set copy on a slice of a DataFrame
-    warnings.filterwarnings("ignore")
 
     # Extract the command line arguments
     args = parser.parse_args(args=args)
@@ -227,7 +223,7 @@ def spr_setup_sheet(args=None):
 
             # At this point the blanks ordered are placed into separate DF's of length 8 for the 8 needles of the 8k.
             # Now the non-blank concentrations must be handled...
-            df_non_zero = final_df[final_df['sort_zero'].isna()]
+            df_non_zero = final_df[final_df['sort_zero'].isna()].copy()
             df_non_zero.loc[:,'sort_non_zero'] = ''
             df_non_zero = df_non_zero.reset_index(drop=True)
 
@@ -246,8 +242,6 @@ def spr_setup_sheet(args=None):
 
             # For each df in the non zero df list..
             # Pull out the df and label the sorting column so that sorting can be done.
-            row_start = 0
-            row_end = total_pts_per_pass
             ls_dfs_non_zeros_sorted = []
 
             for df_active in ls_dfs_non_zeros:
@@ -323,6 +317,7 @@ def spr_setup_sheet(args=None):
     save_output_file(df_final=final_df)
 
     return final_df
+
 
 def save_output_file(df_final):
     # Truncate the year in the file name.
