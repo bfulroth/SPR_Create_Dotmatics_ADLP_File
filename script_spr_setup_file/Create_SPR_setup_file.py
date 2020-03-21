@@ -4,7 +4,6 @@ import os
 import platform
 import argparse
 import numpy as np
-import sys
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -182,7 +181,7 @@ def spr_setup_sheet(args=None):
             total_pts_per_pass = num_pts_curve * num_active_needles
 
             # add column for sorting
-            final_df['sort_zero'] = ""
+            final_df.loc[:, 'sort_zero'] = ""
 
             # Variables needed to keep track of where a zero is located in original df
             zero_num = 2
