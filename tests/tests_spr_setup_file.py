@@ -32,7 +32,7 @@ class SetupFileScriptRegularAffinity(TestCase):
                         'DMSO to Add (uL)': [9, 6, 6]})
 
         # Export this table to a csv file for testing
-        df_setup_tbl.to_csv('./Test_Files/setup_table_test.csv', index=False)
+        df_setup_tbl.to_csv('tests/fixtures/setup_table_test.csv', index=False)
 
     def test_correct_headers(self) -> None:
         """
@@ -51,12 +51,12 @@ class SetupFileScriptRegularAffinity(TestCase):
         Test that the correct headers are read back from the test csv file.
         """
 
-        df_test_setup_tbl_csv = pd.read_csv('./Test_Files/setup_table_test.csv')
+        df_test_setup_tbl_csv = pd.read_csv('tests/fixtures/setup_table_test.csv')
 
         self.assertEqual(list(df_test_setup_tbl_csv.columns), list(df_setup_tbl.columns))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', 'tests/fixtures/setup_table_test.csv'])
     def test_spr_setup_sheet_method_input(self, mock_input1, mock_input2):
         """
         Test that confirms that the a DataFrame is returned from spr setup sheet method.
@@ -66,7 +66,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(result.__class__, pd.DataFrame)
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', 'tests/fixtures/setup_table_test.csv'])
     def test_correct_column_headers(self, monkeypatch, mock_input2):
         """
 
@@ -77,7 +77,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(expected_headers, list(df_result.columns))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', 'tests/fixtures/setup_table_test.csv'])
     def test_correct_BRD_format(self, mock_input1, mock_input2):
         """
         Test that confirms that the length of the BRD's are truncated to 10 characters.
@@ -87,7 +87,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(10, len(str(df_result.iloc[1]['BRD'])))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', 'tests/fixtures/setup_table_test.csv'])
     def test_two_zero_conc_points_first_cmpd(self, mock_input1, mock_input2):
         """
         Test to verify that the first to concentration points are zero
@@ -101,7 +101,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(0, zero_two)
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', 'tests/fixtures/setup_table_test.csv'])
     def test_correct_num_points_for_10pt_curves(self, mock_input1, mock_input2):
 
         df_result = spr_setup_sheet()
@@ -110,7 +110,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(12, len(df_result))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', 'tests/fixtures/setup_table_test.csv'])
     def test_correct_num_points_for_8pt_curves(self, mock_input1, mock_input2):
 
         df_result = spr_setup_sheet()
@@ -119,7 +119,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(10, len(df_result))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', 'tests/fixtures/setup_table_test.csv'])
     def test_correct_num_points_for_6pt_curves(self, mock_input1, mock_input2):
 
         df_result = spr_setup_sheet()
@@ -128,7 +128,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(8, len(df_result))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', 'tests/fixtures/setup_table_test.csv'])
     def test_correct_two_fold_dilution_10_pts(self, mock_input1, mock_input2):
 
         ls_corr = [0, 0, 0.09765625, 0.1953125, 0.390625, 0.78125, 1.5625, 3.125, 6.25, 12.5, 25, 50]
@@ -139,7 +139,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(ls_corr, con_series)
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', 'tests/fixtures/setup_table_test.csv'])
     def test_correct_1pt5_fold_dilution_8_pts(self, mock_input1, mock_input2):
 
         ls_corr = [0.0, 0.0, 2.9263831732967542, 4.389574759945131, 6.584362139917697,
@@ -151,7 +151,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         self.assertEqual(ls_corr, con_series)
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['n', './Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['n', 'tests/fixtures/setup_table_test.csv'])
     def test_correct_3_fold_dilution_6_pts(self, mock_input1, mock_input2):
 
         ls_corr = [0.0, 0.0, 0.20576131687242802, 0.617283950617284,
@@ -168,82 +168,13 @@ class SetupFileScriptRegularAffinity(TestCase):
         classmethod that removes the csv file used to test
         :return None:
         """
-        os.unlink('./Test_Files/setup_table_test.csv')
+        os.unlink('tests/fixtures/setup_table_test.csv')
 
 
 class SetupFileScriptAffinity_8k(TestCase):
 
-    @classmethod
-    def setUpClass(cls) -> None:
-
-        # Create a test DataFrame of the setup table.
-        global df_setup_tbl
-        df_setup_tbl = pd.DataFrame({'Broad ID': ['BRD-K81106261-001-01-4',
-                                                  'BRD-K00024350-001-01-9',
-                                                  'BRD-K00024351-001-01-9',
-                                                  'BRD-A00024580-001-01-9',
-                                                  'BRD-K00024582-001-01-9',
-                                                  'BRD-A00024581-001-01-9',
-                                                  'BRD-K00024583-014-01-9',
-                                                  'BRD-A00024585-001-01-9',
-                                                  'BRD-A00024584-001-01-9',
-                                                  'BRD-K00024344-014-01-9',
-                                                  'BRD-K81106261-001-01-4',
-                                                  'BRD-K00024340-014-01-9',
-                                                  'BRD-K00024341-001-01-9',
-                                                  'BRD-K00024349-001-01-9',
-                                                  'BRD-A00024348-001-01-9',
-                                                  'BRD-K00024345-001-01-9'],
-                        'Comment': ['This is the control cmpd', 'This is a comment', 'This is another cmpd.', 'None',
-                                    'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None', 'None',
-                                    'None', 'None'],
-                        'MW': [496.55699999999996,
-                               497.524,
-                               497.524,
-                               411.431,
-                               425.458,
-                               411.431,
-                               455.44,
-                               497.524,
-                               497.524,
-                               457.45599999999996,
-                               496.55699999999996,
-                               473.45599999999996,
-                               398.392,
-                               525.534,
-                               525.557,
-                               470.455],
-                        'Sol. (uM)': [400, 500, 400, 500, 400, 500, 400, 500, 400, 500, 400, 500, 400, 500, 400, 500 ],
-                        'Plate': ['Plate_06', 'Plate_07', 'Plate_07', 'Plate_07', 'Plate_07', 'Plate_07', 'Plate_07',
-                                  'Plate_07', 'Plate_07', 'Plate_07', 'Plate_06', 'Plate_07', 'Plate_07', 'Plate_07',
-                                  'Plate_07', 'Plate_07'],
-                        'Barcode': [1172907815, 1196291078, 1196291070, 1196293322, 1196293323, 1196293331, 1196293339,
-                                    1196293347, 1196293324, 1196291038, 1172907815, 1196291030, 1196291046, 1196291062,
-                                    1196291022, 1196291054],
-                        'BC Added': [1172907815, 1196291078, 1196291070, 1196293322, 1196293323, 1196293331, 1196293339,
-                                    1196293347, 1196293324, 1196291038, 1172907815, 1196291030, 1196291046, 1196291062,
-                                    1196291022, 1196291054],
-                        'Well': ['H06', 'E03', 'E08', 'E10', 'E11', 'E12', 'F01', 'F02', 'F03', 'E06', 'H06', 'D12', 'E01',
-                                 'E02', 'E05', 'E07'],
-
-                        'Conc. (mM)': [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,10, 10, 10, 10],
-                        'Conc (uM)': [10000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 10000, 10000, 10000,
-                                      10000, 10000, 10000],
-                        '384W Dest.': ['A12', 'A24', 'B12', 'B24', 'C12', 'C24', 'D12', 'D24', 'E12', 'E24', 'F12', 'F24',
-                                       'G12', 'G24', 'H12', 'H24'],
-                        'Total Vol. (uL)': [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-                        'Test [Cpd] uM': [50, 20, 20, 20, 20, 20, 20, 20, 20, 20, 50, 100, 100, 100, 100, 100],
-                        'fold_dil': [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, ],
-                        'num_pts': [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-                        'Buffer (uL)': [190, 190, 190, 190, 190, 190, 190, 190, 190, 190, 190, 190, 190, 190, 190, 190,],
-                        'Cmpd to Add (uL)': [1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 2, 2, 2, 2, 2],
-                        'DMSO to Add (uL)': [9, 6, 6, 6, 6, 6, 6, 6, 6, 6, 9, 8, 8, 8, 8, 8]})
-
-        # Export this table to a csv file for testing
-        df_setup_tbl.to_csv('./Test_Files/setup_table_test.csv', index=False)
-
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['y', 'tests/fixtures/spr_setup_table_8_cpds_10_pt_dose.csv'])
     def test_spr_setup_sheet_method_input(self, mock_input1, mock_input2):
         """
         Test that confirms that the a DataFrame is returned from spr setup sheet method.
@@ -253,10 +184,9 @@ class SetupFileScriptAffinity_8k(TestCase):
         self.assertEqual(result.__class__, pd.DataFrame)
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['y', 'tests/fixtures/spr_setup_table_8_cpds_10_pt_dose.csv'])
     def test_correct_column_headers(self, mock_input1, mock_input2):
         """
-
         :return:
         """
         expected_headers = ['BRD', 'MW', 'CONC', 'BAR']
@@ -264,7 +194,7 @@ class SetupFileScriptAffinity_8k(TestCase):
         self.assertEqual(expected_headers, list(df_result.columns))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
+    @patch('builtins.input', side_effect=['y', 'tests/fixtures/spr_setup_table_8_cpds_10_pt_dose.csv'])
     def test_correct_BRD_format(self, mock_input1, mock_input2):
         """
         Test that confirms that the length of the BRD's are truncated to 10 characters.
@@ -273,23 +203,20 @@ class SetupFileScriptAffinity_8k(TestCase):
         df_result = spr_setup_sheet()
         self.assertEqual(10, len(str(df_result.iloc[1]['BRD'])))
 
-    # TODO: Left off here: Sorting is wrong need to fix. 3/18/2020
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
-    @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
-    def test_correct_cmpd_order(self, mock_input1, mock_input2):
+    @patch('builtins.input', side_effect=['y', 'tests/fixtures/spr_setup_table_8_cpds_10_pt_dose.csv'])
+    def test_correct_cmpd_order_8_cpds_10_pt_dose(self, mock_input1, mock_input2):
         """
         Test to verify that the compounds have been sorted correctly
         """
 
-        ls_corr = ['BRD-6261_1', 'BRD-4350_2', 'BRD-4351_3', 'BRD-4580_4', 'BRD-4582_5', 'BRD-4581_6', 'BRD-4583_7',
-                   'BRD-4585_8', 'BRD-4584_9', 'BRD-4344_10', 'BRD-6261_11', 'BRD-4340_12', 'BRD-4341_13', 'BRD-4349_14',
-                   'BRD-4348_15', 'BRD-4345_16']
+        ls_corr = ['BRD-6261_1', 'BRD-6444_2', 'BRD-6445_3', 'BRD-6447_4', 'BRD-6332_5', 'BRD-6261_6', 'BRD-6446_7',
+                   'BRD-6443_8']
 
         df_result = spr_setup_sheet()
-        self.assertEqual(ls_corr, list(df_result.iloc[0:16]['BRD']))
+        self.assertEqual(ls_corr, list(df_result.iloc[0:8]['BRD']))
 
-
-
+    # TODO: Left off here: Sorting is wrong need to fix. 3/22/2020
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['y', './Test_Files/setup_table_test.csv'])
     def test_correct_order_and_calc_off_concentrations(self, mock_input1, mock_input2):
