@@ -51,7 +51,7 @@ def spr_setup_sheet(args=None):
         else:
             #TODO: How to test using click?
             #file = click.prompt("Paste the path to the setup table", type=click.Path(exists=True))
-            file = input('Paste the path to the setup table')
+            file = input('Paste the path to the setup table: ')
             df_setup_ori = pd.read_csv(file)
     except:
         raise ImportError("Issues reading contents of file.")
