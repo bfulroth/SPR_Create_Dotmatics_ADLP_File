@@ -79,7 +79,7 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
     - Type or copy/paste command: __cd PythonProjects__
     - Type or copy/paste command: __cd SPR_Create_Dotmatics_ADLP_File__
  5. Install all dependencies for the scripts:
-    - Type or copy/paste command: __pipenv install__
+    - Type or copy/paste command: __pipenv install --dev --ignore-pipfile --deploy__
     - This may take a few minutes as all of the projects dependencies are being downloaded.
  6. Active your new pipenv created virtual environment:
     - Type or copy/paste command: __pipenv shell__
