@@ -2,6 +2,11 @@ import pandas as pd
 import os
 import click
 import platform
+import cx_Oracle
+from sqlalchemy import create_engine, Table, MetaData, select
+import tempfile
+from rdkit import Chem
+from rdkit.Chem import Draw, AllChem
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -9,6 +14,100 @@ if platform.system() == "Windows":
     homedir = str(Path.home())
 else:
     homedir = os.environ['HOME']
+
+
+STRUCT_IMG_DIR = os.path.join(os.getcwd(), 'structure_images')
+
+
+def get_structures_from_db(df_mstr_tbl):
+
+    # Extract the CORE Broad ID from the df_mstr_tbl
+    df_brd_core_id = df_mstr_tbl[['Broad ID']]
+    df_brd_core_id.loc[:, 'BROAD_CORE_ID'] = df_brd_core_id['Broad ID'].apply(lambda x: x[5:13])
+    sort_vals = [i for i in range(0, len(df_brd_core_id))]
+    df_brd_core_id.loc[:, 'sort_col'] = pd.Series(sort_vals)
+
+    # Connect to resultsdb database.
+    try:
+        host = 'cbpdb01'
+        port = '1521'
+        sid = 'cbplate'
+        user = 'resultdb'
+        password = 'guest'  # os.environ['RESULTSDB_PASSWORD']
+        sid = cx_Oracle.makedsn(host, port, sid=sid)
+
+        cstr = 'oracle://{user}:{password}@{sid}'.format(
+            user=user,
+            password=password,
+            sid=sid
+        )
+
+        engine = create_engine(cstr,
+                               pool_recycle=3600,
+                               pool_size=5,
+                               echo=False
+                               )
+
+        # Connect to resultsdb
+        conn = engine.connect()
+    except Exception:
+        raise ConnectionError("Cannot connect to resultsdb database. "
+                              "Compound structures will not be rendered in final file.")
+
+    # Reflect Tables
+    metadata = MetaData()
+    structure_tbl = Table('structure', metadata, autoload=True, autoload_with=engine)
+
+    # Get the Broad Core ID/ and SMILES from resultsdb.
+    stmt = select([structure_tbl.c.broadidcore, structure_tbl.c.smiles]). \
+        where(structure_tbl.c.broadidcore.in_(list(df_brd_core_id['BROAD_CORE_ID'])))
+
+    # Execute the statement
+    results = conn.execute(stmt).fetchall()
+
+    # Close the database connection
+    conn.close()
+
+    # Turn the results into a DataFrame.
+    df_struct_tbl = pd.DataFrame(results)
+
+    # RENAME the column headers.
+    df_struct_tbl.columns = ['BROAD_CORE_ID', 'SMILES']
+
+    # Make a new directory to store rendered structure images
+    os.mkdir(STRUCT_IMG_DIR)
+
+    # Merge df_struct_tbl with df_brd_core_id such that Full BRD, CORE ID, and SMILES are in the same table
+    df_merge_full_brd_smiles = pd.merge(left=df_brd_core_id, right=df_struct_tbl, on='BROAD_CORE_ID', how='left')
+
+    # Create an image Path Column
+    df_merge_full_brd_smiles.loc[:, 'IMG_PATH'] = ''
+
+    # Use BRD control as a template to align molecules.
+    template = Chem.MolFromSmiles('Nc1c(F)cc(C#N)c2cc[nH]c12')
+    AllChem.Compute2DCoords(template)
+
+    img_num = 0
+
+    # Create the images from smiles in a new directory
+    # TODO: Attempt to align structure doesn't fully work
+    for idx, row in df_merge_full_brd_smiles.iterrows():
+
+        current_smile_str = row['SMILES']
+        img_name = str(img_num) + '_' + row['Broad ID'] + '.png'
+        img_full_path = os.path.join(STRUCT_IMG_DIR, img_name)
+
+        # Generate the structure of the current molecule using the control as a template to align
+        m = Chem.MolFromSmiles(current_smile_str)
+        AllChem.GenerateDepictionMatching2DStructure(m, template)
+        Draw.MolToFile(mol=m, filename=img_full_path, size=(300, 300))
+
+        # Save the image path to the DataFrame
+        df_merge_full_brd_smiles.loc[idx, 'IMG_PATH'] = img_full_path
+
+        img_num += 1
+
+    return df_merge_full_brd_smiles
 
 
 def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
@@ -57,12 +156,35 @@ def spr_insert_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
         worksheet.set_row(row=row, height=235)
 
     # Set the width of each column
-    worksheet.set_column(first_col=3, last_col=4, width=58)
+    worksheet.set_column(first_col=4, last_col=5, width=58)
 
     row = 2
     for ss_img, senso_img in tuple_list_imgs:
-        worksheet.insert_image('D' + str(row), path_ss_img + '/' + ss_img)
-        worksheet.insert_image('E' + str(row), path_senso_img + '/' + senso_img)
+        worksheet.insert_image('E' + str(row), path_ss_img + '/' + ss_img)
+        worksheet.insert_image('F' + str(row), path_senso_img + '/' + senso_img)
+        row += 1
+
+# TODO: Clean up this method and docs
+def spr_insert_structures(ls_img_struct_paths, worksheet):
+    """
+    Does the work of inserting the spr steady state and sensorgram images into the excel worksheet.
+    :param tuple_list: List of tuples containing (steady state image, sensorgram image)
+    :param worksheet: xlsxwriter object used to insert the images to a worksheet
+    :return: None
+    """
+    # Format the rows and columns in the worksheet to fit the images.
+    num_images = len(ls_img_struct_paths)
+
+    # Set height of each row
+    for row in range(1, num_images + 1):
+        worksheet.set_row(row=row, height=235)
+
+    # Set the width of each column
+    worksheet.set_column(first_col=1, last_col=1, width=40)
+
+    row = 2
+    for img in ls_img_struct_paths:
+        worksheet.insert_image('B' + str(row), img)
         row += 1
 
 
@@ -291,6 +413,9 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot['BROAD_ID'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='Broad ID',
                                                                  times_dup=num_fc_used))
 
+    # Add structure column
+    df_final_for_dot['STRUCTURES'] = ''
+
     # Add the Project Code.  Get this from the config file.
     df_final_for_dot['PROJECT_CODE'] = project_code
 
@@ -416,7 +541,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         'RMAX_THEORETICAL']) * 100, 2)
 
     # Rearrange the columns for the final DataFrame (without images)
-    df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'PROJECT_CODE', 'CURVE_VALID', 'STEADY_STATE_IMG',
+    df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'STRUCTURES', 'PROJECT_CODE', 'CURVE_VALID', 'STEADY_STATE_IMG',
        '1to1_IMG', 'TOP_COMPOUND_UM', 'RMAX_THEORETICAL', 'RU_TOP_CMPD', '%_BINDING_TOP', 'KD_SS_UM',
        'CHI2_SS_AFFINITY', 'FITTED_RMAX_SS_AFFINITY', 'KA_1_1_BINDING',
        'KD_LITTLE_1_1_BINDING', 'KD_1_1_BINDING_UM', 'chi2_1_1_binding',
@@ -471,7 +596,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
 
     # For larger drop down lists > 255 characters its necessary to create a list on a seperate worksheet.
-    worksheet1.data_validation('S1:S' + str(num_data_pts),
+    worksheet1.data_validation('T1:T' + str(num_data_pts),
                                     {'validate': 'list',
                                      'source': '=Sheet2!$A$2:$A$' + str(len(comments_list) + 1)
                                      })
@@ -483,7 +608,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     cell_format = workbook.add_format()
     cell_format.set_align('center')
     cell_format.set_align('vcenter')
-    worksheet1.set_column('A:AI', 25, cell_format)
+    worksheet1.set_column('A:AK', 25, cell_format)
 
     # Start preparing to insert the steady state and sensorgram images.
     # Get list of image files from df_ss_txt Dataframe.
@@ -497,6 +622,19 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Insert images into file.
     spr_insert_images(tuple_list_imgs, worksheet1, path_ss_img, path_senso_img)
+
+    # Start preparing to insert structure images
+    # This line gets all the smiles from the database and creates the images as png files in a directory
+    df_struct_imgs = get_structures_from_db(df_mstr_tbl=df_cmpd_set)
+
+    # Create an list of the images paths in order
+    ls_img_paths = dup_item_for_dot_df(df=df_struct_imgs, col_name='IMG_PATH', times_dup=num_fc_used)
+
+    # Insert the structures into the Excel workbook object
+    spr_insert_structures(ls_img_struct_paths=ls_img_paths, worksheet=worksheet1)
+
+    # TODO: Remove the structure directory when done
+    #os.rmdir(STRUCT_IMG_DIR)
 
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
