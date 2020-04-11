@@ -8,6 +8,10 @@ import tempfile
 from rdkit import Chem
 from rdkit.Chem import Draw, AllChem
 
+# Load environmental variables
+from dotenv import load_dotenv
+load_dotenv()
+
 # Get the users Home Directory
 if platform.system() == "Windows":
     from pathlib import Path
@@ -35,8 +39,8 @@ def get_structures_smiles_from_db(df_mstr_tbl):
         host = 'cbpdb01'
         port = '1521'
         sid = 'cbplate'
-        user = 'resultdb'
-        password = 'guest'  # os.environ['RESULTSDB_PASSWORD']
+        user = os.getenv('DB_USER')
+        password = os.getenv('DB_PASSWORD')
         sid = cx_Oracle.makedsn(host, port, sid=sid)
 
         cstr = 'oracle://{user}:{password}@{sid}'.format(
