@@ -18,4 +18,3 @@ dependencies:
     - xlrd==1.2.0
     - xlsxwriter==1.2.8
 prefix: /Users/bfulroth/.conda/envs/SPR_Create_Dotmatics_ADLP_File
-
