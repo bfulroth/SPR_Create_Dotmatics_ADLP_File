@@ -69,14 +69,16 @@ _Take Note: The following procedure has been tested for Mac OS. Different comman
 ### Create a new virtual environment and install SPR to ADLP script dependencies.
 
  1. Navigate to terminal.
- 2. Update conda:
+ 2. Config conda:
+    - Type or copy/past command: __conda config --set always_yes yes__
+ 3. Update conda:
     - Type or copy/past command: __conda update conda__
- 3. Add conda-forge channel:
+ 4. Add conda-forge channel:
     - Type or copy/past command: __conda config --add channels conda-forge__
- 4. Create conda virtual environment from environment.yml file:
+ 5. Create conda virtual environment from environment.yml file:
     - Type or copy/past command: __conda env create -n SPR_ADLP_ENV__
     - Follow prompts and agree to installing packages.
- 5. Active new conda env:
+ 6. Active new conda env:
     - Type or copy/past command: __conda activate SPR_ADLP_ENV__
     
 *__Important:__ Every time you run these scripts you MUST activate your virtual environment by invoking command: __conda activate SPR_ADLP_ENV__.  This will allow the scripts to access the needed packages and their subsequent versions.*
