@@ -7,11 +7,7 @@ from sqlalchemy import create_engine, Table, MetaData, select
 import tempfile
 from rdkit import Chem
 from rdkit.Chem import Draw, AllChem
-from crypt import f, token
-
-# Load environmental variables
-from dotenv import load_dotenv
-load_dotenv()
+from crypt import Crypt
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -35,13 +31,15 @@ def get_structures_smiles_from_db(df_mstr_tbl):
     # sort_vals = [i for i in range(0, len(df_brd_core_id))]
     # df_brd_core_id.loc[:, 'sort_col'] = pd.Series(sort_vals)
 
+    crypt = Crypt()
+
     # Connect to resultsdb database.
     try:
         host = 'cbpdb01'
         port = '1521'
         sid = 'cbplate'
         user = os.getenv('DB_USER')
-        password = str(f.decrypt(token), 'utf-8')
+        password = str(crypt.f.decrypt(crypt.token), 'utf-8')
         sid = cx_Oracle.makedsn(host, port, sid=sid)
 
         cstr = 'oracle://{user}:{password}@{sid}'.format(
@@ -661,6 +659,3 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     print('Program Done!')
     print("The ADLP result was saved to your desktop.")
-
-if __name__ == '__main__':
-    spr_create_dot_upload_file()
