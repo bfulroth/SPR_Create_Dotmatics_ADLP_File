@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, Table, MetaData, select
 import tempfile
 from rdkit import Chem
 from rdkit.Chem import Draw, AllChem
+from crypt import f, token
 
 # Load environmental variables
 from dotenv import load_dotenv
@@ -40,7 +41,7 @@ def get_structures_smiles_from_db(df_mstr_tbl):
         port = '1521'
         sid = 'cbplate'
         user = os.getenv('DB_USER')
-        password = os.getenv('DB_PASSWORD')
+        password = str(f.decrypt(token), 'utf-8')
         sid = cx_Oracle.makedsn(host, port, sid=sid)
 
         cstr = 'oracle://{user}:{password}@{sid}'.format(
