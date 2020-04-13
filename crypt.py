@@ -10,4 +10,5 @@ class Crypt:
         self.key_bytes = bytearray(self.key, 'utf-8')
         self.f = Fernet(self.key_bytes)
 
-        self.token = b'gAAAAABelKD258g-GXgybV__Q51l4eouesDb7Frhfqf9XvSXZ0J1lZePSExmxZmneUINXpkc76mKTXnNeOfcmChruG1C_QaZnQ=='
+        self.token = b'gAAAAABelKD258g-GXgybV__' \
+                     b'Q51l4eouesDb7Frhfqf9XvSXZ0J1lZePSExmxZmneUINXpkc76mKTXnNeOfcmChruG1C_QaZnQ=='

@@ -24,13 +24,14 @@ def get_structures_smiles_from_db(df_mstr_tbl):
     """
 
     # Extract the CORE Broad ID from the df_mstr_tbl
-    df_brd_core_id = df_mstr_tbl[['Broad ID']]
+    df_brd_core_id = df_mstr_tbl[['Broad ID']].copy()
     df_brd_core_id.loc[:, 'BROAD_CORE_ID'] = df_brd_core_id['Broad ID'].apply(lambda x: x[5:13])
 
     # TODO: Make sure sorting the final df is not need at the end.
     # sort_vals = [i for i in range(0, len(df_brd_core_id))]
     # df_brd_core_id.loc[:, 'sort_col'] = pd.Series(sort_vals)
 
+    # Create a cryptographic object
     crypt = Crypt()
 
     # Connect to resultsdb database.
