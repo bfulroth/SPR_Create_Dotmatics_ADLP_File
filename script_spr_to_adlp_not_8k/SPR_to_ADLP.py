@@ -660,3 +660,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     print('Program Done!')
     print("The ADLP result was saved to your desktop.")
+
+
+if __name__ == '__main__':
+
+    spr_create_dot_upload_file()
