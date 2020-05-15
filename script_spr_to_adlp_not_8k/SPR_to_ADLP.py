@@ -7,7 +7,10 @@ from sqlalchemy import create_engine, Table, MetaData, select
 import tempfile
 from rdkit import Chem
 from rdkit.Chem import Draw, AllChem
+import configparser
+import os
 from crypt import Crypt
+from _version import __version__
 
 from SPR_to_ADLP_Functions.SPR_to_ADLP_Functions import rep_item_for_dot_df
 
@@ -325,16 +328,12 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
 @click.option('--clip', is_flag=True,
               help="Option to indicate that the contents of the setup file are on the clipboard.")
 def spr_create_dot_upload_file(config_file, save_file, clip):
-    import configparser
 
-    # ADLP save file path.
-    if platform.system() == 'Windows':
-        adlp_save_file_path = homedir + '\\Desktop\\' + save_file
-    else:
-        adlp_save_file_path = homedir + '/' + 'desktop' + '/' + save_file
+
+    # ADLP save file path
+    adlp_save_file_path = os.path.join(homedir, 'Desktop', save_file + '_' + str(__version__))
 
     try:
-
         config = configparser.ConfigParser()
         config.read(config_file)
 
