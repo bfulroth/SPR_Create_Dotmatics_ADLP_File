@@ -9,7 +9,7 @@ from rdkit import Chem
 from rdkit.Chem import Draw, AllChem
 from crypt import Crypt
 
-from SPR_to_ADLP_Functions.SPR_to_ADLP_Functions import dup_item_for_dot_df
+from SPR_to_ADLP_Functions.SPR_to_ADLP_Functions import rep_item_for_dot_df
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -399,7 +399,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Start by adding the Broad ID in the correct order.
     num_fc_used = int(num_fc_used)
-    df_final_for_dot['BROAD_ID'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='Broad ID',
+    df_final_for_dot['BROAD_ID'] = pd.Series(rep_item_for_dot_df(df_cmpd_set, col_name='Broad ID',
                                                                  times_dup=num_fc_used))
 
     # Add structure column
@@ -418,8 +418,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot['1to1_IMG'] = ''
 
     # Add the starting compound concentrations
-    df_final_for_dot['TOP_COMPOUND_UM'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='Test [Cpd] uM',
-                                                                 times_dup=num_fc_used))
+    df_final_for_dot['TOP_COMPOUND_UM'] = pd.Series(rep_item_for_dot_df(df_cmpd_set, col_name='Test [Cpd] uM',
+                                                                        times_dup=num_fc_used))
 
     # Extract the RU Max for each compound using the report point file.
     df_final_for_dot['RU_TOP_CMPD'] = spr_binding_top_for_dot_file(report_pt_file=path_report_pt,
@@ -491,7 +491,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
 
     # Add the MW for each compound.
-    df_final_for_dot['MW'] = pd.Series(dup_item_for_dot_df(df_cmpd_set, col_name='MW',
+    df_final_for_dot['MW'] = pd.Series(rep_item_for_dot_df(df_cmpd_set, col_name='MW',
                                                            times_dup=num_fc_used))
 
     # Continue adding columns to final DataFrame
@@ -623,7 +623,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         df_with_paths = render_structure_imgs(df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
 
         # Create an list of the images paths in order
-        ls_img_paths = dup_item_for_dot_df(df=df_with_paths, col_name='IMG_PATH', times_dup=num_fc_used)
+        ls_img_paths = rep_item_for_dot_df(df=df_with_paths, col_name='IMG_PATH', times_dup=num_fc_used)
 
         # Insert the structures into the Excel workbook object
         spr_insert_structures(ls_img_struct_paths=ls_img_paths, worksheet=worksheet1)
