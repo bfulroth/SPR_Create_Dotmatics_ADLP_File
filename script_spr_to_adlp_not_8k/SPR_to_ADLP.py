@@ -115,7 +115,7 @@ def render_structure_imgs(df_with_smiles, dir):
 
         # Generate the structure of the current molecule using the control as a template to align
         m = Chem.MolFromSmiles(current_smile_str)
-        AllChem.GenerateDepictionMatching2DStructure(m, template)
+        #AllChem.GenerateDepictionMatching2DStructure(m, template)
         Draw.MolToFile(mol=m, filename=img_full_path, size=(300, 300))
 
         # Save the image path to the DataFrame
