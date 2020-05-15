@@ -328,7 +328,15 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
 @click.option('--clip', is_flag=True,
               help="Option to indicate that the contents of the setup file are on the clipboard.")
 def spr_create_dot_upload_file(config_file, save_file, clip):
+    """
+    Function the aggregates all data from and SPR binding experiment run with compounds at dose into one Excel File.
 
+    :arg config_file: Text file containing all of the metadata for an SPR experiment run at dose.
+    :arg save_file: Name of the final Excel file.
+    :arg clip: Optional flag that indicates if the setup table exists on the clipboard.
+    :return None
+
+    """
 
     # ADLP save file path
     adlp_save_file_path = os.path.join(homedir, 'Desktop', save_file + '_' + str(__version__))
