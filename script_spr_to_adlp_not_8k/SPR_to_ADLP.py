@@ -9,6 +9,8 @@ from rdkit import Chem
 from rdkit.Chem import Draw, AllChem
 from crypt import Crypt
 
+from SPR_to_ADLP_Functions.SPR_to_ADLP_Functions import dup_item_for_dot_df
+
 # Get the users Home Directory
 if platform.system() == "Windows":
     from pathlib import Path
@@ -124,35 +126,6 @@ def render_structure_imgs(df_with_smiles, dir):
         img_num += 1
 
     return df_with_smiles
-
-
-def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
-    """
-    Takes a DataFrame and a column name with items to be replicated. Sorts the list and replicates the number of
-    times specified by the parameter times_dup. Copies the replicated values to the clip board.
-
-    :param df: A DataFrame containing the column of values to be replicated.
-    :param col_name: Name of the column containing values to replicate.
-    :param times_dup: Number of times to replicate each value in the specified column.
-    :param sort: Boolean to sort the replicated values.
-    :type sort: bool
-    """
-    dup_list = []
-
-    try:
-        for item in df[col_name]:
-            for i in range(times_dup):
-                dup_list.append(item)
-
-        a = pd.Series(dup_list)
-
-        if sort:
-            b = a.sort_values()
-            return b
-        else:
-            return a
-    except:
-        print("The DataFrame does not have a " + col_name + " column.")
 
 
 def spr_insert_ss_senso_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
