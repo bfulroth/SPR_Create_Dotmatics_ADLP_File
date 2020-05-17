@@ -318,15 +318,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
 
     return round(df_rpt_pts_trim['RelResp [RU]'], 2)
 
-# Using click to manage the command line interface
-@click.command()
-@click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
-              help="Path of the configuration file. Text file with all of the file paths and meta "
-                   "data for a particular experiment.")
-@click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension"
-                ,help="Name of the ADLP results file which is an Excel file.")
-@click.option('--clip', is_flag=True,
-              help="Option to indicate that the contents of the setup file are on the clipboard.")
+
 def spr_create_dot_upload_file(config_file, save_file, clip):
     """
     Function the aggregates all data from and SPR binding experiment run with compounds at dose into one Excel File.
@@ -533,12 +525,12 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                            * df_final_for_dot['PROTEIN_RU'], 2)
 
     # Calculate Percent Binding
-    df_final_for_dot['%_BINDING_TOP'] = round((df_final_for_dot['RU_TOP_CMPD'] / df_final_for_dot[
-        'RMAX_THEORETICAL']) * 100, 2)
+
+    df_final_for_dot['PERCENT_BINDING_TOP'] = round((df_final_for_dot['RU_TOP_CMPD'] / df_final_for_dot['RMAX_THEORETICAL']) * 100, 2)
 
     # Rearrange the columns for the final DataFrame (without images)
     df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'STRUCTURES', 'PROJECT_CODE', 'CURVE_VALID', 'STEADY_STATE_IMG',
-       '1to1_IMG', 'TOP_COMPOUND_UM', 'RMAX_THEORETICAL', 'RU_TOP_CMPD', '%_BINDING_TOP', 'KD_SS_UM',
+       '1to1_IMG', 'TOP_COMPOUND_UM', 'RMAX_THEORETICAL', 'RU_TOP_CMPD', 'PERCENT_BINDING_TOP', 'KD_SS_UM',
        'CHI2_SS_AFFINITY', 'FITTED_RMAX_SS_AFFINITY', 'KA_1_1_BINDING',
        'KD_LITTLE_1_1_BINDING', 'KD_1_1_BINDING_UM', 'chi2_1_1_binding',
        'U_VALUE_1_1_BINDING', 'FITTED_RMAX_1_1_BINDING', 'COMMENTS', 'FC',

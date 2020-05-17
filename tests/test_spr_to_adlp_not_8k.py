@@ -1,6 +1,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 from script_spr_to_adlp_not_8k.SPR_to_ADLP import *
+from script_spr_to_adlp_not_8k.Cli import main
 import pandas as pd
 from click.testing import CliRunner
 
@@ -31,14 +32,10 @@ class SPR_to_ADLP_not_8k(TestCase):
 
         # Use the click CliRunner object for testing Click implemented Cli programs.
         runner = CliRunner()
-        result = runner.invoke(spr_create_dot_upload_file, ['--config_file',
-                                                            './tests/fixtures/Biacore1_Test_Files/'
-                                                            '200312-1_config_affinit_Biacore1.txt', '--save_file',
-                                                            'Test'])
-        print(result)
+        result = runner.invoke(main, ['--config_file', './tests/fixtures/Biacore1_Test_Files/'
+                                                        '200312-1_config_affinit_Biacore1.txt', '--save_file',
+                                                        'Test'])
         self.assertEqual(0, result.exit_code)
-
-
 
     def test_correct_column_names(self):
         
