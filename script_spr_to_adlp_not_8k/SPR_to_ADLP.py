@@ -410,22 +410,22 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                                                  times_dup=num_fc_used))
 
     # Add structure column
-    df_final_for_dot['STRUCTURES'] = ''
+    df_final_for_dot.loc[:, 'STRUCTURES'] = ''
 
     # Add the Project Code.  Get this from the config file.
-    df_final_for_dot['PROJECT_CODE'] = project_code
+    df_final_for_dot.loc[:, 'PROJECT_CODE'] = project_code
 
     #  Add an empty column called curve_valid
-    df_final_for_dot['CURVE_VALID'] = ''
+    df_final_for_dot.loc[:, 'CURVE_VALID'] = ''
 
     # Add an empty column called steady_state_img
-    df_final_for_dot['STEADY_STATE_IMG'] = ''
+    df_final_for_dot.loc[:, 'STEADY_STATE_IMG'] = ''
 
     # Add an empty column called 1to1_img
-    df_final_for_dot['1to1_IMG'] = ''
+    df_final_for_dot.loc[:,  '1to1_IMG'] = ''
 
     # Add the starting compound concentrations
-    df_final_for_dot['TOP_COMPOUND_UM'] = pd.Series(rep_item_for_dot_df(df_cmpd_set, col_name='Test [Cpd] uM',
+    df_final_for_dot.loc[:, 'TOP_COMPOUND_UM'] = pd.Series(rep_item_for_dot_df(df_cmpd_set, col_name='Test [Cpd] uM',
                                                                         times_dup=num_fc_used))
 
     # Extract the RU Max for each compound using the report point file.
@@ -640,6 +640,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     print('Program Done!')
     print("The ADLP result was saved to your desktop.")
+
+    return df_final_for_dot
 
 
 if __name__ == '__main__':
