@@ -203,43 +203,33 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
     # Biacore instrument software for the S200 and T200 instruments exports different column names.
     # Check that the columns in the report point file match the expected values.
     if (instrument=='Biacore1') | (instrument == 'Biacore3'):
-        expected_cols = ['Cycle', 'Fc', 'Time', 'Window', 'AbsResp', 'SD', 'Slope', 'LRSD', 'Baseline', 'RelResp',
-                         'Report Point', 'AssayStep', 'AssayStepPurpose', 'Buffer', 'CycleType', 'Temp',
-                         'Sample_1_Sample', 'Sample_1_Ligand', 'Sample_1_Conc', 'Sample_1_MW', 'General_1_Solution']
+        expected_cols = ['Cycle', 'Fc', 'Report Point', 'Time', 'RelResp', 'AssayStep',
+                           'CycleType', 'Sample_1_Conc', 'Sample_1_Sample']
 
-    if instrument == 'Biacore2':
-        expected_cols = ['Unnamed: 0', 'Cycle', 'Fc', 'Report Point', 'Time [s]', 'Window [s]', 'AbsResp [RU]', 'SD',
-                         'Slope [RU/s]', 'LRSD', 'RelResp [RU]', 'Baseline', 'AssayStep', 'Assay Step Purpose',
-                         'Buffer', 'Cycle Type', 'Temp', 'Sample_1_Conc [µM]', 'Sample_1_Ligand',
-                         'Sample_1_MW [Da]', 'Sample_1_Sample', 'General_1_Solution']
+    if (instrument == 'Biacore2') | (instrument == 'BiacoreS200'):
+        expected_cols = ['Cycle', 'Fc', 'Report Point', 'Time [s]', 'RelResp [RU]',
+                         'AssayStep', 'Cycle Type', 'Sample_1_Conc [µM]', 'Sample_1_Sample']
 
-    # Check that the columns in the report point file match the expected values.
-    if instrument == 'BiacoreS200':
-        expected_cols = ['Unnamed: 0', 'Cycle','Fc','Report Point','Time [s]','Window [s]','AbsResp [RU]','SD',
-                     'Slope [RU/s]','LRSD','RelResp [RU]',	'Baseline',	'AssayStep','Assay Step Purpose',
-                    'Buffer','Cycle Type','Temp','Sample_1_Barcode','Sample_1_Conc [µM]','Sample_1_Ligand',
-                         'Sample_1_MW [Da]', 'Sample_1_Sample', 'General_1_Solution']
+    for col in expected_cols:
+        if col not in df_rpt_pts_all.columns.tolist():
+            raise ValueError('The columns in the report point file do not match the expected names.')
 
-    if df_rpt_pts_all.columns.tolist() != expected_cols:
-        raise ValueError('The columns in the report point file do not match the expected names.')
-
-    # For BiacoreS200
+    # For Biacore2 and BiacoreS200
     # Remove first column
     if (instrument == 'BiacoreS200') | (instrument == 'Biacore2'):
         df_rpt_pts_trim = df_rpt_pts_all.iloc[:, 1:]
 
         # Remove other not needed columns
         df_rpt_pts_trim = df_rpt_pts_trim.loc[:,
-                      ['Cycle', 'Fc', 'Report Point', 'Time [s]', 'RelResp [RU]', 'AssayStep', 'Cycle Type',
-                       'Sample_1_Conc [µM]',
-                       'Sample_1_Sample']]
+                      ['Cycle', 'Fc', 'Report Point', 'Time [s]', 'RelResp [RU]',
+                       'AssayStep', 'Cycle Type', 'Sample_1_Conc [µM]', 'Sample_1_Sample']]
 
     # For Biacore1 or Biacore3
     else:
         # Remove other not needed columns
         df_rpt_pts_trim = df_rpt_pts_all.loc[:,
-                          ['Cycle', 'Fc', 'Report Point', 'Time', 'RelResp', 'AssayStep', 'CycleType', 'Sample_1_Conc',
-                           'Sample_1_Sample']]
+                          ['Cycle', 'Fc', 'Report Point', 'Time', 'RelResp', 'AssayStep',
+                           'CycleType', 'Sample_1_Conc', 'Sample_1_Sample']]
 
     # Reassign columns so that there is consistent naming between BiacoreS200, Biacore1, and Biacore3.
     df_rpt_pts_trim.columns = ['Cycle', 'Fc', 'Report Point', 'Time [s]', 'RelResp [RU]', 'AssayStep', 'Cycle Type',
