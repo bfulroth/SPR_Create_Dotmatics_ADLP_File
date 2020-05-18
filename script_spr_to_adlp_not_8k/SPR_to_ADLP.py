@@ -434,7 +434,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_ss_txt['fc_num'] = pd.to_numeric(df_ss_txt['Curve'].str[3])
     df_ss_txt = df_ss_txt.sort_values(by=['sample_order', 'fc_num'])
     df_ss_txt = df_ss_txt.reset_index(drop=True)
-    df_ss_txt['KD_SS_UM'] = df_ss_txt['KD (M)'] * 1000000
+    df_ss_txt['KD_SS_UM'] = round(df_ss_txt['KD (M)'] * 1000000, 3)
 
     # Add the KD steady state
     df_final_for_dot['KD_SS_UM'] = df_ss_txt['KD_SS_UM']
@@ -457,7 +457,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     # Add columns from df_senso_txt
     df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka (1/Ms)']
     df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd (1/s)']
-    df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
+    df_final_for_dot['KD_1_1_BINDING_UM'] = round(df_senso_txt['KD (M)'] * 1000000, 3)
     df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Chi² (RU²)']
 
     # Not sure what this is???

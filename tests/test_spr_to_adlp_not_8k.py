@@ -168,11 +168,27 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
     def test_final_df_PERCENT_BINDING_TOP(self):
 
-        expected = []
+        expected = [132.41, 133.9, 134.19, 141.84, 141.16, 139.53, 147.85, 148.74, 146.64, 147.25, 142.19, 140.19,
+                    131.43, 136.28, 138.24, 120.09, 132.41, 126.05, 73.6, 97.63, 98.93, 109.26, 107.02, 109.88,
+                    122.98, 118.82, 122.42, 75.6, 99.2, 100.34, 97.97, 106.57, 104.67, 21.27, 49.42, 32.7, 88.7,
+                    120.77, 100.88, 110.08, 134.43, 121.8, 101.93, 117.57, 117.2, 85.26, 98.86, 96.34]
 
         actual = list(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['PERCENT_BINDING_TOP'])
 
         self.assertEqual(expected, actual)
+
+    def test_final_df_KD_SS_UM(self):
+
+        expected = [4.53, 1.41, 3.8, 0.441, 0.131, 0.28, 0.228, 0.082, 0.152, 0.858, 0.268, 0.529, 10.7,
+                    3.32, 4.36, 6.6, 2.42, 4.39, 33.9, 19.0, 16.5, 4.17, 1.5, 3.37, 0.705, 0.272, 0.55,
+                    0.55, 4.81, 4.87, 1.84, 0.552, 1.1, 26.5, 21.3, 16.9, 11800000.0, 56.8, 2690000.0,
+                    1.37, 0.552, 1.21, 2.02, 1.07, 1.47, 3.36, 1.64, 2.82]
+
+        actual = list(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['KD_SS_UM'])
+
+        self.assertEqual(expected, actual)
+
+
 
 
 
