@@ -1,3 +1,5 @@
+"""Module that contains common functions for SPR to ADLP aggregation scripts"""
+
 import pandas as pd
 
 

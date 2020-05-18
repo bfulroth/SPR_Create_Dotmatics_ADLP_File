@@ -7,7 +7,6 @@ from click.testing import CliRunner
 import numpy as np
 
 
-
 class SPR_to_ADLP_not_8k_Cli(TestCase):
     """Unit tests for invoking SPR_to_ADLP Script using Click"""
 
@@ -69,7 +68,7 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
     @patch('pandas.DataFrame.to_excel')
     def setUpClass(cls, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6, mock_7) -> None:
         """
-        Sets up the class with the final DataFrame from Runnin the SPR_to_ADLP Script.  Subsequent methods in this class
+        Sets up the class with the final DataFrame from Running the SPR_to_ADLP Script.  Subsequent methods in this class
         evaluate and verify this DataFrame for correctness.
 
         :param mock_1: Mocks the os.path.join method so that the script doesn't try to grab users desktop path.
@@ -108,35 +107,35 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
         self.assertEqual(expected_len, actual_len)
 
-    def test_final_df_correct_project_code(self):
+    def test_final_df_col_PROJECT_CODE(self):
 
         expected = True
         actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['PROJECT_CODE'].all() == '7279')
 
         self.assertEqual(expected, actual)
 
-    def test_final_df_curve_valid(self):
+    def test_final_df_col_CURVE_VALID(self):
 
         expected = True
         actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['CURVE_VALID'].all() == '')
         
         self.assertEqual(expected, actual)
         
-    def test_final_df_steady_state_img(self):
+    def test_final_df_col_STEADY_STATE_IMG(self):
         
         expected = True
         actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['STEADY_STATE_IMG'].all() == '')
         
         self.assertEqual(expected, actual)
         
-    def test_final_df_1to1_IMG(self):
+    def test_final_df_col_1to1_IMG(self):
         
         expected = True
         actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['1to1_IMG'].all() == '')
         
         self.assertEqual(expected, actual)
 
-    def test_final_df_top_compund_um(self):
+    def test_final_df_col_TOP_COMPUND_UM(self):
 
         expected = [50, 50, 50, 20, 20, 20, 20, 20, 20, 20, 20, 20, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
                     20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 50, 50, 50]
@@ -145,7 +144,7 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
         self.assertEqual(expected, actual)
 
-    def test_final_df_rmax_theoretical(self):
+    def test_final_df_col_RMAX_THEORETICAL(self):
 
         expected = [36.84, 37.76, 37.15, 37.95, 38.9, 38.27, 36.91, 37.83, 37.22, 37.95, 38.9, 38.27, 29.56, 30.29, 
                     29.81, 38.03, 38.97, 38.35, 37.95, 38.9, 38.27, 36.84, 37.76, 37.15, 37.95, 38.9, 38.27, 37.95, 
@@ -155,6 +154,26 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
         actual = list(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['RMAX_THEORETICAL'])
         
         self.assertEqual(expected, actual)
+
+    def test_final_df_RU_TOP_CMPD(self):
+
+        expected = [48.78, 50.56, 49.85, 53.83, 54.91, 53.4, 54.57, 56.27, 54.58, 55.88, 55.31, 53.65, 38.85,
+                    41.28, 41.21, 45.67, 51.6, 48.34, 27.93, 37.98, 37.86, 40.25, 40.41, 40.82, 46.67, 46.22,
+                    46.85, 28.69, 38.59, 38.4, 40.6, 45.26, 43.74, 8.09, 19.26, 12.54, 31.95, 44.59, 36.64,
+                    42.92, 53.72, 47.89, 38.61, 45.64, 44.77, 31.41, 37.33, 35.79]
+
+        actual = list(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['RU_TOP_CMPD'])
+
+        self.assertEqual(expected, actual)
+
+    def test_final_df_PERCENT_BINDING_TOP(self):
+
+        expected = []
+
+        actual = list(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['PERCENT_BINDING_TOP'])
+
+        self.assertEqual(expected, actual)
+
 
 
 
