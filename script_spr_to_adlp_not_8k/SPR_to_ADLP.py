@@ -634,8 +634,3 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     print("The ADLP result was saved to your desktop.")
 
     return df_final_for_dot
-
-
-if __name__ == '__main__':
-
-    spr_create_dot_upload_file()

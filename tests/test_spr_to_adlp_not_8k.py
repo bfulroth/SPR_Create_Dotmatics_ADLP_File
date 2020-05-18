@@ -1,12 +1,15 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-from script_spr_to_adlp_not_8k.SPR_to_ADLP import *
+from script_spr_to_adlp_not_8k.SPR_to_ADLP import spr_create_dot_upload_file
 from script_spr_to_adlp_not_8k.Cli import main
 import pandas as pd
 from click.testing import CliRunner
+import numpy as np
 
 
-class SPR_to_ADLP_not_8k(TestCase):
+
+class SPR_to_ADLP_not_8k_Cli(TestCase):
+    """Unit tests for invoking SPR_to_ADLP Script using Click"""
 
     @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.get_structures_smiles_from_db', return_value='Structures Here')
     @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.render_structure_imgs',
@@ -16,7 +19,7 @@ class SPR_to_ADLP_not_8k(TestCase):
     @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.spr_insert_structures')
     @patch('pandas.ExcelWriter')
     @patch('pandas.DataFrame.to_excel')
-    def test_final_adlp_df_created(self, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6) -> None:
+    def test_Cli_and_adlp_df_created_Biacore1(self, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6) -> None:
         """
         Test that the final DataFrame for ADLP upload is created in memory.  Note that all methods related to writing
         the DataFrame to a file using Pandas and the xlsxwriter engine have been patched.
@@ -37,9 +40,124 @@ class SPR_to_ADLP_not_8k(TestCase):
                                                         'Test'])
         self.assertEqual(0, result.exit_code)
 
-    def test_correct_column_names(self):
-        
+    def test_Cli_and_adlp_df_created_Biacore2(self):
         pass
+
+    def test_Cli_and_adlp_df_created_Biacore3(self):
+        pass
+
+    def test_Cli_and_adlp_df_created_BiacoreS200(self):
+        pass
+
+
+class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
+    """
+    Tests that the final DF that contains all information, excluding images, is correct and ready for ADLP upload
+    """
+    # Initialize a class variable for the SPR_to_ADLP DataFrame.
+    df_result = ''
+
+    @classmethod
+    @patch('os.path.join', return_value='./tests/fixtures/Biacore1_Test_Files/Save.xlsx')
+    @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.get_structures_smiles_from_db', return_value='Structures Here')
+    @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.render_structure_imgs',
+           return_value=MagicMock(return_value=pd.DataFrame({'IMG_PATH': ['Fake/File/Path', 'Fake/File/Path2']})))
+    @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.spr_insert_ss_senso_images',
+           return_value='Image Place Holder')
+    @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.spr_insert_structures')
+    @patch('pandas.ExcelWriter')
+    @patch('pandas.DataFrame.to_excel')
+    def setUpClass(cls, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6, mock_7) -> None:
+        """
+        Sets up the class with the final DataFrame from Runnin the SPR_to_ADLP Script.  Subsequent methods in this class
+        evaluate and verify this DataFrame for correctness.
+
+        :param mock_1: Mocks the os.path.join method so that the script doesn't try to grab users desktop path.
+        :param mock_2: Mocks the get_structures_smiles_from_db method
+        :param mock_3: Mocks the render_structure_imgs method and returns a MagicMock with a Fake DF as it's return value.
+        :param mock_4: Mocks the spr_insert_ss_senso_images method
+        :param mock_5: Mocks the spr_insert_structures method
+        :param mock_6: Mocks the pandas.ExcelWriter method
+        :param mock_7: Mocks the pandas.DataFrame.to_excel method
+        :return: None
+        """
+
+        config_file_path = './tests/fixtures/Biacore1_Test_Files/200312-1_config_affinit_Biacore1.txt'
+        cls.df_result = spr_create_dot_upload_file(config_file=config_file_path, save_file='Test', clip=False)
+
+    def test_final_df_correct_col_names(self):
+
+        expected_columns = ['BROAD_ID', 'STRUCTURES', 'PROJECT_CODE', 'CURVE_VALID', 'STEADY_STATE_IMG', '1to1_IMG',
+                            'TOP_COMPOUND_UM', 'RMAX_THEORETICAL', 'RU_TOP_CMPD', 'PERCENT_BINDING_TOP',
+                            'KD_SS_UM', 'CHI2_SS_AFFINITY', 'FITTED_RMAX_SS_AFFINITY',
+                            'KA_1_1_BINDING', 'KD_LITTLE_1_1_BINDING', 'KD_1_1_BINDING_UM',
+                            'chi2_1_1_binding', 'U_VALUE_1_1_BINDING', 'FITTED_RMAX_1_1_BINDING',
+                            'COMMENTS', 'FC', 'PROTEIN_RU', 'PROTEIN_MW', 'PROTEIN_ID', 'MW', 'INSTRUMENT',
+                            'ASSAY_MODE', 'EXP_DATE', 'NUCLEOTIDE', 'CHIP_LOT', 'OPERATOR', 'PROTOCOL_ID',
+                            'RAW_DATA_FILE', 'DIR_FOLDER', 'UNIQUE_ID', 'SS_IMG_ID', 'SENSO_IMG_ID']
+
+        actual_columns = list(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result.columns)
+
+        self.assertEqual(expected_columns, actual_columns)
+
+    def test_final_df_correct_df_len(self):
+        """Test that the DataFrame is Equal to the correct with 3 channels"""
+
+        expected_len = 48
+        actual_len = len(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result)
+
+        self.assertEqual(expected_len, actual_len)
+
+    def test_final_df_correct_project_code(self):
+
+        expected = True
+        actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['PROJECT_CODE'].all() == '7279')
+
+        self.assertEqual(expected, actual)
+
+    def test_final_df_curve_valid(self):
+
+        expected = True
+        actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['CURVE_VALID'].all() == '')
+        
+        self.assertEqual(expected, actual)
+        
+    def test_final_df_steady_state_img(self):
+        
+        expected = True
+        actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['STEADY_STATE_IMG'].all() == '')
+        
+        self.assertEqual(expected, actual)
+        
+    def test_final_df_1to1_IMG(self):
+        
+        expected = True
+        actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['1to1_IMG'].all() == '')
+        
+        self.assertEqual(expected, actual)
+
+    def test_final_df_top_compund_um(self):
+
+        expected = [50, 50, 50, 20, 20, 20, 20, 20, 20, 20, 20, 20, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50,
+                    20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 50, 50, 50]
+
+        actual = list(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['TOP_COMPOUND_UM'])
+
+        self.assertEqual(expected, actual)
+
+    def test_final_df_rmax_theoretical(self):
+
+        expected = [36.84, 37.76, 37.15, 37.95, 38.9, 38.27, 36.91, 37.83, 37.22, 37.95, 38.9, 38.27, 29.56, 30.29, 
+                    29.81, 38.03, 38.97, 38.35, 37.95, 38.9, 38.27, 36.84, 37.76, 37.15, 37.95, 38.9, 38.27, 37.95, 
+                    38.9, 38.27, 41.44, 42.47, 41.79, 38.03, 38.97, 38.35, 36.02, 36.92, 36.32, 38.99, 39.96, 39.32, 
+                    37.88, 38.82, 38.2, 36.84, 37.76, 37.15]
+
+        actual = list(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['RMAX_THEORETICAL'])
+        
+        self.assertEqual(expected, actual)
+
+
+
 
 
 
