@@ -188,6 +188,295 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
         self.assertEqual(expected, actual)
 
+    def test_final_df_CHI2_SS_AFFINITY(self):
+
+        expected = pd.Series([0.478, 0.568, 0.604, 0.12, 0.326, 0.217, 0.432, 1.25, 0.924, 0.934, 1.38, 0.458,
+                                    0.337, 0.887, 0.399, 0.887, 5.15, 1.37, 0.077, 0.425, 0.142, 0.117, 0.386, 0.019,
+                                    0.267, 1.98, 0.366, np.NaN, 1.91, 0.033, 0.511, 0.61, 0.681, 0.01, 0.149, 0.01,
+                                    3.38, 0.272, 0.413, 0.207, 1.85, 0.579, 0.118, 1.93, 0.279, 0.104, 1.31, 0.113])
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['CHI2_SS_AFFINITY']
+
+        result = expected.equals(actual)
+
+        self.assertEqual(True, result)
+
+    def test_final_df_FITTED_RMAX_SS_AFFINITY(self):
+
+        expected = pd.Series([51.2, 50.6, 52.9, 54.9, 57.7, 55.3, 53.6, 53.0, 54.2, 55.7, 52.9, 53.5, 45.2, 42.9, 43.2,
+                    49.0, 48.1, 48.7, 45.2, 53.9, 48.4, 42.2, 41.5, 42.0, 46.0, 44.3, 45.1, np.NaN, 47.3,
+                    45.5, 40.9, 40.6, 41.8, 16.0, 40.8, 19.1, 17381490.8, 175.7, 4573345.7, 43.2, 44.9,
+                    45.4, 40.4, 44.7, 42.2, 30.8, 34.7, 32.0])
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['FITTED_RMAX_SS_AFFINITY']
+
+        result = expected.equals(actual)
+
+        self.assertEqual(True, result)
+
+    def test_final_df_KA_1_1_BINDING(self):
+
+        expected = pd.Series([np.NaN, np.NaN, np.NaN, 541000.0, 3150000.0, 448000.0, 1270000.0, 16900000.0, 951000.0,
+                              279000.0, 1680000.0, 277000.0, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                              np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                              np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                              np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN])
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['KA_1_1_BINDING']
+
+        result = expected.equals(actual)
+
+        self.assertEqual(True, result)
+
+    def test_final_df_KD_LITTLE_1_1_BINDING(self):
+
+        expected = pd.Series([np.NaN, np.NaN, np.NaN, 0.17, 0.422, 0.085, 0.203, 1.22, 0.1, 0.168, 0.378,
+                              0.101, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                              np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                              np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                              np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN])
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['KD_LITTLE_1_1_BINDING']
+
+        result = expected.equals(actual)
+
+        self.assertEqual(True, result)
+
+    def test_final_df_KD_1_1_BINDING_UM(self):
+
+        expected = pd.Series(data=[np.NaN, np.NaN, np.NaN, 0.314, 0.134, 0.18899999999999997, 0.159, 0.0719, 0.106,
+                                   0.602, 0.22499999999999998, 0.36299999999999993, np.NaN, np.NaN, np.NaN, np.NaN,
+                                   np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                                   np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                                   np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                                   np.NaN, np.NaN])
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['KD_1_1_BINDING_UM']
+
+        result = expected.equals(actual)
+
+        self.assertEqual(True, result)
+
+    def test_final_df_chi2_1_1_binding(self):
+
+        expected = pd.Series(data=[np.NaN, np.NaN, np.NaN, 0.27, 0.0879, 0.452, 0.21600000000000003, 0.218,
+                                   0.606, 1.77, 0.7909999999999999, 0.8909999999999999, np.NaN, np.NaN, np.NaN,
+                                   np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                                   np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                                   np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                                   np.NaN, np.NaN, np.NaN])
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['chi2_1_1_binding']
+
+        result = expected.equals(actual)
+
+        self.assertEqual(True, result)
+
+    def test_final_df_U_VALUE_1_1_BINDING(self):
+
+        expected = ''
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['U_VALUE_1_1_BINDING']
+
+        self.assertEqual(actual.all(), expected)
+
+    def test_final_df_U_FITTED_RMAX_1_1_BINDING(self):
+
+        expected = pd.Series(data=[np.NaN, np.NaN, np.NaN, 37.6, 53.0, 36.2, 37.9, 55.7, 37.5, 32.7, 45.5,
+                                   33.9, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                                   np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                                   np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                                   np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
+                                   np.NaN])
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['FITTED_RMAX_1_1_BINDING']
+
+        result = expected.equals(actual)
+
+        self.assertEqual(True, result)
+
+    def test_final_df_FC(self):
+
+        expected = pd.Series(data=['FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr', 'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr',
+                                   'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr', 'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr',
+                                   'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr', 'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr',
+                                   'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr', 'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr',
+                                   'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr', 'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr',
+                                   'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr', 'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr',
+                                   'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr', 'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr',
+                                   'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr', 'FC2-1Corr', 'FC3-1Corr', 'FC4-1Corr'])
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['FC']
+
+        result = expected.equals(actual)
+
+        self.assertEqual(True, result)
+
+    def test_final_df_PROTEIN_RU(self):
+
+        expected = pd.Series(data=[1993.5, 2042.1, 2006.0, 1993.5, 2042.1, 2006.0, 1993.5, 2042.1, 2006.0, 1993.5,
+                                   2042.1, 2006.0, 1993.5, 2042.1, 2006.0, 1993.5, 2042.1, 2006.0, 1993.5, 2042.1,
+                                   2006.0, 1993.5, 2042.1, 2006.0, 1993.5, 2042.1, 2006.0, 1993.5, 2042.1, 2006.0,
+                                   1993.5, 2042.1, 2006.0, 1993.5, 2042.1, 2006.0, 1993.5, 2042.1, 2006.0, 1993.5,
+                                   2042.1, 2006.0, 1993.5, 2042.1, 2006.0, 1993.5, 2042.1, 2006.0])
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['PROTEIN_RU']
+
+        result = expected.equals(actual)
+
+        self.assertEqual(True, result)
+
+    def test_final_df_PROTEIN_MW(self):
+
+        expected = pd.Series(data=[26870.04, 26856.02, 26812.01, 26870.04, 26856.02, 26812.01, 26870.04, 26856.02,
+                                   26812.01, 26870.04, 26856.02, 26812.01, 26870.04, 26856.02, 26812.01, 26870.04,
+                                   26856.02, 26812.01, 26870.04, 26856.02, 26812.01, 26870.04, 26856.02, 26812.01,
+                                   26870.04, 26856.02, 26812.01, 26870.04, 26856.02, 26812.01, 26870.04, 26856.02,
+                                   26812.01, 26870.04, 26856.02, 26812.01, 26870.04, 26856.02, 26812.01, 26870.04,
+                                   26856.02, 26812.01, 26870.04, 26856.02, 26812.01, 26870.04, 26856.02, 26812.01])
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['PROTEIN_MW']
+
+        result = expected.equals(actual)
+
+        self.assertEqual(True, result)
+
+    def test_final_PROTEIN_ID(self):
+
+        expected = pd.Series(data=['BIP-0384-01', 'BIP-0501-01', 'BIP-0503-01', 'BIP-0384-01', 'BIP-0501-01',
+                                   'BIP-0503-01', 'BIP-0384-01', 'BIP-0501-01', 'BIP-0503-01', 'BIP-0384-01',
+                                   'BIP-0501-01', 'BIP-0503-01', 'BIP-0384-01', 'BIP-0501-01', 'BIP-0503-01',
+                                   'BIP-0384-01', 'BIP-0501-01', 'BIP-0503-01', 'BIP-0384-01', 'BIP-0501-01',
+                                   'BIP-0503-01', 'BIP-0384-01', 'BIP-0501-01', 'BIP-0503-01', 'BIP-0384-01',
+                                   'BIP-0501-01', 'BIP-0503-01', 'BIP-0384-01', 'BIP-0501-01', 'BIP-0503-01',
+                                   'BIP-0384-01', 'BIP-0501-01', 'BIP-0503-01', 'BIP-0384-01', 'BIP-0501-01',
+                                   'BIP-0503-01', 'BIP-0384-01', 'BIP-0501-01', 'BIP-0503-01', 'BIP-0384-01',
+                                   'BIP-0501-01', 'BIP-0503-01', 'BIP-0384-01', 'BIP-0501-01', 'BIP-0503-01',
+                                   'BIP-0384-01', 'BIP-0501-01', 'BIP-0503-01'])
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['PROTEIN_ID']
+
+        result = expected.equals(actual)
+
+        self.assertEqual(True, result)
+
+    def test_final_MW(self):
+
+        expected = pd.Series(data=[496.557, 496.557, 496.557, 511.55, 511.55, 511.55, 497.524, 497.524, 497.524,
+                                   511.55, 511.55, 511.55, 398.392, 398.392, 398.392, 512.535, 512.535, 512.535,
+                                   511.55, 511.55, 511.55, 496.557, 496.557, 496.557, 511.55, 511.55, 511.55,
+                                   511.55, 511.55, 511.55, 558.56, 558.56, 558.56, 512.535, 512.535, 512.535,
+                                   485.513, 485.513, 485.513, 525.577, 525.577, 525.577, 510.565, 510.565,
+                                   510.565, 496.557, 496.557, 496.557])
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['MW']
+
+        result = expected.equals(actual)
+
+        self.assertEqual(True, result)
+
+    def test_final_INSTRUMENT(self):
+
+        expected = 'Biacore1'
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['INSTRUMENT'].all() == expected
+
+        self.assertEqual(True, actual)
+
+    def test_final_ASSAY_MODE(self):
+
+        expected = 'Multi-Cycle'
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['ASSAY_MODE'].all() == expected
+
+        self.assertEqual(True, actual)
+
+    def test_final_EXP_DATE(self):
+
+        expected = '2020_03_12'
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['EXP_DATE'].all() == expected
+
+        self.assertEqual(True, actual)
+
+    def test_final_NUCLEOTIDE(self):
+
+        expected = 'GMPPCP'
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['NUCLEOTIDE'].all() == expected
+
+        self.assertEqual(True, actual)
+
+    def test_final_CHIP_LOT(self):
+
+        expected = '10285867'
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['CHIP_LOT'].all() == expected
+
+        self.assertEqual(True, actual)
+
+    def test_final_OPERATOR(self):
+
+        expected = 'bfulroth'
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['OPERATOR'].all() == expected
+
+        self.assertEqual(True, actual)
+
+    def test_final_PROTOCOL_ID(self):
+
+        expected = 'KRAS_SPR_Assay_v5'
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['PROTOCOL_ID'].all() == expected
+
+        self.assertEqual(True, actual)
+
+    def test_final_RAW_DATA_FILE(self):
+
+        expected = '200312_7279_affinity'
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['RAW_DATA_FILE'].all() == expected
+
+        self.assertEqual(True, actual)
+
+    def test_final_DIR_FOLDER(self):
+
+        expected = 'Biacore1/Ben/KRAS'
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['DIR_FOLDER'].all() == expected
+
+        self.assertEqual(True, actual)
+
+    def test_final_UNIQUE_ID(self):
+
+        expected = 'BRD-6261_1_FC2-1Corr_7279_2020_03_12_1.png'
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result.loc[0, 'UNIQUE_ID']
+
+        self.assertEqual(expected, actual)
+
+    def test_final_SS_IMG_ID(self):
+
+        expected = './tests/fixtures/Biacore1_Test_Files/200312_7279_affinity_1-48_PWF/BRD-6261_1_200312_7279_affinity_1.png'
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result.loc[0, 'SS_IMG_ID']
+
+        self.assertEqual(expected, actual)
+
+    def test_final_SENSO_IMG_ID(self):
+
+        expected = './tests/fixtures/Biacore1_Test_Files/200312_7279_affinity_1-48_SWF/BRD-6261_1_200312_7279_affinity_1.png'
+
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result.loc[0, 'SENSO_IMG_ID']
+
+        self.assertEqual(expected, actual)
+
+
+
+
+
+
+
 
 
 

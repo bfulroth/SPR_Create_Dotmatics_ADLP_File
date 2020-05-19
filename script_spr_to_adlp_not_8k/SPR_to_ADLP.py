@@ -430,7 +430,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot['KD_SS_UM'] = df_ss_txt['KD_SS_UM']
 
     # Add the chi2_steady_state_affinity
-    df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Chi² (RU²)']
+    df_final_for_dot['CHI2_SS_AFFINITY'] = round(df_ss_txt['Chi² (RU²)'], 3)
 
     # Add the Fitted_Rmax_steady_state_affinity
     df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax (RU)']
@@ -446,13 +446,11 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Add columns from df_senso_txt
     df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka (1/Ms)']
-    df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd (1/s)']
-    df_final_for_dot['KD_1_1_BINDING_UM'] = round(df_senso_txt['KD (M)'] * 1000000, 3)
+    df_final_for_dot['KD_LITTLE_1_1_BINDING'] = round(df_senso_txt['kd (1/s)'], 3)
+    df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
     df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Chi² (RU²)']
 
-    # Not sure what this is???
-    df_final_for_dot['U_VALUE_1_1_BINDING'] = ''
-    # Not sure what this is??
+    df_final_for_dot.loc[:, 'U_VALUE_1_1_BINDING'] = ''
 
     # Continue creating new columns
     df_final_for_dot['FITTED_RMAX_1_1_BINDING'] = df_senso_txt['Rmax (RU)']
@@ -480,8 +478,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
 
     # Add the MW for each compound.
-    df_final_for_dot['MW'] = pd.Series(rep_item_for_dot_df(df_cmpd_set, col_name='MW',
-                                                           times_dup=num_fc_used))
+    df_final_for_dot['MW'] = round(pd.Series(rep_item_for_dot_df(df_cmpd_set, col_name='MW',
+                                                           times_dup=num_fc_used)), 3)
 
     # Continue adding columns to final DataFrame
     df_final_for_dot['INSTRUMENT'] = instrument
@@ -506,7 +504,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Add sensorgram image file path
     # Need to replace /Volumes with //flynn
-    path_senso_img_edit = path_senso_img.replace('/Volumes', '//flynn')
+    path_senso_img_edit = path_senso_img.replace('/Volumes', '//Iron')
     df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Image File']
 
     # Add the Rmax_theoretical.
