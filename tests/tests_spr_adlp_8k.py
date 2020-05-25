@@ -1204,12 +1204,12 @@ class SPR_to_ADLP_8K_Cli(TestCase):
         Test that the final DataFrame for ADLP upload is created in memory.  Note that all methods related to writing
         the DataFrame to a file using Pandas and the xlsxwriter engine have been patched.
 
-        :param mock_1: Mocks the get_structures_smiles_from_db method
-        :param mock_2: Mocks the render_structure_imgs method and returns a MagicMock with a Fake DF as it's return value.
-        :param mock_3: Mocks the spr_insert_ss_senso_images method
-        :param mock_4: Mocks the spr_insert_structures method
-        :param mock_5: Mocks the pandas.ExcelWriter method
-        :param mock_6: Mocks the pandas.DataFrame.to_excel method
+        :param mock_1:  Mocks the pandas.DataFrame.to_excel method
+        :param mock_2: Mocks the pandas.ExcelWriter method
+        :param mock_3: Mocks the rename_images method
+        :param mock_4: Mocks the spr_insert_images method
+        :param mock_5: Mocks shutil.copytree method used to restore image files in the event of a crash
+        :param mock_6: Mocks the shutil.rmtree method used to restore image files in the event of a crash
         :return: None
         """
 
@@ -1218,7 +1218,8 @@ class SPR_to_ADLP_8K_Cli(TestCase):
 
         # Use the click CliRunner object for testing Click implemented Cli programs.
         runner = CliRunner()
-        result = runner.invoke(spr_create_dot_upload_file, ['--config_file', './tests/fixtures/Biacore8k_Test_Files/200212_config_8K.txt',
+        result = runner.invoke(spr_create_dot_upload_file, ['--config_file', './tests/fixtures/Biacore8k_Test_Files'
+                                                                             '/200212_config_8K.txt',
                                                             '--save_file','Test.xlsx'])
 
         print(result.output)
