@@ -187,10 +187,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     import configparser
 
     # ADLP save file path.
-    if platform.system() == 'Windows':
-        adlp_save_file_path = homedir + '\\Desktop\\' + save_file
-    else:
-        adlp_save_file_path = homedir + '/' + 'desktop' + '/' + save_file
+    adlp_save_file_path = os.path.join(homedir, 'Desktop', save_file)
 
     try:
 
@@ -286,7 +283,6 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         df_senso_txt = rename_images(df_analysis=df_senso_txt, path_img=path_senso_img,
                                             image_type='senso', raw_data_file_name=raw_data_filename)
 
-
         # Start building the final Dotmatics DataFrame
         df_final_for_dot = pd.DataFrame()
 
@@ -316,11 +312,12 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
         # Extract the steady state data and add to DataFrame
         # Create new columns to sort the DataFrame as the original is out of order.
-        df_ss_txt['sample_order'] = df_ss_txt['Steady_State_Img'].str.split('_', expand=True)[1]
-        df_ss_txt['sample_order'] = df_ss_txt['sample_order'].str.replace('.png','')
-        df_ss_txt['sample_order'] = pd.to_numeric(df_ss_txt['sample_order'])
-        df_ss_txt = df_ss_txt.sort_values(by=['sample_order'])
-        df_ss_txt = df_ss_txt.reset_index(drop=True)
+        # TODO: make sure the commented code below is not needed.
+        # df_ss_txt['sample_order'] = df_ss_txt['Steady_State_Img'].str.split('_', expand=True)[1]
+        # df_ss_txt['sample_order'] = df_ss_txt['sample_order'].str.replace('.png','')
+        # df_ss_txt['sample_order'] = pd.to_numeric(df_ss_txt['sample_order'])
+        # df_ss_txt = df_ss_txt.sort_values(by=['sample_order'])
+        # df_ss_txt = df_ss_txt.reset_index(drop=True)
         df_ss_txt['KD_SS_UM'] = df_ss_txt['KD (M)'] * 1000000
 
         # Add the KD steady state
@@ -334,16 +331,18 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax (RU)']
 
         # Extract the sensorgram data and add to DataFrame
-        df_senso_txt['sample_order'] = df_senso_txt['Senso_Img'].str.split('_', expand=True)[1]
-        df_senso_txt['sample_order'] = df_senso_txt['sample_order'].str.replace('.png', '')
-        df_senso_txt['sample_order'] = pd.to_numeric(df_senso_txt['sample_order'])
-        df_senso_txt = df_senso_txt.sort_values(by=['sample_order'])
-        df_senso_txt = df_senso_txt.reset_index(drop=True)
+        # TODO: make sure the commented code below is not needed.
+        # df_senso_txt['sample_order'] = df_senso_txt['Senso_Img'].str.split('_', expand=True)[1]
+        # df_senso_txt['sample_order'] = df_senso_txt['sample_order'].str.replace('.png', '')
+        # df_senso_txt['sample_order'] = pd.to_numeric(df_senso_txt['sample_order'])
+        # df_senso_txt = df_senso_txt.sort_values(by=['sample_order'])
+        # df_senso_txt = df_senso_txt.reset_index(drop=True)
 
         # Add columns from df_senso_txt
         df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka']
         df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd']
-        df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
+        # TODO: Login to instrument if see if senso KD is KD (M) or KD.  In the test file it's KD
+        df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD'] * 1000000
         df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Kinetics Chi']
 
         # Not sure what this is???
@@ -514,6 +513,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         shutil.rmtree(dir_temp_ss_img)
         shutil.rmtree(dir_temp_senso_img)
         raise RuntimeError('An error occurred during runtime.  All images have been returned to their original names.')
+
+    return df_final_for_dot
 
 
 if __name__ == '__main__':
