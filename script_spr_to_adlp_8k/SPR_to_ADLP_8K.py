@@ -175,16 +175,17 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     os.chdir(my_dir)
     return df_analysis
 
-#Using click to manage the command line interface
-@click.command()
-@click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
-              help="Path of the configuration file. Text file with all of the file paths and meta "
-                   "data for a particular experiment.")
-@click.option('--save_file', prompt="Please type the name of the ADLP result file NO with .xlsx extension NEEDED"
-                ,help="Name of the ADLP results file which is an Excel file.")
-@click.option('--clip', is_flag=True,
-              help="Option to indicate that the contents of the setup file are on the clipboard.")
+
 def spr_create_dot_upload_file(config_file, save_file, clip):
+    """
+    Function the aggregates all data from and SPR binding experiment run with compounds at dose into one Excel File.
+
+    :arg config_file: Text file containing all of the metadata for an SPR experiment run at dose.
+    :arg save_file: Name of the final Excel file.
+    :arg clip: Optional flag that indicates if the setup table exists on the clipboard.
+    :return None
+
+    """
     import configparser
 
     # ADLP save file path

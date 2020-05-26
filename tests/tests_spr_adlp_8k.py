@@ -2,8 +2,7 @@
 
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
-from script_spr_to_adlp_8k.SPR_to_ADLP_8K import spr_create_dot_upload_file
-# from script_spr_to_adlp_not_8k.Cli import main
+from script_spr_to_adlp_8k.Cli import main
 import pandas as pd
 from click.testing import CliRunner
 import numpy as np
@@ -522,7 +521,7 @@ class SPR_to_ADLP_8K_Cli(TestCase):
 
         # Use the click CliRunner object for testing Click implemented Cli programs.
         runner = CliRunner()
-        result = runner.invoke(spr_create_dot_upload_file, ['--config_file', './tests/fixtures/Biacore8k_Test_Files'
+        result = runner.invoke(main, ['--config_file', './tests/fixtures/Biacore8k_Test_Files'
                                                                              '/200212_config_8K.txt',
                                                             '--save_file','Test.xlsx'])
 
