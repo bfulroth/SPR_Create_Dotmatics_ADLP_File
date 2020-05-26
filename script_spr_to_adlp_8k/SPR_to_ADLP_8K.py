@@ -5,6 +5,7 @@ import platform
 import numpy as np
 from glob import glob
 import shutil
+from _version import __version__
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -179,15 +180,17 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
 @click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
               help="Path of the configuration file. Text file with all of the file paths and meta "
                    "data for a particular experiment.")
-@click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension"
+@click.option('--save_file', prompt="Please type the name of the ADLP result file NO with .xlsx extension NEEDED"
                 ,help="Name of the ADLP results file which is an Excel file.")
 @click.option('--clip', is_flag=True,
               help="Option to indicate that the contents of the setup file are on the clipboard.")
 def spr_create_dot_upload_file(config_file, save_file, clip):
     import configparser
 
-    # ADLP save file path.
-    adlp_save_file_path = os.path.join(homedir, 'Desktop', save_file)
+    # ADLP save file path
+    # Note the version is saved to the file name so that data can be linked to the script version.
+    save_file = save_file.replace('.xlsx', '')
+    adlp_save_file_path = os.path.join(homedir, 'Desktop', save_file + '_' + str(__version__) + '.xlsx')
 
     try:
 
