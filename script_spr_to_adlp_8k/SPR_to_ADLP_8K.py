@@ -288,19 +288,19 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
         # Start by adding the Broad ID in the correct order.
         # NB: For the 8k each compound has it's own channel so no need to replicate the BRD as is required on T200 and S200
-        df_final_for_dot['BROAD_ID'] = df_cmpd_set['Broad ID']
+        df_final_for_dot.loc[:, 'BROAD_ID'] = df_cmpd_set['Broad ID']
 
         # Add the Project Code.  Get this from the config file.
-        df_final_for_dot['PROJECT_CODE'] = project_code
+        df_final_for_dot.loc[:, 'PROJECT_CODE'] = project_code
 
         #  Add an empty column called curve_valid
-        df_final_for_dot['CURVE_VALID'] = ''
+        df_final_for_dot.loc[:, 'CURVE_VALID'] = ''
 
         # Add an empty column called steady_state_img
-        df_final_for_dot['STEADY_STATE_IMG'] = ''
+        df_final_for_dot.loc[:, 'STEADY_STATE_IMG'] = ''
 
         # Add an empty column called 1to1_img
-        df_final_for_dot['1to1_IMG'] = ''
+        df_final_for_dot.loc[:, '1to1_IMG'] = ''
 
         # Add the starting compound concentrations
         df_final_for_dot['TOP_COMPOUND_UM'] = df_cmpd_set['Test [Cpd] uM']
@@ -346,7 +346,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Kinetics Chi']
 
         # Not sure what this is???
-        df_final_for_dot['U_VALUE_1_1_BINDING'] = ''
+        df_final_for_dot.loc[:, 'U_VALUE_1_1_BINDING'] = ''
         # Not sure what this is??
 
         # Continue creating new columns
@@ -392,13 +392,13 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                         '_' + df_senso_txt['Analyte 1 Solution'].str.split('_', expand=True)[1]
 
         # Add steady state image file path
-        # Need to replace /Volumes with //flynn
-        path_ss_img_edit = path_ss_img.replace('/Volumes', '//flynn')
+        # Need to replace /Volumes with //Iron
+        path_ss_img_edit = path_ss_img.replace('/Volumes', '//Iron')
         df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_txt['Steady_State_Img']
 
         # Add sensorgram image file path
-        # Need to replace /Volumes with //flynn
-        path_senso_img_edit = path_senso_img.replace('/Volumes', '//flynn')
+        # Need to replace /Volumes with //Iron
+        path_senso_img_edit = path_senso_img.replace('/Volumes', '//Iron')
         df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Senso_Img']
 
         # Add the Rmax_theoretical.
@@ -407,12 +407,12 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                                * df_final_for_dot['PROTEIN_RU'], 2)
 
         # Calculate Percent Binding
-        df_final_for_dot['%_BINDING_TOP'] = round((df_final_for_dot['RU_TOP_CMPD'] / df_final_for_dot[
+        df_final_for_dot['PERCENT_BINDING_TOP'] = round((df_final_for_dot['RU_TOP_CMPD'] / df_final_for_dot[
             'RMAX_THEORETICAL']) * 100, 2)
 
         # Rearrange the columns for the final DataFrame (without images)
         df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'PROJECT_CODE', 'CURVE_VALID', 'STEADY_STATE_IMG',
-           '1to1_IMG', 'TOP_COMPOUND_UM', 'RMAX_THEORETICAL', 'RU_TOP_CMPD', '%_BINDING_TOP', 'KD_SS_UM',
+           '1to1_IMG', 'TOP_COMPOUND_UM', 'RMAX_THEORETICAL', 'RU_TOP_CMPD', 'PERCENT_BINDING_TOP', 'KD_SS_UM',
            'CHI2_SS_AFFINITY', 'FITTED_RMAX_SS_AFFINITY', 'KA_1_1_BINDING',
            'KD_LITTLE_1_1_BINDING', 'KD_1_1_BINDING_UM', 'chi2_1_1_binding',
            'U_VALUE_1_1_BINDING', 'FITTED_RMAX_1_1_BINDING', 'COMMENTS', 'FC',
