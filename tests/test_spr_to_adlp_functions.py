@@ -6,7 +6,7 @@ from unittest import TestCase
 import pandas as pd
 
 # Import functions for testing
-from SPR_to_ADLP_Functions.SPR_to_ADLP_Functions import rep_item_for_dot_df
+from SPR_to_ADLP_Functions.common_functions import rep_item_for_dot_df
 
 
 class TestReplicateItemFunct(TestCase):

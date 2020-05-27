@@ -145,3 +145,27 @@ def render_structure_imgs(df_with_smiles, dir):
         img_num += 1
 
     return df_with_smiles
+
+
+def spr_insert_structures(ls_img_struct_paths, worksheet):
+    """
+    Does the work of inserting the structures into the xlsxwriter workbook object.
+
+    :param ls_img_struct_paths: list of image paths to insert.
+    :param worksheet: xlsxwriter object used to insert the images to a worksheet
+    :return: None
+    """
+    # Format the rows and columns in the worksheet to fit the images.
+    num_images = len(ls_img_struct_paths)
+
+    # Set height of each row
+    for row in range(1, num_images + 1):
+        worksheet.set_row(row=row, height=235)
+
+    # Set the width of each column
+    worksheet.set_column(first_col=1, last_col=1, width=45)
+
+    row = 2
+    for img in ls_img_struct_paths:
+        worksheet.insert_image('B' + str(row), img)
+        row += 1
