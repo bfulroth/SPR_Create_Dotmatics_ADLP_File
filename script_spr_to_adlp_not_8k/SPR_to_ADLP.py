@@ -4,10 +4,9 @@ import tempfile
 import configparser
 import os
 
+#import SPR_to_ADLP_Functions
 import SPR_to_ADLP_Functions
 from _version import __version__
-
-from SPR_to_ADLP_Functions.common_functions import rep_item_for_dot_df
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -15,7 +14,6 @@ if platform.system() == "Windows":
     homedir = str(Path.home())
 else:
     homedir = os.environ['HOME']
-
 
 def spr_insert_ss_senso_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
     """
@@ -255,7 +253,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Start by adding the Broad ID in the correct order.
     num_fc_used = int(num_fc_used)
-    df_final_for_dot['BROAD_ID'] = pd.Series(rep_item_for_dot_df(df_cmpd_set, col_name='Broad ID',
+    df_final_for_dot['BROAD_ID'] = pd.Series(SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df_cmpd_set, col_name='Broad ID',
                                                                  times_dup=num_fc_used))
 
     # Add structure column
@@ -274,8 +272,9 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot.loc[:,  '1to1_IMG'] = ''
 
     # Add the starting compound concentrations
-    df_final_for_dot.loc[:, 'TOP_COMPOUND_UM'] = pd.Series(rep_item_for_dot_df(df_cmpd_set, col_name='Test [Cpd] uM',
-                                                                        times_dup=num_fc_used))
+    df_final_for_dot.loc[:, 'TOP_COMPOUND_UM'] = pd.Series(
+        SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df_cmpd_set, col_name='Test [Cpd] uM',
+                                                                   times_dup=num_fc_used))
 
     # Extract the RU Max for each compound using the report point file.
     df_final_for_dot['RU_TOP_CMPD'] = spr_binding_top_for_dot_file(report_pt_file=path_report_pt,
@@ -345,7 +344,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
 
     # Add the MW for each compound.
-    df_final_for_dot['MW'] = round(pd.Series(rep_item_for_dot_df(df_cmpd_set, col_name='MW',
+    df_final_for_dot['MW'] = round(pd.Series(SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df_cmpd_set,
+                                                                                                        col_name='MW',
                                                            times_dup=num_fc_used)), 3)
 
     # Continue adding columns to final DataFrame
@@ -479,7 +479,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
             df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
 
         # Create an list of the images paths in order
-        ls_img_paths = rep_item_for_dot_df(df=df_with_paths, col_name='IMG_PATH', times_dup=num_fc_used)
+        ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths, col_name='IMG_PATH',
+                                                                 times_dup=num_fc_used)
 
         # Insert the structures into the Excel workbook object
         SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,

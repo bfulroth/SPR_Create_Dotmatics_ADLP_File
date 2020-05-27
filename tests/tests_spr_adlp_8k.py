@@ -1,7 +1,7 @@
 """Module for testing SPR_to_ADLP_8K.py Script"""
 
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from script_spr_to_adlp_8k.Cli import main
 import pandas as pd
 from click.testing import CliRunner
@@ -491,6 +491,10 @@ class SPR_to_ADLP_8K_Cli(TestCase):
                                              28.53, 32.5, 31.72, 16.22, 26.1, 77.67, 35.74, 18.94, 24.05, 32.55, 35.72,
                                              44.11, 51.18, 63.29, 17.97]})
 
+    @patch('SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db', return_value='Structures Here')
+    @patch('SPR_to_ADLP_Functions.common_functions.render_structure_imgs',
+           return_value=pd.DataFrame({'IMG_PATH': ['Fake/File/Path', 'Fake/File/Path2']}))
+    @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_structures')
     @patch('script_spr_to_adlp_8k.SPR_to_ADLP_8K.spr_binding_top_for_dot_file')
     @patch('shutil.rmtree')
     @patch('shutil.copytree')
@@ -498,18 +502,22 @@ class SPR_to_ADLP_8K_Cli(TestCase):
     @patch('script_spr_to_adlp_8k.SPR_to_ADLP_8K.rename_images')
     @patch('pandas.ExcelWriter')
     @patch('pandas.DataFrame.to_excel')
-    def test_Cli_and_adlp_df_created_Biacore8k(self, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6, mock_7) -> None:
+    def test_Cli_and_adlp_df_created_Biacore8k(self, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6, mock_7,
+                                               mock_8, mock_9, mock_10) -> None:
         """
         Test that the final DataFrame for ADLP upload is created in memory.  Note that all methods related to writing
         the DataFrame to a file using Pandas and the xlsxwriter engine have been patched.
 
-        :param mock_1:  Mocks the pandas.DataFrame.to_excel method
+        :param mock_1: Mocks the pandas.DataFrame.to_excel method
         :param mock_2: Mocks the pandas.ExcelWriter method
         :param mock_3: Mocks the rename_images method
         :param mock_4: Mocks the spr_insert_images method
         :param mock_5: Mocks shutil.copytree method used to restore image files in the event of a crash
         :param mock_6: Mocks the shutil.rmtree method used to restore image files in the event of a crash
         :param mock_7: Mocks the spr_binding_top_for_dot_file method as this is computationally expensive
+        :param mock_8: Mocks the spr_insert_structures method
+        :param mock_9: Mocks the render_structure_imgs method
+        :param mock_10: Mocks the get_structures_smiles_from_db method
         :return: None
         """
 
