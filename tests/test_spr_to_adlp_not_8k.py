@@ -17,7 +17,7 @@ class SPR_to_ADLP_not_8k_Cli(TestCase):
 
     @patch('SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db', return_value='Structures Here')
     @patch('SPR_to_ADLP_Functions.common_functions.render_structure_imgs',
-           return_value = MagicMock(return_value = pd.DataFrame({'IMG_PATH': ['Fake/File/Path', 'Fake/File/Path2']})))
+           return_value = pd.DataFrame({'IMG_PATH': ['Fake/File/Path', 'Fake/File/Path2']}))
     @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.spr_insert_ss_senso_images',
            return_value='Image Place Holder')
     @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_structures')
@@ -66,7 +66,7 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
     @patch('os.path.join', return_value='./tests/fixtures/Biacore1_Test_Files/Save.xlsx')
     @patch('SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db', return_value='Structures Here')
     @patch('SPR_to_ADLP_Functions.common_functions.render_structure_imgs',
-           return_value=MagicMock(return_value=pd.DataFrame({'IMG_PATH': ['Fake/File/Path', 'Fake/File/Path2']})))
+           return_value=pd.DataFrame({'IMG_PATH': ['Fake/File/Path', 'Fake/File/Path2']}))
     @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.spr_insert_ss_senso_images',
            return_value='Image Place Holder')
     @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_structures')

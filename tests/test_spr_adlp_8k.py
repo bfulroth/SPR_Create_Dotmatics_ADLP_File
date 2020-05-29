@@ -11,6 +11,10 @@ import numpy as np
 class SPR_to_ADLP_8K_Cli(TestCase):
     """Unit tests for invoking SPR_to_ADLP_8K.py Script using Click"""
 
+    df_senso_txt_test = None
+    df_ss_txt_test = None
+    df_ru_top_result = None
+
     @classmethod
     def setUpClass(cls) -> None:
 
