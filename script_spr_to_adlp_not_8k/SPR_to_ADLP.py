@@ -4,7 +4,6 @@ import tempfile
 import configparser
 import os
 
-#import SPR_to_ADLP_Functions
 import SPR_to_ADLP_Functions
 from _version import __version__
 

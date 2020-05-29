@@ -4,8 +4,9 @@ import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Draw, AllChem
 import cx_Oracle
-from sqlalchemy import create_engine, Table, MetaData, select
-from crypt import Crypt
+#from sqlalchemy import create_engine, Table, MetaData, select
+import sqlalchemy
+import crypt
 
 
 def rep_item_for_dot_df(df, col_name, times_dup=3, sort=False):
@@ -37,10 +38,15 @@ def rep_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     except:
         raise RuntimeError("The DataFrame does not have a " + col_name + " column.")
 
+def _connect(engine):
+    c = engine.connect()
+    return c
 
 def get_structures_smiles_from_db(df_mstr_tbl):
     """
     This method creates a connection to results db and retrieves the smiles for each BRD in the passed in df_mstr_tbl
+
+    :param: df_mstr_tbl: SPR Setup table as a DataFrame
     :return DataFrame containing BRD, CORE ID, and SMILES
     """
 
@@ -53,7 +59,7 @@ def get_structures_smiles_from_db(df_mstr_tbl):
     # df_brd_core_id.loc[:, 'sort_col'] = pd.Series(sort_vals)
 
     # Create a cryptographic object
-    crypt = Crypt()
+    c = crypt.Crypt()
 
     # Connect to resultsdb database.
     try:
@@ -61,7 +67,7 @@ def get_structures_smiles_from_db(df_mstr_tbl):
         port = '1521'
         sid = 'cbplate'
         user = os.getenv('DB_USER')
-        password = str(crypt.f.decrypt(crypt.token), 'utf-8')
+        password = str(c.f.decrypt(c.token), 'utf-8')
         sid = cx_Oracle.makedsn(host, port, sid=sid)
 
         cstr = 'oracle://{user}:{password}@{sid}'.format(
@@ -70,24 +76,25 @@ def get_structures_smiles_from_db(df_mstr_tbl):
             sid=sid
         )
 
-        engine = create_engine(cstr,
+        engine = sqlalchemy.create_engine(cstr,
                                pool_recycle=3600,
                                pool_size=5,
                                echo=False
                                )
 
-        # Connect to resultsdb
-        conn = engine.connect()
+        # Connect to resultsdb by calling private connection method
+        conn = _connect(engine=engine)
+
     except Exception:
         raise ConnectionError("Cannot connect to resultsdb database. "
                               "Please make sure you are on the Broad Internal Network.")
 
     # Reflect Tables
-    metadata = MetaData()
-    structure_tbl = Table('structure', metadata, autoload=True, autoload_with=engine)
+    metadata = sqlalchemy.MetaData()
+    structure_tbl = sqlalchemy.Table('structure', metadata, autoload=True, autoload_with=engine)
 
     # Get the Broad Core ID/ and SMILES from resultsdb.
-    stmt = select([structure_tbl.c.broadidcore, structure_tbl.c.smiles]). \
+    stmt = sqlalchemy.select([structure_tbl.c.broadidcore, structure_tbl.c.smiles]). \
         where(structure_tbl.c.broadidcore.in_(list(df_brd_core_id['BROAD_CORE_ID'])))
 
     # Execute the statement
