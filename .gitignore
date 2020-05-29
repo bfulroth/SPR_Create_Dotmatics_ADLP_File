@@ -9,7 +9,6 @@ test_scratch.py
 htmlcov/
 .tox/
 .coverage
-.coverage.*
 .cache
 nosetests.xml
 coverage.xml
@@ -20,3 +19,15 @@ coverage.xml
 # Jupyter Notebooks
 Create_list_from_df_col.ipynb
 scratch_setup_file_8k_sorting_issue.ipynb
+
+# Environmental vars
+.env
+
+# Scratch files
+scratch*
+
+# IDE files
+script_spr_setup_file/__pycache__/
+script_spr_to_adlp_not_8k/__pycache__/
+tests/__pycache__/
+__pycache__/

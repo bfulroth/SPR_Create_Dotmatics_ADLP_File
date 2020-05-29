@@ -3,22 +3,26 @@ dist: xenial
 python:
 - 3.7
 install:
-- pip install pipenv
-- pipenv install --system --deploy --ignore-pipfile
-stages:
-- test
-- name: answers
-  if: branch = master
-jobs:
-  include:
-  - stage: test
-    install:
-      - pipenv install --dev --ignore-pipfile --deploy
-    script: pytest
-    before_script:
-      - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+  # On Ubuntu apt-get is used to install aps.
+  - sudo apt-get update
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - source "$HOME/miniconda/etc/profile.d/conda.sh"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda config --add channels conda-forge
+  - conda update -q conda
+
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - conda env create -n test-environment --file environment.yml
+  - conda activate test-environment
+script:
+  - pytest
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
         > ./cc-test-reporter
-      - chmod +x ./cc-test-reporter
-      - "./cc-test-reporter before-build"
-    after_script:
-      - "./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT"
+  - chmod +x ./cc-test-reporter
+  - "./cc-test-reporter before-build"
+after_script:
+  - "./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT"

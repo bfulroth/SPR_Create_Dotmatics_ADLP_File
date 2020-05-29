@@ -1,10 +1,13 @@
 import pandas as pd
 import os
-import click
 import platform
 import numpy as np
 from glob import glob
 import shutil
+import SPR_to_ADLP_Functions
+import tempfile
+from _version import __version__
+
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -12,35 +15,6 @@ if platform.system() == "Windows":
     homedir = str(Path.home())
 else:
     homedir = os.environ['HOME']
-
-
-def dup_item_for_dot_df(df, col_name, times_dup=3, sort=False):
-    """
-    Takes a DataFrame and a column name with items to be replicated. Sorts the list and replicates the number of
-    times specified by the parameter times_dup. Copies the replicated values to the clip board.
-
-    :param df: A DataFrame containing the column of values to be replicated.
-    :param col_name: Name of the column containing values to replicate.
-    :param times_dup: Number of times to replicate each value in the specified column.
-    :param sort: Boolean to sort the replicated values.
-    :type sort: bool
-    """
-    dup_list = []
-
-    try:
-        for item in df[col_name]:
-            for i in range(times_dup):
-                dup_list.append(item)
-
-        a = pd.Series(dup_list)
-
-        if sort:
-            b = a.sort_values()
-            return b
-        else:
-            return a
-    except:
-        print("The DataFrame does not have a " + col_name + " column.")
 
 
 def spr_insert_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
@@ -203,23 +177,25 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     os.chdir(my_dir)
     return df_analysis
 
-#Using click to manage the command line interface
-@click.command()
-@click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True),
-              help="Path of the configuration file. Text file with all of the file paths and meta "
-                   "data for a particular experiment.")
-@click.option('--save_file', prompt="Please type the name of the ADLP result file with an .xlsx extension"
-                ,help="Name of the ADLP results file which is an Excel file.")
-@click.option('--clip', is_flag=True,
-              help="Option to indicate that the contents of the setup file are on the clipboard.")
+
 def spr_create_dot_upload_file(config_file, save_file, clip):
+    """
+    Function the aggregates all data from and SPR binding experiment run with compounds at dose into one Excel File.
+
+    :arg config_file: Text file containing all of the metadata for an SPR experiment run at dose.
+    :arg save_file: Name of the final Excel file.
+    :arg clip: Optional flag that indicates if the setup table exists on the clipboard.
+    :return None
+
+    """
     import configparser
 
-    # ADLP save file path.
-    if platform.system() == 'Windows':
-        adlp_save_file_path = homedir + '\\Desktop\\' + save_file
-    else:
-        adlp_save_file_path = homedir + '/' + 'desktop' + '/' + save_file
+    # ADLP save file path
+    # Note the version is saved to the file name so that data can be linked to the script version.
+    save_file = save_file.replace('.xlsx', '')
+    adlp_save_file_path = os.path.join(homedir, 'Desktop', save_file + '_' + str(__version__))
+    adlp_save_file_path = adlp_save_file_path.replace('.', '')
+    adlp_save_file_path = adlp_save_file_path + '.xlsx'
 
     try:
 
@@ -315,25 +291,24 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         df_senso_txt = rename_images(df_analysis=df_senso_txt, path_img=path_senso_img,
                                             image_type='senso', raw_data_file_name=raw_data_filename)
 
-
         # Start building the final Dotmatics DataFrame
         df_final_for_dot = pd.DataFrame()
 
         # Start by adding the Broad ID in the correct order.
         # NB: For the 8k each compound has it's own channel so no need to replicate the BRD as is required on T200 and S200
-        df_final_for_dot['BROAD_ID'] = df_cmpd_set['Broad ID']
+        df_final_for_dot.loc[:, 'BROAD_ID'] = df_cmpd_set['Broad ID']
 
         # Add the Project Code.  Get this from the config file.
-        df_final_for_dot['PROJECT_CODE'] = project_code
+        df_final_for_dot.loc[:, 'PROJECT_CODE'] = project_code
 
         #  Add an empty column called curve_valid
-        df_final_for_dot['CURVE_VALID'] = ''
+        df_final_for_dot.loc[:, 'CURVE_VALID'] = ''
 
         # Add an empty column called steady_state_img
-        df_final_for_dot['STEADY_STATE_IMG'] = ''
+        df_final_for_dot.loc[:, 'STEADY_STATE_IMG'] = ''
 
         # Add an empty column called 1to1_img
-        df_final_for_dot['1to1_IMG'] = ''
+        df_final_for_dot.loc[:, '1to1_IMG'] = ''
 
         # Add the starting compound concentrations
         df_final_for_dot['TOP_COMPOUND_UM'] = df_cmpd_set['Test [Cpd] uM']
@@ -345,11 +320,12 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
         # Extract the steady state data and add to DataFrame
         # Create new columns to sort the DataFrame as the original is out of order.
-        df_ss_txt['sample_order'] = df_ss_txt['Steady_State_Img'].str.split('_', expand=True)[1]
-        df_ss_txt['sample_order'] = df_ss_txt['sample_order'].str.replace('.png','')
-        df_ss_txt['sample_order'] = pd.to_numeric(df_ss_txt['sample_order'])
-        df_ss_txt = df_ss_txt.sort_values(by=['sample_order'])
-        df_ss_txt = df_ss_txt.reset_index(drop=True)
+        # TODO: make sure the commented code below is not needed.
+        # df_ss_txt['sample_order'] = df_ss_txt['Steady_State_Img'].str.split('_', expand=True)[1]
+        # df_ss_txt['sample_order'] = df_ss_txt['sample_order'].str.replace('.png','')
+        # df_ss_txt['sample_order'] = pd.to_numeric(df_ss_txt['sample_order'])
+        # df_ss_txt = df_ss_txt.sort_values(by=['sample_order'])
+        # df_ss_txt = df_ss_txt.reset_index(drop=True)
         df_ss_txt['KD_SS_UM'] = df_ss_txt['KD (M)'] * 1000000
 
         # Add the KD steady state
@@ -363,20 +339,22 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax (RU)']
 
         # Extract the sensorgram data and add to DataFrame
-        df_senso_txt['sample_order'] = df_senso_txt['Senso_Img'].str.split('_', expand=True)[1]
-        df_senso_txt['sample_order'] = df_senso_txt['sample_order'].str.replace('.png', '')
-        df_senso_txt['sample_order'] = pd.to_numeric(df_senso_txt['sample_order'])
-        df_senso_txt = df_senso_txt.sort_values(by=['sample_order'])
-        df_senso_txt = df_senso_txt.reset_index(drop=True)
+        # TODO: make sure the commented code below is not needed.
+        # df_senso_txt['sample_order'] = df_senso_txt['Senso_Img'].str.split('_', expand=True)[1]
+        # df_senso_txt['sample_order'] = df_senso_txt['sample_order'].str.replace('.png', '')
+        # df_senso_txt['sample_order'] = pd.to_numeric(df_senso_txt['sample_order'])
+        # df_senso_txt = df_senso_txt.sort_values(by=['sample_order'])
+        # df_senso_txt = df_senso_txt.reset_index(drop=True)
 
         # Add columns from df_senso_txt
         df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka']
         df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd']
-        df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
+        # TODO: Login to instrument if see if senso KD is KD (M) or KD.  In the test file it's KD
+        df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD'] * 1000000
         df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Kinetics Chi']
 
         # Not sure what this is???
-        df_final_for_dot['U_VALUE_1_1_BINDING'] = ''
+        df_final_for_dot.loc[:, 'U_VALUE_1_1_BINDING'] = ''
         # Not sure what this is??
 
         # Continue creating new columns
@@ -422,13 +400,13 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                         '_' + df_senso_txt['Analyte 1 Solution'].str.split('_', expand=True)[1]
 
         # Add steady state image file path
-        # Need to replace /Volumes with //flynn
-        path_ss_img_edit = path_ss_img.replace('/Volumes', '//flynn')
+        # Need to replace /Volumes with //Iron
+        path_ss_img_edit = path_ss_img.replace('/Volumes', '//Iron')
         df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_txt['Steady_State_Img']
 
         # Add sensorgram image file path
-        # Need to replace /Volumes with //flynn
-        path_senso_img_edit = path_senso_img.replace('/Volumes', '//flynn')
+        # Need to replace /Volumes with //Iron
+        path_senso_img_edit = path_senso_img.replace('/Volumes', '//Iron')
         df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Senso_Img']
 
         # Add the Rmax_theoretical.
@@ -437,12 +415,12 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                                * df_final_for_dot['PROTEIN_RU'], 2)
 
         # Calculate Percent Binding
-        df_final_for_dot['%_BINDING_TOP'] = round((df_final_for_dot['RU_TOP_CMPD'] / df_final_for_dot[
+        df_final_for_dot['PERCENT_BINDING_TOP'] = round((df_final_for_dot['RU_TOP_CMPD'] / df_final_for_dot[
             'RMAX_THEORETICAL']) * 100, 2)
 
         # Rearrange the columns for the final DataFrame (without images)
         df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'PROJECT_CODE', 'CURVE_VALID', 'STEADY_STATE_IMG',
-           '1to1_IMG', 'TOP_COMPOUND_UM', 'RMAX_THEORETICAL', 'RU_TOP_CMPD', '%_BINDING_TOP', 'KD_SS_UM',
+           '1to1_IMG', 'TOP_COMPOUND_UM', 'RMAX_THEORETICAL', 'RU_TOP_CMPD', 'PERCENT_BINDING_TOP', 'KD_SS_UM',
            'CHI2_SS_AFFINITY', 'FITTED_RMAX_SS_AFFINITY', 'KA_1_1_BINDING',
            'KD_LITTLE_1_1_BINDING', 'KD_1_1_BINDING_UM', 'chi2_1_1_binding',
            'U_VALUE_1_1_BINDING', 'FITTED_RMAX_1_1_BINDING', 'COMMENTS', 'FC',
@@ -523,8 +501,27 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         # Insert images into file.
         spr_insert_images(tuple_list_imgs, worksheet1, path_ss_img, path_senso_img)
 
-        # Close the Pandas Excel writer and output the Excel file.
-        writer.save()
+        # Insert structure images
+        # Render the smiles into png images in a temp directory
+        with tempfile.TemporaryDirectory() as tmp_img_dir:
+
+            # This line gets all the smiles from the database
+            df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
+                df_mstr_tbl=df_cmpd_set)
+
+            # Render the structure images
+            df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
+                df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
+
+            # Create an list of the images paths in order
+            ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths,
+                                                                                      col_name='IMG_PATH', times_dup=1)
+
+            # Insert the structures into the Excel workbook object
+            SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
+                                                                         worksheet=worksheet1)
+            # Save the writer object inside the context manager.
+            writer.save()
 
         print('Program Done!')
         print("The ADLP result was saved to your desktop.")
@@ -544,6 +541,4 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         shutil.rmtree(dir_temp_senso_img)
         raise RuntimeError('An error occurred during runtime.  All images have been returned to their original names.')
 
-
-if __name__ == '__main__':
-    spr_create_dot_upload_file()
+    return df_final_for_dot
