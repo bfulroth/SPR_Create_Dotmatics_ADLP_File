@@ -64,12 +64,12 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
     @classmethod
     @patch('os.path.join', return_value='./tests/fixtures/Biacore1_Test_Files/Save.xlsx')
-    @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.get_structures_smiles_from_db', return_value='Structures Here')
-    @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.render_structure_imgs',
+    @patch('SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db', return_value='Structures Here')
+    @patch('SPR_to_ADLP_Functions.common_functions.render_structure_imgs',
            return_value=MagicMock(return_value=pd.DataFrame({'IMG_PATH': ['Fake/File/Path', 'Fake/File/Path2']})))
     @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.spr_insert_ss_senso_images',
            return_value='Image Place Holder')
-    @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.spr_insert_structures')
+    @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_structures')
     @patch('pandas.ExcelWriter')
     @patch('pandas.DataFrame.to_excel')
     def setUpClass(cls, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6, mock_7) -> None:
