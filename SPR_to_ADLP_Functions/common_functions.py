@@ -211,29 +211,3 @@ def spr_insert_ss_senso_images(tuple_list_imgs, worksheet, path_ss_img, path_sen
         worksheet.insert_image('E' + str(row), path_ss_img + '/' + ss_img)
         worksheet.insert_image('F' + str(row), path_senso_img + '/' + senso_img)
         row += 1
-
-
-def spr_insert_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
-    """
-    Does the work of inserting the spr steady state and sensorgram images into the excel worksheet.
-    :param tuple_list: List of tuples containing (steady state image, sensorgram image)
-    :param worksheet: xlsxwriter object used to insert the images to a worksheet
-    :param path_ss_img: Directory to the steady state images to insert.
-    :param path_senso_img: Directory to the sensorgram images to insert.
-    :return: None
-    """
-    # Format the rows and columns in the worksheet to fit the images.
-    num_images = len(tuple_list_imgs)
-
-    # Set height of each row
-    for row in range(1, num_images + 1):
-        worksheet.set_row(row=row, height=145)
-
-    # Set the width of each column
-    worksheet.set_column(first_col=3, last_col=4, width=24)
-
-    row = 2
-    for ss_img, senso_img in tuple_list_imgs:
-        worksheet.insert_image('D' + str(row), path_ss_img + '/' + ss_img)
-        worksheet.insert_image('E' + str(row), path_senso_img + '/' + senso_img)
-        row += 1

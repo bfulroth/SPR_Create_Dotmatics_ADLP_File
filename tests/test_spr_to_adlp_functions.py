@@ -254,5 +254,9 @@ class TestGetStructSmilesDB(TestCase):
             self.assertEqual(expected_smiles, result_smiles)
 
 
+class TestInsertSSandSensoImages(TestCase):
+
+    def test_(self):
+        pass
 
 
