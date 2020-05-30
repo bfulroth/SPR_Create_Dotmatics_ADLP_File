@@ -502,7 +502,7 @@ class SPR_to_ADLP_8K_Cli(TestCase):
     @patch('script_spr_to_adlp_8k.SPR_to_ADLP_8K.spr_binding_top_for_dot_file')
     @patch('shutil.rmtree')
     @patch('shutil.copytree')
-    @patch('script_spr_to_adlp_8k.SPR_to_ADLP_8K.spr_insert_images', return_value='Image Place Holder')
+    @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images', return_value='Image Place Holder')
     @patch('script_spr_to_adlp_8k.SPR_to_ADLP_8K.rename_images')
     @patch('pandas.ExcelWriter')
     @patch('pandas.DataFrame.to_excel')
