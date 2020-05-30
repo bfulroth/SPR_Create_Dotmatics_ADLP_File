@@ -318,6 +318,36 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
         self.assertEqual(True, result)
 
+    @patch('SPR_to_ADLP_Functions.common_functions.get_predefined_comments')
+    @patch('os.path.join', return_value='./tests/fixtures/Biacore1_Test_Files/Save.xlsx')
+    @patch('SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db', return_value='Structures Here')
+    @patch('SPR_to_ADLP_Functions.common_functions.render_structure_imgs',
+           return_value=pd.DataFrame({'IMG_PATH': ['Fake/File/Path', 'Fake/File/Path2']}))
+    @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images',
+           return_value='Image Place Holder')
+    @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_structures')
+    @patch('pandas.ExcelWriter')
+    @patch('pandas.DataFrame.to_excel')
+    def test_get_COMMENTS_called(self, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6, mock_7, mock_8):
+        """
+        Sets up the class with the final DataFrame from Running the SPR_to_ADLP Script.  Subsequent methods in this class
+        evaluate and verify this DataFrame for correctness.
+
+        :param mock_1: Mocks the os.path.join method so that the script doesn't try to grab users desktop path.
+        :param mock_2: Mocks the get_structures_smiles_from_db method
+        :param mock_3: Mocks the render_structure_imgs method and returns a MagicMock with a Fake DF as it's return value.
+        :param mock_4: Mocks the spr_insert_ss_senso_images method
+        :param mock_5: Mocks the spr_insert_structures method
+        :param mock_6: Mocks the pandas.ExcelWriter method
+        :param mock_7: Mocks the pandas.DataFrame.to_excel method
+        :param mock_8: Mocks out the method that gets comments
+        :return: None
+        """
+
+        config_file_path = './tests/fixtures/Biacore1_Test_Files/200312-1_config_affinit_Biacore1.txt'
+        spr_create_dot_upload_file(config_file=config_file_path, save_file='Test', clip=False)
+        self.assertEqual(1, mock_8.call_count)
+
     def test_final_df_PROTEIN_RU(self):
 
         expected = pd.Series(data=[1993.5, 2042.1, 2006.0, 1993.5, 2042.1, 2006.0, 1993.5, 2042.1, 2006.0, 1993.5,

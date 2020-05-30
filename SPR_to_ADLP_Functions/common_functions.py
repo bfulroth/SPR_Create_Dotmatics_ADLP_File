@@ -212,8 +212,10 @@ def spr_insert_ss_senso_images(tuple_list_imgs, worksheet, path_ss_img, path_sen
         worksheet.insert_image('F' + str(row), path_senso_img + '/' + senso_img)
         row += 1
 
+
 def get_predefined_comments():
     """
+    Method for retrieving a common list of comments to include in the SPR_to_ADLP output file.
 
     :param
     """
