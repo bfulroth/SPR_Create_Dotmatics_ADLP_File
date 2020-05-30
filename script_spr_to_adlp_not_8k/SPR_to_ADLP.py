@@ -158,7 +158,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     # ADLP save file path
     # Note the version is saved to the file name so that data can be linked to the script version.
     save_file = save_file.replace('.xlsx', '')
-    adlp_save_file_path = os.path.join(homedir, 'Desktop', save_file + '_' + str(__version__))
+    adlp_save_file_path = os.path.join(homedir, 'Desktop', save_file + '_APPVersion_' + str(__version__))
     adlp_save_file_path = adlp_save_file_path.replace('.', '_')
     adlp_save_file_path = adlp_save_file_path + '.xlsx'
 

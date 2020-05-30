@@ -327,13 +327,13 @@ def save_output_file(df_final):
 
     # Save file path for server Iron
     save_file_path_iron = os.path.join('iron', 'tdts_users', 'SPR Setup Files', + now +
-                                  '_spr_setup_affinity_' + str(__version__))
+                                  '_spr_setup_affinity_APPVersion_' + str(__version__))
 
     save_file_path_iron = save_file_path_iron.replace('.', '_')
     save_file_path_iron = save_file_path_iron + '.xlsx'
 
     # Backup save file path for Desktop
-    save_file_path_desk = os.path.join(homedir, 'Desktop', now + '_spr_setup_affinity_' + str(__version__))
+    save_file_path_desk = os.path.join(homedir, 'Desktop', now + '_spr_setup_affinity_APPVersion_' + str(__version__))
     save_file_path_desk = save_file_path_desk.replace('.', '_')
     save_file_path_desk = save_file_path_desk + '.xlsx'
 
