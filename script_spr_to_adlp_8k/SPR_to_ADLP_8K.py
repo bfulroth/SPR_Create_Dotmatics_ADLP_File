@@ -17,32 +17,6 @@ else:
     homedir = os.environ['HOME']
 
 
-def spr_insert_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
-    """
-    Does the work of inserting the spr steady state and sensorgram images into the excel worksheet.
-    :param tuple_list: List of tuples containing (steady state image, sensorgram image)
-    :param worksheet: xlsxwriter object used to insert the images to a worksheet
-    :param path_ss_img: Directory to the steady state images to insert.
-    :param path_senso_img: Directory to the sensorgram images to insert.
-    :return: None
-    """
-    # Format the rows and columns in the worksheet to fit the images.
-    num_images = len(tuple_list_imgs)
-
-    # Set height of each row
-    for row in range(1, num_images + 1):
-        worksheet.set_row(row=row, height=145)
-
-    # Set the width of each column
-    worksheet.set_column(first_col=3, last_col=4, width=24)
-
-    row = 2
-    for ss_img, senso_img in tuple_list_imgs:
-        worksheet.insert_image('D' + str(row), path_ss_img + '/' + ss_img)
-        worksheet.insert_image('E' + str(row), path_senso_img + '/' + senso_img)
-        row += 1
-
-
 def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, fc_used):
     #TODO: Currently assumes that all 8 channels were used.
     """This method calculates the binding in RU at the top concentration.
@@ -194,7 +168,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     # Note the version is saved to the file name so that data can be linked to the script version.
     save_file = save_file.replace('.xlsx', '')
     adlp_save_file_path = os.path.join(homedir, 'Desktop', save_file + '_' + str(__version__))
-    adlp_save_file_path = adlp_save_file_path.replace('.', '')
+    adlp_save_file_path = adlp_save_file_path.replace('.', '_')
     adlp_save_file_path = adlp_save_file_path + '.xlsx'
 
     try:
@@ -499,7 +473,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         tuple_list_imgs = list(zip(list_ss_img, list_sonso_img))
 
         # Insert images into file.
-        spr_insert_images(tuple_list_imgs, worksheet1, path_ss_img, path_senso_img)
+        SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images(tuple_list_imgs, worksheet1, path_ss_img,
+                                                                          path_senso_img, biacore=instrument)
 
         # Insert structure images
         # Render the smiles into png images in a temp directory
