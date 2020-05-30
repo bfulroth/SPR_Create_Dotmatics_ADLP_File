@@ -211,3 +211,36 @@ def spr_insert_ss_senso_images(tuple_list_imgs, worksheet, path_ss_img, path_sen
         worksheet.insert_image('E' + str(row), path_ss_img + '/' + ss_img)
         worksheet.insert_image('F' + str(row), path_senso_img + '/' + senso_img)
         row += 1
+
+def get_predefined_comments():
+    """
+
+    :param
+    """
+    ls_comments = pd.DataFrame({'Comments':
+                                      ['No binding.',
+                                       'Saturation reached. Fast on/off.',
+                                       'Saturation reached. Fast on/off. Insolubility likely. Removed top.',
+                                       'Saturation reached. Fast on/off. Insolubility likely.',
+                                       'Saturation reached. Fast on/off. Low % binding.',
+                                       'Saturation reached. Fast on/off. Low % binding. Insolubility likely.',
+                                       'Saturation reached. Slow on. Fast off.',
+                                       'Saturation reached. Slow on. Fast off. Insolubility likely.',
+                                       'Saturation reached. Slow on. Slow off.',
+                                       'Saturation reached. Slow on. Slow off. Insolubility likely.',
+                                       'Saturation reached. Fast on. Slow off.',
+                                       'Saturation reached. Fast on. Slow off. Insolubility likely.',
+                                       'Saturation approached. Fast on/off.',
+                                       'Saturation approached. Insolubility likely.',
+                                       'Saturation approached. Fast on/off. Insolubility likely.',
+                                       'Saturation approached. Low % binding.',
+                                       'Saturation approached. Low % binding. Insolubility likely.',
+                                       'Saturation not reached.',
+                                       'Saturation not reached. Insolubility likely.',
+                                       'Saturation not reached. Fast on/off.',
+                                       'Saturation not reached. Fast on/off. Insolubility likely.',
+                                       'Saturation not reached. Low % binding.',
+                                       'Saturation not reached. Low % binding. Insolubility likely.',
+                                       'Superstoichiometric binding.']})
+
+    return ls_comments

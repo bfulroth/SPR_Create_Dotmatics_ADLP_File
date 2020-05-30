@@ -418,31 +418,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         num_data_pts = num_cpds + 1
 
         # Write the comments to the comment sheet.
-        comments_list = pd.DataFrame({'Comments':
-                                        ['No binding.',
-                                        'Saturation reached. Fast on/off.',
-                                        'Saturation reached. Fast on/off. Insolubility likely. Removed top.',
-                                        'Saturation reached. Fast on/off. Insolubility likely.',
-                                        'Saturation reached. Fast on/off. Low % binding.',
-                                        'Saturation reached. Fast on/off. Low % binding. Insolubility likely.',
-                                        'Saturation reached. Slow on. Fast off.',
-                                        'Saturation reached. Slow on. Fast off. Insolubility likely.',
-                                        'Saturation reached. Slow on. Slow off.',
-                                        'Saturation reached. Slow on. Slow off. Insolubility likely.',
-                                        'Saturation reached. Fast on. Slow off.',
-                                        'Saturation reached. Fast on. Slow off. Insolubility likely.',
-                                        'Saturation approached. Fast on/off.',
-                                        'Saturation approached. Insolubility likely.',
-                                        'Saturation approached. Fast on/off. Insolubility likely.',
-                                        'Saturation approached. Low % binding.',
-                                        'Saturation approached. Low % binding. Insolubility likely.',
-                                        'Saturation not reached.',
-                                        'Saturation not reached. Insolubility likely.',
-                                        'Saturation not reached. Fast on/off.',
-                                        'Saturation not reached. Fast on/off. Insolubility likely.',
-                                        'Saturation not reached. Low % binding.',
-                                        'Saturation not reached. Low % binding. Insolubility likely.',
-                                        'Superstoichiometric binding.']})
+        comments_list = SPR_to_ADLP_Functions.common_functions.get_predefined_comments()
 
         # Convert comments list to DataFrame
         comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
