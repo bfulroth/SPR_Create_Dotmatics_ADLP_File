@@ -18,15 +18,15 @@ else:
 
 
 def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, fc_used):
-    #TODO: Currently assumes that all 8 channels were used.
-    """This method calculates the binding in RU at the top concentration.
+    """
+    This method calculates the binding in RU at the top concentration.
 
-        :param report_pt_file: reference to the report point file exported from the Biacore Instrument.
-        :param df_cmpd_set: DataFrame containing the compound set data. This is used to extract the binding
-        RU at the top concentration of compound tested.
-        :param fc_used: The flow channels that were immobilized in the experiment.
-        :returns Series containing the RU at the top concentration tested for each compound in the order tested.
-        """
+    :param report_pt_file: reference to the report point file exported from the Biacore Instrument.
+    :param df_cmpd_set: DataFrame containing the compound set data. This is used to extract the binding
+    RU at the top concentration of compound tested.
+    :param fc_used: The flow channels that were immobilized in the experiment.
+    :returns Series containing the RU at the top concentration tested for each compound in the order tested.
+    """
 
     try:
         # Read in data
@@ -82,6 +82,7 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, fc_used):
     df_rpt_pts_trim = df_rpt_pts_trim.reset_index(drop=True)
 
     return round(df_rpt_pts_trim['Relative response (RU)'], 2)
+
 
 
 def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
@@ -288,18 +289,10 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         df_final_for_dot['TOP_COMPOUND_UM'] = df_cmpd_set['Test [Cpd] uM']
 
         # Extract the RU Max for each compound using the report point file.
-        df_final_for_dot['RU_TOP_CMPD'] = spr_binding_top_for_dot_file(report_pt_file=path_report_pt,
-                                                                       df_cmpd_set=df_cmpd_set,
-                                                                       fc_used=immobilized_fc_arr)
+        df_final_for_dot['RU_TOP_CMPD'] = SPR_to_ADLP_Functions.common_functions.spr_binding_top_for_dot_file(
+            report_pt_file=path_report_pt, df_cmpd_set=df_cmpd_set, instrument=instrument, fc_used=immobilized_fc_arr)
 
         # Extract the steady state data and add to DataFrame
-        # Create new columns to sort the DataFrame as the original is out of order.
-        # TODO: make sure the commented code below is not needed.
-        # df_ss_txt['sample_order'] = df_ss_txt['Steady_State_Img'].str.split('_', expand=True)[1]
-        # df_ss_txt['sample_order'] = df_ss_txt['sample_order'].str.replace('.png','')
-        # df_ss_txt['sample_order'] = pd.to_numeric(df_ss_txt['sample_order'])
-        # df_ss_txt = df_ss_txt.sort_values(by=['sample_order'])
-        # df_ss_txt = df_ss_txt.reset_index(drop=True)
         df_ss_txt['KD_SS_UM'] = df_ss_txt['KD (M)'] * 1000000
 
         # Add the KD steady state
@@ -313,13 +306,6 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax (RU)']
 
         # Extract the sensorgram data and add to DataFrame
-        # TODO: make sure the commented code below is not needed.
-        # df_senso_txt['sample_order'] = df_senso_txt['Senso_Img'].str.split('_', expand=True)[1]
-        # df_senso_txt['sample_order'] = df_senso_txt['sample_order'].str.replace('.png', '')
-        # df_senso_txt['sample_order'] = pd.to_numeric(df_senso_txt['sample_order'])
-        # df_senso_txt = df_senso_txt.sort_values(by=['sample_order'])
-        # df_senso_txt = df_senso_txt.reset_index(drop=True)
-
         # Add columns from df_senso_txt
         df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka']
         df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd']

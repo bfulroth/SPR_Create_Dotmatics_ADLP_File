@@ -246,3 +246,187 @@ def get_predefined_comments():
                                        'Superstoichiometric binding.']})
 
     return ls_comments
+
+
+def _percent_bind_helper_filter_non_corr_data_non_8k(df, ref_fc_used_arr, fc_used):
+
+    # Filter out non-corrected data.
+    df_rpt_pts_trim = df.copy()
+    df_rpt_pts_trim['FC_Type'] = df_rpt_pts_trim['Fc'].str.split(' ', expand=True)[1]
+    df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['FC_Type'] == 'corr']
+
+    ## Remove not needed flow channels
+    # If the reference channel is only 3 then assume that the only immobilized channel is 4
+    if (len(ref_fc_used_arr) == 1) & (ref_fc_used_arr[0] == 3):
+        df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '4-3 corr']
+
+    # If the reference channel is only 1 and and number of fc used is 1
+    elif (len(ref_fc_used_arr) == 1) & (ref_fc_used_arr[0] == 1):
+        if len(fc_used) == 1:
+            if fc_used[0] == 2:
+                df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '2-1 corr']
+            elif fc_used[0] == 3:
+                df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '3-1 corr']
+            elif fc_used[0] == 4:
+                df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '4-1 corr']
+
+    # Ref channel is 1 and 2 channels used.
+    elif (len(ref_fc_used_arr) == 1) & (len(fc_used) == 2):
+        if (fc_used[0] == 2) & (fc_used[1] == 3):
+            df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') |
+                                              (df_rpt_pts_trim['Fc'] == '3-1 corr')]
+        if (fc_used[0] == 3) & (fc_used[1] == 4):
+            df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '3-1 corr') |
+                                              (df_rpt_pts_trim['Fc'] == '4-1 corr')]
+        if (fc_used[0] == 2) & (fc_used[1] == 4):
+            df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') |
+                                              (df_rpt_pts_trim['Fc'] == '4-1 corr')]
+    # If the length of ref_fc_used_arr is 2 it implies that channels 1 and 3 were used as ref's and 2 and 4 were used
+    # as active as this is the only way the exp can be setup.
+    elif (len(ref_fc_used_arr) == 2):
+        df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') |
+                                          (df_rpt_pts_trim['Fc'] == '4-3 corr')]
+
+    # If 3 channels used than assume we want all the corrected data so no filtering done.
+
+    return df_rpt_pts_trim
+
+
+def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_used, ref_fc_used_arr=None):
+
+    # Check that the correct instrument is specified in the configuration file.
+    if (instrument != 'BiacoreS200') & (instrument != 'Biacore1') & (instrument != 'Biacore3') & \
+            (instrument != 'Biacore2') & (instrument != 'Biacore8K'):
+        raise ValueError('Instrument argument must be BiacoreS200, Biacore1, Biacore2, or Biacore3')
+
+    if instrument == 'Biacore8K':
+        report_pt_read_parm = {'skip': 2, 'name': 'Report point table'}
+    else:
+        report_pt_read_parm = {'skip': 3, 'name': 'Report Point Table'}
+
+    try:
+        # Read in data
+        df_rpt_pts_all = pd.read_excel(report_pt_file, sheet_name=report_pt_read_parm['name'],
+                                       skiprows=report_pt_read_parm['skip'])
+    except:
+        raise FileNotFoundError('The files could not be imported please check.')
+
+    # Check that the columns in the report point file match the expected values.
+    if (instrument=='Biacore1') | (instrument == 'Biacore3'):
+        expected_cols = ['Cycle', 'Fc', 'Report Point', 'RelResp', 'AssayStep',
+                           'CycleType', 'Sample_1_Conc', 'Sample_1_Sample']
+
+    if (instrument == 'Biacore2') | (instrument == 'BiacoreS200'):
+        expected_cols = ['Cycle', 'Fc', 'Report Point', 'RelResp [RU]',
+                         'AssayStep', 'Cycle Type', 'Sample_1_Conc [µM]', 'Sample_1_Sample']
+
+    if instrument == 'Biacore8K':
+        expected_cols = ['Cycle', 'Channel', 'Flow cell',	'Sensorgram type', 'Name', 'Relative response (RU)',
+                   'Step name', 'Analyte 1 Solution', 'Analyte 1 Concentration (µM)']
+
+    for col in expected_cols:
+        if col not in df_rpt_pts_all.columns.tolist():
+            raise ValueError('The columns in the report point file do not match the expected names.')
+
+    # Remove unneeded columns from DataFrame
+    # For Biacore2 and BiacoreS200
+    if (instrument == 'BiacoreS200') | (instrument == 'Biacore2'):
+
+        df_rpt_pts_trim = df_rpt_pts_all.iloc[:, 1:]
+
+        # Create Channel column for consistancy with 8k. **This is not used**
+        df_rpt_pts_trim.loc[:, 'Channel'] = ''
+
+        # Remove other not needed columns
+        df_rpt_pts_trim = df_rpt_pts_trim.loc[:,
+                      ['Cycle', 'Channel', 'Fc', 'Report Point',
+                       'RelResp [RU]', 'AssayStep', 'Cycle Type',
+                       'Sample_1_Conc [µM]', 'Sample_1_Sample']]
+
+    # For Biacore1 or Biacore3
+    if (instrument=='Biacore1') | (instrument == 'Biacore3'):
+
+        # Create Channel column for consistancy with 8k. **This is not used**
+        df_rpt_pts_all.loc[:, 'Channel'] = ''
+
+        # Remove other not needed columns
+        df_rpt_pts_trim = df_rpt_pts_all.loc[:,
+                          ['Cycle', 'Channel', 'Fc', 'Report Point',
+                           'RelResp','AssayStep', 'CycleType',
+                           'Sample_1_Conc', 'Sample_1_Sample']]
+
+    # For Biacore8K
+    if instrument == 'Biacore8K':
+        # Remove other not needed columns
+        df_rpt_pts_trim = df_rpt_pts_all.loc[:,
+                          ['Cycle', 'Channel', 'Flow cell', 'Name',
+                           'Relative response (RU)', 'Step name', 'Sensorgram type',
+                           'Analyte 1 Concentration (µM)', 'Analyte 1 Solution']]
+
+    # Reassign columns so that there is consistent naming between BiacoreS200, Biacore1, and Biacore3, 8K.
+    df_rpt_pts_trim.columns = ['Cycle', 'Channel', 'Fc', 'Report Point',
+                               'RelResp [RU]', 'AssayStep', 'Cycle Type',
+                               'Sample_1_Conc [µM]', 'Sample_1_Sample']
+
+
+    # Filter and removed not needed rows
+    # 8K
+    if instrument == 'Biacore8K':
+        df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Cycle Type'] == 'Corrected']
+        df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Report Point'] == 'Analyte binding late_1']
+        df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['AssayStep'] == 'Analysis']
+
+    # Non-8K
+    else:
+        df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Report Point'] == 'binding']
+        df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['AssayStep'] != 'Startup') &
+                                      (df_rpt_pts_trim['AssayStep'] != 'Solvent correction')]
+
+    # Need to filer out non-corrected data from data generated by non-8k instruments.
+    if instrument != 'Biacore8K':
+        df_rpt_pts_trim = _percent_bind_helper_filter_non_corr_data_non_8k(df=df_rpt_pts_trim,
+                                                                       ref_fc_used_arr=ref_fc_used_arr,
+                                                                       fc_used=fc_used)
+
+    # Create a new column of BRD 4 digit numbers to merge
+    df_rpt_pts_trim['BRD_MERGE'] = df_rpt_pts_trim['Sample_1_Sample'].str.split('_', expand=True)[0]
+    df_cmpd_set['BRD_MERGE'] = 'BRD-' + df_cmpd_set['Broad ID'].str[9:13]
+
+    # Convert compound set concentration column to float so DataFrames can be merged.
+    df_cmpd_set['Test [Cpd] uM'] = df_cmpd_set['Test [Cpd] uM'].astype('float')
+
+    # Merge the report point DataFrame and compound set DataFrame on Top concentration which results in a new
+    # Dataframe
+    # with only the data for the top concentrations run.
+    # To prevent a merge error it is necessary to round sample concentration in both merged data frames.
+    df_rpt_pts_trim['Sample_1_Conc [µM]'] = round(df_rpt_pts_trim['Sample_1_Conc [µM]'], 2)
+    df_cmpd_set['Test [Cpd] uM'] = round(df_cmpd_set['Test [Cpd] uM'], 2)
+
+    # Conduct the merge.
+    df_rpt_pts_trim = pd.merge(left=df_rpt_pts_trim, right=df_cmpd_set,
+                               left_on=['BRD_MERGE', 'Sample_1_Conc [µM]'],
+                               right_on=['BRD_MERGE', 'Test [Cpd] uM'], how='inner')
+
+    # If a compound was run more than once, such as a control, we need to drop the duplicate values.
+    # 8K
+    if instrument == 'Biacore8K':
+        df_rpt_pts_trim = df_rpt_pts_trim.drop_duplicates(['Sample_1_Sample'])
+    else:
+        df_rpt_pts_trim = df_rpt_pts_trim.drop_duplicates(['Fc', 'Sample_1_Sample'])
+
+    # Need to resort the Dataframe
+    # 8K
+    if instrument == 'Biacore8K':
+        df_rpt_pts_trim = df_rpt_pts_trim.sort_values(['Cycle', 'Channel'])
+        df_rpt_pts_trim = df_rpt_pts_trim.reset_index(drop=True)
+
+    # Non-8K
+    # Create sorting column
+    else:
+        df_rpt_pts_trim['sample_order'] = df_rpt_pts_trim['Sample_1_Sample'].str.split('_', expand=True)[1]
+        df_rpt_pts_trim = df_rpt_pts_trim.sort_values(['Cycle', 'sample_order'])
+        df_rpt_pts_trim = df_rpt_pts_trim.reset_index(drop=True)
+
+    return round(df_rpt_pts_trim['RelResp [RU]'], 2)
+
+
