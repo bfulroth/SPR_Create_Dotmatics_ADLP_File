@@ -403,16 +403,21 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
     df_cmpd_set['Test [Cpd] uM'] = round(df_cmpd_set['Test [Cpd] uM'], 2)
 
     # Conduct the merge.
+    # Note: resetting the index just in case as somtimes this causes issues. (Didn't fully explore).
+    df_rpt_pts_trim = df_rpt_pts_trim.reset_index(drop=True)
     df_rpt_pts_trim = pd.merge(left=df_rpt_pts_trim, right=df_cmpd_set,
                                left_on=['BRD_MERGE', 'Sample_1_Conc [µM]'],
                                right_on=['BRD_MERGE', 'Test [Cpd] uM'], how='inner')
+
 
     # If a compound was run more than once, such as a control, we need to drop the duplicate values.
     # 8K
     if instrument == 'Biacore8K':
         df_rpt_pts_trim = df_rpt_pts_trim.drop_duplicates(['Sample_1_Sample'])
+        df_rpt_pts_trim = df_rpt_pts_trim.reset_index(drop=True)
     else:
         df_rpt_pts_trim = df_rpt_pts_trim.drop_duplicates(['Fc', 'Sample_1_Sample'])
+        df_rpt_pts_trim = df_rpt_pts_trim.reset_index(drop=True)
 
     # Need to resort the Dataframe
     # 8K
