@@ -6,10 +6,12 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock
 from sqlalchemy import create_engine, Table, MetaData, select
 import pandas as pd
+import numpy as np
 from cryptography.fernet import Fernet
 
 # Import functions for testing
-from SPR_to_ADLP_Functions.common_functions import rep_item_for_dot_df, get_structures_smiles_from_db
+from SPR_to_ADLP_Functions.common_functions import rep_item_for_dot_df, get_structures_smiles_from_db, \
+    spr_binding_top_for_dot_file
 
 
 class TestReplicateItemFunct(TestCase):
@@ -258,5 +260,38 @@ class TestInsertSSandSensoImages(TestCase):
 
     def test_(self):
         pass
+
+
+class TestRUatTopConc(TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+
+        #Create parameters for method testing
+        cls.config_path = ''
+        cls.df_cmpd_set = pd.read_csv('./tests/fixtures/Biacore8k_Test_Files/200212_SPR_Setup_Table_8k.csv')
+        cls.instrument = 'Biacore8K'
+        cls.fc_used = [1, 2, 3, 4, 5, 6, 7, 8]
+        cls.ref_fc_used_arr=None
+
+    def test_binding_RU_TOP(self):
+
+        expected = []
+
+        result = spr_binding_top_for_dot_file(report_pt_file=TestRUatTopConc.config_path,
+                                              df_cmpd_set=TestRUatTopConc.df_cmpd_set,
+                                              instrument=TestRUatTopConc.instrument, fc_used=TestRUatTopConc.fc_used,
+                                              ref_fc_used_arr=TestRUatTopConc.ref_fc_used_arr)
+
+
+        actual = expected.equal(result)
+
+        self.assertEqual(expected, actual)
+
+
+
+
+
+
 
 

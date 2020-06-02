@@ -202,7 +202,7 @@ def spr_setup_sheet(args=None):
 
             # Create a copy of the final df so that the final_df is preserved.
             df_zeros = final_df.copy()
-            df_zeros = df_zeros.dropna(how='any')
+            df_zeros = df_zeros.dropna(how='any', subset=['sort_zero'])
 
             df_zeros = df_zeros.sort_values(['sort_zero'])
             df_zeros = df_zeros.reset_index(drop=True)
