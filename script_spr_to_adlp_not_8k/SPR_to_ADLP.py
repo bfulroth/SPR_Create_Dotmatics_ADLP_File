@@ -14,160 +14,6 @@ if platform.system() == "Windows":
 else:
     homedir = os.environ['HOME']
 
-def spr_insert_ss_senso_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
-    """
-    Does the work of inserting the spr steady state and sensorgram images into the excel worksheet.
-    :param tuple_list: List of tuples containing (steady state image, sensorgram image)
-    :param worksheet: xlsxwriter object used to insert the images to a worksheet
-    :param path_ss_img: Directory to the steady state images to insert.
-    :param path_senso_img: Directory to the sensorgram images to insert.
-    :return: None
-    """
-    # Format the rows and columns in the worksheet to fit the images.
-    num_images = len(tuple_list_imgs)
-
-    # Set height of each row
-    for row in range(1, num_images + 1):
-        worksheet.set_row(row=row, height=235)
-
-    # Set the width of each column
-    worksheet.set_column(first_col=4, last_col=5, width=58)
-
-    row = 2
-    for ss_img, senso_img in tuple_list_imgs:
-        worksheet.insert_image('E' + str(row), path_ss_img + '/' + ss_img)
-        worksheet.insert_image('F' + str(row), path_senso_img + '/' + senso_img)
-        row += 1
-
-
-def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_used, ref_fc_used_arr=[1]):
-    """This method calculates the binding in RU at the top concentration.
-
-        :param report_pt_file: reference to the report point file exported from the Biacore Instrument.
-        :param df_cmpd_set: DataFrame containing the compound set data. This is used to extract the binding
-        RU at the top concentration of compound tested.
-        :param instrument: The instrument as a string. (e.g. 'BiacoreS200', 'Biacore1, 'Biacore2')
-        :param fc_used: The flow channels that were immobilized in the experiment.
-        :param ref_fc_used_arr: The reference channel(s) used.  Currently only 1 and 3 are supported.
-        :returns Series containing the RU at the top concentration tested for each compound in the order tested.
-        """
-    if (instrument != 'BiacoreS200') & (instrument != 'Biacore1') & (instrument != 'Biacore3') & (instrument != 'Biacore2'):
-        raise ValueError('Instrument argument must be BiacoreS200, Biacore1, Biacore2, or Biacore3')
-
-    try:
-        # Read in data
-        df_rpt_pts_all = pd.read_excel(report_pt_file, sheet_name='Report Point Table', skiprows=3)
-    except:
-        raise FileNotFoundError('The files could not be imported please check.')
-
-    # Biacore instrument software for the S200 and T200 instruments exports different column names.
-    # Check that the columns in the report point file match the expected values.
-    if (instrument=='Biacore1') | (instrument == 'Biacore3'):
-        expected_cols = ['Cycle', 'Fc', 'Report Point', 'Time', 'RelResp', 'AssayStep',
-                           'CycleType', 'Sample_1_Conc', 'Sample_1_Sample']
-
-    if (instrument == 'Biacore2') | (instrument == 'BiacoreS200'):
-        expected_cols = ['Cycle', 'Fc', 'Report Point', 'Time [s]', 'RelResp [RU]',
-                         'AssayStep', 'Cycle Type', 'Sample_1_Conc [µM]', 'Sample_1_Sample']
-
-    for col in expected_cols:
-        if col not in df_rpt_pts_all.columns.tolist():
-            raise ValueError('The columns in the report point file do not match the expected names.')
-
-    # For Biacore2 and BiacoreS200
-    # Remove first column
-    if (instrument == 'BiacoreS200') | (instrument == 'Biacore2'):
-        df_rpt_pts_trim = df_rpt_pts_all.iloc[:, 1:]
-
-        # Remove other not needed columns
-        df_rpt_pts_trim = df_rpt_pts_trim.loc[:,
-                      ['Cycle', 'Fc', 'Report Point', 'Time [s]', 'RelResp [RU]',
-                       'AssayStep', 'Cycle Type', 'Sample_1_Conc [µM]', 'Sample_1_Sample']]
-
-    # For Biacore1 or Biacore3
-    else:
-        # Remove other not needed columns
-        df_rpt_pts_trim = df_rpt_pts_all.loc[:,
-                          ['Cycle', 'Fc', 'Report Point', 'Time', 'RelResp', 'AssayStep',
-                           'CycleType', 'Sample_1_Conc', 'Sample_1_Sample']]
-
-    # Reassign columns so that there is consistent naming between BiacoreS200, Biacore1, and Biacore3.
-    df_rpt_pts_trim.columns = ['Cycle', 'Fc', 'Report Point', 'Time [s]', 'RelResp [RU]', 'AssayStep', 'Cycle Type',
-                               'Sample_1_Conc [µM]', 'Sample_1_Sample']
-
-    # Remove not needed rows.
-    df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Report Point'] == 'binding']
-    df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['AssayStep'] != 'Startup') &
-                                      (df_rpt_pts_trim['AssayStep'] != 'Solvent correction')]
-
-    # Filter out non-corrected data.
-    df_rpt_pts_trim['FC_Type'] = df_rpt_pts_trim['Fc'].str.split(' ', expand=True)[1]
-    df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['FC_Type'] == 'corr']
-
-    ## Remove not needed flow channels
-
-    # If the reference channel is only 3 then assume that the only immobilized channel is 4
-    if (len(ref_fc_used_arr) == 1) & (ref_fc_used_arr[0] == 3):
-        df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '4-3 corr']
-
-    # If the reference channel is only 1 and and number of fc used is 1
-    elif (len(ref_fc_used_arr) == 1) & (ref_fc_used_arr[0] == 1):
-        if len(fc_used) == 1:
-            if fc_used[0] == 2:
-                df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '2-1 corr']
-            elif fc_used[0] == 3:
-                df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '3-1 corr']
-            elif fc_used[0] == 4:
-                df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Fc'] == '4-1 corr']
-
-    # Ref channel is 1 and 2 channels used.
-    elif (len(ref_fc_used_arr) == 1) & (len(fc_used) == 2):
-        if (fc_used[0] == 2) & (fc_used[1] == 3):
-            df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') |
-                                              (df_rpt_pts_trim['Fc'] == '3-1 corr')]
-        if (fc_used[0] == 3) & (fc_used[1] == 4):
-            df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '3-1 corr') |
-                                                  (df_rpt_pts_trim['Fc'] == '4-1 corr')]
-        if (fc_used[0] == 2) & (fc_used[1] == 4):
-            df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') |
-                                                  (df_rpt_pts_trim['Fc'] == '4-1 corr')]
-    # If the length of ref_fc_used_arr is 2 it implies that channels 1 and 3 were used as ref's and 2 and 4 were used
-    # as active as this is the only way the exp can be setup.
-    elif (len(ref_fc_used_arr) == 2):
-        df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Fc'] == '2-1 corr') |
-                                          (df_rpt_pts_trim['Fc'] == '4-3 corr')]
-    
-    # If 3 channels used than assume we want all the corrected data so no filtering done.
-
-    # Create a new column of BRD 4 digit numbers to merge
-    df_rpt_pts_trim['BRD_MERGE'] = df_rpt_pts_trim['Sample_1_Sample'].str.split('_', expand=True)[0]
-    df_cmpd_set['BRD_MERGE'] = 'BRD-' + df_cmpd_set['Broad ID'].str[9:13]
-
-    # Convert compound set concentration column to float so DataFrames can be merged.
-    df_cmpd_set['Test [Cpd] uM'] = df_cmpd_set['Test [Cpd] uM'].astype('float')
-
-    # Merge the report point DataFrame and compound set DataFrame on Top concentration which results in a new Dataframe
-    # with only the data for the top concentrations run.
-    # To prevent a merge error it is necessary to round sample concentration in both merged data frames.
-    df_rpt_pts_trim['Sample_1_Conc [µM]'] = round(df_rpt_pts_trim['Sample_1_Conc [µM]'], 2)
-    df_cmpd_set['Test [Cpd] uM'] = round(df_cmpd_set['Test [Cpd] uM'], 2)
-
-    # Conduct the merge.
-    df_rpt_pts_trim = pd.merge(left=df_rpt_pts_trim, right=df_cmpd_set,
-                               left_on=['BRD_MERGE', 'Sample_1_Conc [µM]'],
-                               right_on=['BRD_MERGE','Test [Cpd] uM'], how='inner')
-
-    # If a compound was run more than once, such as a control, we need to drop the duplicate values.
-    df_rpt_pts_trim = df_rpt_pts_trim.drop_duplicates(['Fc', 'Sample_1_Sample'])
-
-    # Need to resort the Dataframe
-    # Create sorting column
-    df_rpt_pts_trim['sample_order'] = df_rpt_pts_trim['Sample_1_Sample'].str.split('_', expand=True)[1]
-    df_rpt_pts_trim = df_rpt_pts_trim.sort_values(['Cycle', 'sample_order'])
-    df_rpt_pts_trim = df_rpt_pts_trim.reset_index(drop=True)
-
-    return round(df_rpt_pts_trim['RelResp [RU]'], 2)
-
 
 def spr_create_dot_upload_file(config_file, save_file, clip):
     """
@@ -183,7 +29,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     # ADLP save file path
     # Note the version is saved to the file name so that data can be linked to the script version.
     save_file = save_file.replace('.xlsx', '')
-    adlp_save_file_path = os.path.join(homedir, 'Desktop', save_file + '_' + str(__version__))
+    adlp_save_file_path = os.path.join(homedir, 'Desktop', save_file + '_APPVersion_' + str(__version__))
     adlp_save_file_path = adlp_save_file_path.replace('.', '_')
     adlp_save_file_path = adlp_save_file_path + '.xlsx'
 
@@ -276,8 +122,12 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                                                    times_dup=num_fc_used))
 
     # Extract the RU Max for each compound using the report point file.
-    df_final_for_dot['RU_TOP_CMPD'] = spr_binding_top_for_dot_file(report_pt_file=path_report_pt,
-    df_cmpd_set=df_cmpd_set, instrument=instrument, fc_used=immobilized_fc_arr, ref_fc_used_arr=ref_fc_used_arr)
+    df_final_for_dot['RU_TOP_CMPD'] = SPR_to_ADLP_Functions.common_functions.spr_binding_top_for_dot_file(
+        report_pt_file=path_report_pt,
+        df_cmpd_set=df_cmpd_set,
+        instrument=instrument,
+        fc_used=immobilized_fc_arr,
+        ref_fc_used_arr=ref_fc_used_arr)
 
     # Extract the steady state data and add to DataFrame
     # Read in the steady state text file into a DataFrame
@@ -408,31 +258,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     num_data_pts = (num_cpds * 3) + 1
 
     # Write the comments to the comment sheet.
-    comments_list = pd.DataFrame({'Comments':
-                                    ['No binding.',
-                                    'Saturation reached. Fast on/off.',
-                                    'Saturation reached. Fast on/off. Insolubility likely. Removed top.',
-                                    'Saturation reached. Fast on/off. Insolubility likely.',
-                                    'Saturation reached. Fast on/off. Low % binding.',
-                                    'Saturation reached. Fast on/off. Low % binding. Insolubility likely.',
-                                    'Saturation reached. Slow on. Fast off.',
-                                    'Saturation reached. Slow on. Fast off. Insolubility likely.',
-                                    'Saturation reached. Slow on. Slow off.',
-                                    'Saturation reached. Slow on. Slow off. Insolubility likely.',
-                                    'Saturation reached. Fast on. Slow off.',
-                                    'Saturation reached. Fast on. Slow off. Insolubility likely.',
-                                    'Saturation approached. Fast on/off.',
-                                    'Saturation approached. Insolubility likely.',
-                                    'Saturation approached. Fast on/off. Insolubility likely.',
-                                    'Saturation approached. Low % binding.',
-                                    'Saturation approached. Low % binding. Insolubility likely.',
-                                    'Saturation not reached.',
-                                    'Saturation not reached. Insolubility likely.',
-                                    'Saturation not reached. Fast on/off.',
-                                    'Saturation not reached. Fast on/off. Insolubility likely.',
-                                    'Saturation not reached. Low % binding.',
-                                    'Saturation not reached. Low % binding. Insolubility likely.',
-                                    'Superstoichiometric binding.']})
+    comments_list = SPR_to_ADLP_Functions.common_functions.get_predefined_comments()
 
     # Convert comments list to DataFrame
     comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
@@ -463,7 +289,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     tuple_list_imgs = list(zip(list_ss_img, list_sonso_img))
 
     # Insert steady-state and sensogram images into file.
-    spr_insert_ss_senso_images(tuple_list_imgs, worksheet1, path_ss_img, path_senso_img)
+    SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images(tuple_list_imgs, worksheet1, path_ss_img,
+                                                                      path_senso_img, biacore=instrument)
 
     # Insert structure images
     # Render the smiles into png images in a temp directory

@@ -15,15 +15,16 @@ import numpy as np
 class SPR_to_ADLP_not_8k_Cli(TestCase):
     """Unit tests for invoking SPR_to_ADLP Script using Click"""
 
+    @patch('SPR_to_ADLP_Functions.common_functions.spr_binding_top_for_dot_file')
     @patch('SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db', return_value='Structures Here')
     @patch('SPR_to_ADLP_Functions.common_functions.render_structure_imgs',
            return_value = pd.DataFrame({'IMG_PATH': ['Fake/File/Path', 'Fake/File/Path2']}))
-    @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.spr_insert_ss_senso_images',
+    @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images',
            return_value='Image Place Holder')
     @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_structures')
     @patch('pandas.ExcelWriter')
     @patch('pandas.DataFrame.to_excel')
-    def test_Cli_and_adlp_df_created_Biacore1(self, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6) -> None:
+    def test_Cli_and_adlp_df_created_Biacore1(self, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6, mock_7) -> None:
         """
         Test that the final DataFrame for ADLP upload is created in memory.  Note that all methods related to writing
         the DataFrame to a file using Pandas and the xlsxwriter engine have been patched.
@@ -34,9 +35,17 @@ class SPR_to_ADLP_not_8k_Cli(TestCase):
         :param mock_4: Mocks the spr_insert_ss_senso_images method
         :param mock_5: Mocks the render_structure_imgs method and returns a MagicMock with a Fake DF as it's return value
         :param mock_6: Mocks the get_structures_smiles_from_db method
+        :param mock_7: Mocks the spr_binding_top_for_dot_file. This method tested in isolation
         :return: None
         """
-
+        # Need to provide a return value for the RU at the top concentration
+        mock_7.return_value = pd.DataFrame({'Relative response (RU)': [48.78, 50.56, 49.85, 53.83, 54.91, 53.4, 54.57,
+                                                                       56.27, 54.58, 55.88, 55.31, 53.65, 38.85, 41.28,
+                                                                       41.21, 45.67, 51.6, 48.34, 27.93, 37.98, 37.86,
+                                                                       40.25, 40.41, 40.82, 46.67, 46.22, 46.85, 28.69,
+                                                                       38.59, 38.4, 40.6, 45.26, 43.74, 8.09, 19.26,
+                                                                       12.54, 31.95, 44.59, 36.64, 42.92, 53.72, 47.89,
+                                                                       38.61, 45.64, 44.77, 31.41, 37.33, 35.79]})
 
         # Use the click CliRunner object for testing Click implemented Cli programs.
         runner = CliRunner()
@@ -63,16 +72,17 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
     df_result = ''
 
     @classmethod
+    @patch('SPR_to_ADLP_Functions.common_functions.spr_binding_top_for_dot_file')
     @patch('os.path.join', return_value='./tests/fixtures/Biacore1_Test_Files/Save.xlsx')
     @patch('SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db', return_value='Structures Here')
     @patch('SPR_to_ADLP_Functions.common_functions.render_structure_imgs',
            return_value=pd.DataFrame({'IMG_PATH': ['Fake/File/Path', 'Fake/File/Path2']}))
-    @patch('script_spr_to_adlp_not_8k.SPR_to_ADLP.spr_insert_ss_senso_images',
+    @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images',
            return_value='Image Place Holder')
     @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_structures')
     @patch('pandas.ExcelWriter')
     @patch('pandas.DataFrame.to_excel')
-    def setUpClass(cls, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6, mock_7) -> None:
+    def setUpClass(cls, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6, mock_7, mock_8) -> None:
         """
         Sets up the class with the final DataFrame from Running the SPR_to_ADLP Script.  Subsequent methods in this class
         evaluate and verify this DataFrame for correctness.
@@ -84,8 +94,17 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
         :param mock_5: Mocks the spr_insert_structures method
         :param mock_6: Mocks the pandas.ExcelWriter method
         :param mock_7: Mocks the pandas.DataFrame.to_excel method
+        :param mock_8: Mocks the spr_binding_top_for_dot_file. This method tested in isolation
         :return: None
         """
+        # Need to provide a return value for the RU at the top concentration
+        mock_8.return_value = pd.DataFrame({'Relative response (RU)': [48.78, 50.56, 49.85, 53.83, 54.91, 53.4, 54.57,
+                                                                       56.27, 54.58, 55.88, 55.31, 53.65, 38.85, 41.28,
+                                                                       41.21, 45.67, 51.6, 48.34, 27.93, 37.98, 37.86,
+                                                                       40.25, 40.41, 40.82, 46.67, 46.22, 46.85, 28.69,
+                                                                       38.59, 38.4, 40.6, 45.26, 43.74, 8.09, 19.26,
+                                                                       12.54, 31.95, 44.59, 36.64, 42.92, 53.72, 47.89,
+                                                                       38.61, 45.64, 44.77, 31.41, 37.33, 35.79]})
 
         config_file_path = './tests/fixtures/Biacore1_Test_Files/200312-1_config_affinit_Biacore1.txt'
         cls.df_result = spr_create_dot_upload_file(config_file=config_file_path, save_file='Test', clip=False)
@@ -159,17 +178,6 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
         actual = list(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['RMAX_THEORETICAL'])
         
-        self.assertEqual(expected, actual)
-
-    def test_final_df_RU_TOP_CMPD(self):
-
-        expected = [48.78, 50.56, 49.85, 53.83, 54.91, 53.4, 54.57, 56.27, 54.58, 55.88, 55.31, 53.65, 38.85,
-                    41.28, 41.21, 45.67, 51.6, 48.34, 27.93, 37.98, 37.86, 40.25, 40.41, 40.82, 46.67, 46.22,
-                    46.85, 28.69, 38.59, 38.4, 40.6, 45.26, 43.74, 8.09, 19.26, 12.54, 31.95, 44.59, 36.64,
-                    42.92, 53.72, 47.89, 38.61, 45.64, 44.77, 31.41, 37.33, 35.79]
-
-        actual = list(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['RU_TOP_CMPD'])
-
         self.assertEqual(expected, actual)
 
     def test_final_df_PERCENT_BINDING_TOP(self):
@@ -317,6 +325,36 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
         result = expected.equals(actual)
 
         self.assertEqual(True, result)
+
+    @patch('SPR_to_ADLP_Functions.common_functions.get_predefined_comments')
+    @patch('os.path.join', return_value='./tests/fixtures/Biacore1_Test_Files/Save.xlsx')
+    @patch('SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db', return_value='Structures Here')
+    @patch('SPR_to_ADLP_Functions.common_functions.render_structure_imgs',
+           return_value=pd.DataFrame({'IMG_PATH': ['Fake/File/Path', 'Fake/File/Path2']}))
+    @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images',
+           return_value='Image Place Holder')
+    @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_structures')
+    @patch('pandas.ExcelWriter')
+    @patch('pandas.DataFrame.to_excel')
+    def test_get_COMMENTS_called(self, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6, mock_7, mock_8):
+        """
+        Sets up the class with the final DataFrame from Running the SPR_to_ADLP Script.  Subsequent methods in this class
+        evaluate and verify this DataFrame for correctness.
+
+        :param mock_1: Mocks the os.path.join method so that the script doesn't try to grab users desktop path.
+        :param mock_2: Mocks the get_structures_smiles_from_db method
+        :param mock_3: Mocks the render_structure_imgs method and returns a MagicMock with a Fake DF as it's return value.
+        :param mock_4: Mocks the spr_insert_ss_senso_images method
+        :param mock_5: Mocks the spr_insert_structures method
+        :param mock_6: Mocks the pandas.ExcelWriter method
+        :param mock_7: Mocks the pandas.DataFrame.to_excel method
+        :param mock_8: Mocks out the method that gets comments
+        :return: None
+        """
+
+        config_file_path = './tests/fixtures/Biacore1_Test_Files/200312-1_config_affinit_Biacore1.txt'
+        spr_create_dot_upload_file(config_file=config_file_path, save_file='Test', clip=False)
+        self.assertEqual(1, mock_8.call_count)
 
     def test_final_df_PROTEIN_RU(self):
 

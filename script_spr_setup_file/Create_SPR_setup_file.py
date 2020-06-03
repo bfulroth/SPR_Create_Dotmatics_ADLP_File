@@ -4,6 +4,7 @@ import os
 import platform
 import argparse
 import numpy as np
+from _version import __version__
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -201,7 +202,7 @@ def spr_setup_sheet(args=None):
 
             # Create a copy of the final df so that the final_df is preserved.
             df_zeros = final_df.copy()
-            df_zeros = df_zeros.dropna(how='any')
+            df_zeros = df_zeros.dropna(how='any', subset=['sort_zero'])
 
             df_zeros = df_zeros.sort_values(['sort_zero'])
             df_zeros = df_zeros.reset_index(drop=True)
@@ -324,15 +325,23 @@ def save_output_file(df_final):
     now = datetime.now()
     now = now.strftime('%y%m%d')
 
+    # Save file path for server Iron
+    save_file_path_iron = os.path.join('iron', 'tdts_users', 'SPR Setup Files',
+                                       now + '_spr_setup_affinity_APPVersion_' + str(__version__))
+
+    save_file_path_iron = save_file_path_iron.replace('.', '_')
+    save_file_path_iron = save_file_path_iron + '.xlsx'
+
+    # Backup save file path for Desktop
+    save_file_path_desk = os.path.join(homedir, 'Desktop', now + '_spr_setup_affinity_APPVersion_' + str(__version__))
+    save_file_path_desk = save_file_path_desk.replace('.', '_')
+    save_file_path_desk = save_file_path_desk + '.xlsx'
+
     try:
-        df_final.to_excel(os.path.join('iron', 'tdts_users', 'SPR Setup Files', + now + '_spr_setup_affinity.xlsx'))
+        df_final.to_excel(save_file_path_iron)
         print('Setup file has been placed on Iron in folder: SRP Setup Files')
     except:
         print('Issue connecting to Iron. Mount drive and try again.')
         print('')
-        df_final.to_excel(os.path.join(homedir, 'Desktop', now + '_spr_setup_affinity.xlsx'))
+        df_final.to_excel(save_file_path_desk)
         print('File created on desktop.')
-
-
-if __name__ == '__main__':
-    spr_setup_sheet()
