@@ -499,7 +499,7 @@ class SPR_to_ADLP_8K_Cli(TestCase):
     @patch('SPR_to_ADLP_Functions.common_functions.render_structure_imgs',
            return_value=pd.DataFrame({'IMG_PATH': ['Fake/File/Path', 'Fake/File/Path2']}))
     @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_structures')
-    @patch('script_spr_to_adlp_8k.SPR_to_ADLP_8K.spr_binding_top_for_dot_file')
+    @patch('SPR_to_ADLP_Functions.common_functions.spr_binding_top_for_dot_file')
     @patch('shutil.rmtree')
     @patch('shutil.copytree')
     @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images', return_value='Image Place Holder')
