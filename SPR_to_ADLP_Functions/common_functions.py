@@ -151,7 +151,6 @@ def render_structure_imgs(df_with_smiles, dir):
         else:
             img_name = str(img_num) + '_' + row['Broad ID'] + '.png'
             img_full_path = os.path.join(dir, img_name)
-            print(img_full_path)
 
             # Generate the structure of the current molecule using the control as a template to align
             m = Chem.MolFromSmiles(current_smile_str)
