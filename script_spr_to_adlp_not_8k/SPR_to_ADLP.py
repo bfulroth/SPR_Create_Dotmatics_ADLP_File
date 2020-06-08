@@ -214,12 +214,12 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                     '_' + df_senso_txt['Image File'].str.split('_', expand=True)[5]
 
     # Add steady state image file path
-    # Need to replace /Volumes with //flynn
-    path_ss_img_edit = path_ss_img.replace('/Volumes', '//flynn')
+    # Need to replace /Volumes with //Iron
+    path_ss_img_edit = path_ss_img.replace('/Volumes', '//Iron')
     df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_txt['Image File']
 
     # Add sensorgram image file path
-    # Need to replace /Volumes with //flynn
+    # Need to replace /Volumes with //Iron
     path_senso_img_edit = path_senso_img.replace('/Volumes', '//Iron')
     df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Image File']
 
