@@ -378,21 +378,30 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
             df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
                 df_mstr_tbl=df_cmpd_set)
 
-            # Render the structure images
-            df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
-                df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
+            # Issue with connecting to resultsdb, then skip inserting structures.
+            if df_struct_smiles is not None:
 
-            # Create an list of the images paths in order
-            ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths,
-                                                                                      col_name='IMG_PATH', times_dup=1)
+                # Render the structure images
+                df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
+                    df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
 
-            # Insert the structures into the Excel workbook object
-            SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
-                                                                         worksheet=worksheet1)
-            # Save the writer object inside the context manager.
-            writer.save()
+                # Create an list of the images paths in order
+                ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths,
+                                                                                          col_name='IMG_PATH',
+                                                                                          times_dup=1)
 
-        print('Program Done!')
+                # Insert the structures into the Excel workbook object
+                SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
+                                                                             worksheet=worksheet1)
+
+                # Save the writer object inside the context manager.
+                writer.save()
+
+            else:
+                # Save the writer object inside the context manager.
+                writer.save()
+
+        print('\nProgram Done!')
         print("The ADLP result was saved to your desktop.")
 
     except:

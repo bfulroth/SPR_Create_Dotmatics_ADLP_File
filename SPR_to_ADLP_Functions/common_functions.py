@@ -1,11 +1,9 @@
 """Module that contains common functions for SPR to ADLP aggregation scripts"""
 import os
 import pandas as pd
-import numpy as np
 from rdkit import Chem
 from rdkit.Chem import Draw, AllChem
 import cx_Oracle
-#from sqlalchemy import create_engine, Table, MetaData, select
 import sqlalchemy
 import crypt
 
@@ -124,7 +122,7 @@ def render_structure_imgs(df_with_smiles, dir):
 
     :param df_with_smiles: DataFrame contain the smiles to render
     :param dir: directory to story the images.
-    :return none
+    :return None
     """
 
     # Tag the smile field if it is not found.
@@ -145,7 +143,6 @@ def render_structure_imgs(df_with_smiles, dir):
 
         current_smile_str = row['SMILES']
 
-<<<<<<< HEAD
         if current_smile_str == 'Not Found':
             df_with_smiles.loc[idx, 'IMG_PATH'] = 'Not Found'
             img_num += 1
@@ -153,15 +150,10 @@ def render_structure_imgs(df_with_smiles, dir):
         else:
             img_name = str(img_num) + '_' + row['Broad ID'] + '.png'
             img_full_path = os.path.join(dir, img_name)
-=======
-        # Generate the structure of the current molecule using the control as a template to align
-        m = Chem.MolFromSmiles(current_smile_str)
-        #AllChem.GenerateDepictionMatching2DStructure(m, template)
-        Draw.MolToFile(mol=m, filename=img_full_path, size=(200, 200))
->>>>>>> code_cleanup
 
             # Generate the structure of the current molecule using the control as a template to align
             m = Chem.MolFromSmiles(current_smile_str)
+            # TODO: Impelement ability to align structures to a common smile core.
             #AllChem.GenerateDepictionMatching2DStructure(m, template)
             Draw.MolToFile(mol=m, filename=img_full_path, size=(300, 300))
 
@@ -195,6 +187,7 @@ def spr_insert_structures(ls_img_struct_paths, worksheet):
     for img in ls_img_struct_paths:
 
         if img == 'Not Found':
+            worksheet.write('B' + str(row), 'Smile Not Found')
             row += 1
 
         else:
@@ -215,7 +208,7 @@ def spr_insert_ss_senso_images(tuple_list_imgs, worksheet, path_ss_img, path_sen
 
     # Dictionary of Excel cell format parameters for each instrument as the images are slightly different.
     if biacore == 'Biacore8K':
-        cell_format = {'cell_height': 145, 'first_col': 3, 'last_col': 4, 'width': 24}
+        cell_format = {'cell_height': 210, 'first_col': 3, 'last_col': 4, 'width': 24}
     else:
         cell_format = {'cell_height': 235, 'first_col': 4, 'last_col': 5, 'width': 58}
 
