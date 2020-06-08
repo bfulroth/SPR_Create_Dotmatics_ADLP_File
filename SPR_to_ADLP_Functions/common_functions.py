@@ -40,6 +40,10 @@ def rep_item_for_dot_df(df, col_name, times_dup=3, sort=False):
 
 
 def _connect(engine):
+    """
+    Private method that actually makes the connection to resultsdb
+    :param engine: Sqlalchemy engine object
+    """
     c = engine.connect()
     return c
 
@@ -55,10 +59,6 @@ def get_structures_smiles_from_db(df_mstr_tbl):
     # Extract the CORE Broad ID from the df_mstr_tbl
     df_brd_core_id = df_mstr_tbl[['Broad ID']].copy()
     df_brd_core_id.loc[:, 'BROAD_CORE_ID'] = df_brd_core_id['Broad ID'].apply(lambda x: x[5:13])
-
-    # TODO: Make sure sorting the final df is not need at the end.
-    # sort_vals = [i for i in range(0, len(df_brd_core_id))]
-    # df_brd_core_id.loc[:, 'sort_col'] = pd.Series(sort_vals)
 
     # Create a cryptographic object
     c = crypt.Crypt()
@@ -147,7 +147,7 @@ def render_structure_imgs(df_with_smiles, dir):
         # Generate the structure of the current molecule using the control as a template to align
         m = Chem.MolFromSmiles(current_smile_str)
         #AllChem.GenerateDepictionMatching2DStructure(m, template)
-        Draw.MolToFile(mol=m, filename=img_full_path, size=(300, 300))
+        Draw.MolToFile(mol=m, filename=img_full_path, size=(200, 200))
 
         # Save the image path to the DataFrame
         df_with_smiles.loc[idx, 'IMG_PATH'] = img_full_path
@@ -170,7 +170,7 @@ def spr_insert_structures(ls_img_struct_paths, worksheet):
 
     # Set height of each row
     for row in range(1, num_images + 1):
-        worksheet.set_row(row=row, height=235)
+        worksheet.set_row(row=row, height=210)
 
     # Set the width of each column
     worksheet.set_column(first_col=1, last_col=1, width=45)
