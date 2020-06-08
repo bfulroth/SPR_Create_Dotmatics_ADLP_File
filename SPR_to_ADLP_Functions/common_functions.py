@@ -38,9 +38,11 @@ def rep_item_for_dot_df(df, col_name, times_dup=3, sort=False):
     except:
         raise RuntimeError("The DataFrame does not have a " + col_name + " column.")
 
+
 def _connect(engine):
     c = engine.connect()
     return c
+
 
 def get_structures_smiles_from_db(df_mstr_tbl):
     """
@@ -86,8 +88,9 @@ def get_structures_smiles_from_db(df_mstr_tbl):
         conn = _connect(engine=engine)
 
     except Exception:
-        raise ConnectionError("Cannot connect to resultsdb database. "
-                              "Please make sure you are on the Broad Internal Network.")
+        print("\nCannot connect to resultsdb database. Structures will not be rendered. "
+              "\n\nProgram proceeding without inserting structures. Please wait...")
+        return None
 
     # Reflect Tables
     metadata = sqlalchemy.MetaData()
