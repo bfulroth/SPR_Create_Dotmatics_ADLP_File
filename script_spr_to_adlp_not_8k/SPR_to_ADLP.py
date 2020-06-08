@@ -214,12 +214,12 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                     '_' + df_senso_txt['Image File'].str.split('_', expand=True)[5]
 
     # Add steady state image file path
-    # Need to replace /Volumes with //flynn
-    path_ss_img_edit = path_ss_img.replace('/Volumes', '//flynn')
+    # Need to replace /Volumes with //Iron
+    path_ss_img_edit = path_ss_img.replace('/Volumes', '//Iron')
     df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_txt['Image File']
 
     # Add sensorgram image file path
-    # Need to replace /Volumes with //flynn
+    # Need to replace /Volumes with //Iron
     path_senso_img_edit = path_senso_img.replace('/Volumes', '//Iron')
     df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Image File']
 
@@ -300,21 +300,28 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
             df_mstr_tbl=df_cmpd_set)
 
-        # Render the structure images
-        df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
-            df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
+        # Issue with connecting to resultsdb, then skip inserting structures.
+        if df_struct_smiles is not None:
 
-        # Create an list of the images paths in order
-        ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths, col_name='IMG_PATH',
-                                                                 times_dup=num_fc_used)
+            # Render the structure images
+            df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
+                df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
 
-        # Insert the structures into the Excel workbook object
-        SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
-                                                                     worksheet=worksheet1)
+            # Create an list of the images paths in order
+            ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths, col_name='IMG_PATH',
+                                                                     times_dup=num_fc_used)
 
-        # Save the writer object inside the context manager.
-        writer.save()
+            # Insert the structures into the Excel workbook object
+            SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
+                                                                         worksheet=worksheet1)
 
-    print('Program Done!')
+            # Save the writer object inside the context manager.
+            writer.save()
+
+        else:
+            # Save the writer object inside the context manager.
+            writer.save()
+
+    print('\nProgram Done!')
     print("The ADLP result was saved to your desktop.")
     return df_final_for_dot
