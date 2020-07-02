@@ -1,4 +1,8 @@
-from script_spr_to_adlp_8k.SPR_to_ADLP_8K import spr_create_dot_upload_file
+from script_spr_to_adlp_8k.Cli import main
 
 if __name__ == '__main__':
-    spr_create_dot_upload_file()
+    # Load environmental variables
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    main()

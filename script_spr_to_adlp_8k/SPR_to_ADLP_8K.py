@@ -217,7 +217,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         # Add an empty column called 1to1_img
         df_final_for_dot.loc[:, '1to1_IMG'] = ''
 
-        # Add the starting compound concentrations
+        # Add the starting compounf_ss concentrations
         df_final_for_dot['TOP_COMPOUND_UM'] = df_cmpd_set['Test [Cpd] uM']
 
         # Extract the RU Max for each compound using the report point file.
