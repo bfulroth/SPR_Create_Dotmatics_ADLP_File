@@ -231,7 +231,6 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         df_final_for_dot['KD_SS_UM'] = df_ss_txt['KD_SS_UM']
 
         # Add the chi2_steady_state_affinity
-        # TODO: Not sure if the squared value is usually in the file. Looks different in my downloaded file.
         df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Affinity Chi']
 
         # Add the Fitted_Rmax_steady_state_affinity
@@ -241,16 +240,14 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         # Add columns from df_senso_txt
         df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka']
         df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd']
-        # TODO: Login to instrument if see if senso KD is KD (M) or KD.  In the test file it's KD
-        df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD'] * 1000000
+        df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
         df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Kinetics Chi']
 
         # Not sure what this is???
         df_final_for_dot.loc[:, 'U_VALUE_1_1_BINDING'] = ''
-        # Not sure what this is??
 
         # Continue creating new columns
-        df_final_for_dot['FITTED_RMAX_1_1_BINDING'] = df_senso_txt['Rmax']
+        df_final_for_dot['FITTED_RMAX_1_1_BINDING'] = df_senso_txt['Rmax (RU)']
         df_final_for_dot.loc[:, 'COMMENTS'] = ''
 
         # Add the flow channel column
