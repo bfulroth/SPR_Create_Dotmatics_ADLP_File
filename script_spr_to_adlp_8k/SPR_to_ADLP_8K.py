@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import re
 import platform
 import numpy as np
 from glob import glob
@@ -7,6 +8,7 @@ import shutil
 import SPR_to_ADLP_Functions
 import tempfile
 from _version import __version__
+import xlrd
 
 
 # Get the users Home Directory
@@ -33,15 +35,14 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     # Change the Directory to the ss image folder
     os.chdir(path_img)
 
+    # Delete legend from folder.
+    ls_legend_file = [f for f in os.listdir(path_img) if re.search(r'Legend\.png', f)]
+    if not len(ls_legend_file) == 0:
+        legend_file_path = os.path.join(path_img, ls_legend_file[0])
+        os.unlink(legend_file_path)
+
     # Get the image file names.
     img_files = glob('*.png')
-
-    # Delete legend from folder.
-    # TODO: Need to test if the legend file is actually deleted
-    ls_legend_file = glob('*[legend]*.png')
-    if not len(ls_legend_file):
-        legend_file_path = os.path.join(my_dir, ls_legend_file[0])
-        os.unlink(legend_file_path)
 
     # Extract the order the compounds were run.
     df_analysis['Cmpd_Run_Order'] = df_analysis['Analyte 1 Solution'].str.split('_', expand=True)[1]
@@ -171,39 +172,90 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         fc7_protein_MW = float(config.get('meta', 'fc7_protein_MW'))
         fc8_protein_MW = float(config.get('meta', 'fc8_protein_MW'))
 
-    except:
+    except Exception:
         raise RuntimeError('Something is wrong with the config file. Please check.')
 
-
     # Read in the text files that have the calculated values for steady-state and kinetic analysis.
-    df_ss_txt = pd.read_csv(path_ss_txt)
-    df_senso_txt = pd.read_csv(path_senso_txt)
+    try:
+
+        def _find_cell(sh, searched_value):
+            """Private function used to find the row and column of a particular value in an Excel worksheet"""
+            for row in range(sh.nrows):
+                for col in range(sh.ncols):
+                    my_cell = sh.cell(row, col)
+                    if my_cell.value == searched_value:
+                        return row, col
+            return -1
+
+        # Open the ss and kinetic workbooks
+        wb_ss = xlrd.open_workbook(path_ss_txt)
+        sheet_ss = wb_ss.sheet_by_index(0)
+
+        wb_senso = xlrd.open_workbook(path_senso_txt)
+        sheet_senso = wb_senso.sheet_by_index(0)
+
+        # Find the Row and Col of "Group"
+        val = 'Group'
+
+        r_ss, c_ss = _find_cell(sh=sheet_ss, searched_value=val)
+        r_senso, c_senso = _find_cell(sh=sheet_senso, searched_value=val)
+
+        df_ss_txt = pd.read_excel(path_ss_txt, skiprows=r_ss)
+        df_senso_txt = pd.read_excel(path_senso_txt, skiprows=r_senso)
+
+    except Exception:
+        raise RuntimeError('Issue reading in data from either steady state or kinetic Excels files.')
 
     """
     Biacore 8k names the images in a different way compared to S200 and T200. Therefore, we need to rename the images
-    to be consistent for Dotmatics. Unfortunately, if a crash occures during runtime then the all images are renamed and
-    the script will fail during the next attempt. Therefore, image renaming must be atomic. 
+    to be consistent for Dotmatics. Unfortunately, if a crash occures during runtime then the all images are 
+    renamed and the script will fail during the next attempt. Therefore, image renaming must be atomic. 
     """
 
     # Save images in a temporary directory in case of a crash.
-    dir_temp_ss_img = path_ss_img + '_TEMP'
-    dir_temp_senso_img = path_senso_img + '_TEMP'
-    shutil.copytree(path_ss_img, dir_temp_ss_img)
-    shutil.copytree(path_senso_img, dir_temp_senso_img)
+    with tempfile.TemporaryDirectory() as tmp_img_dir:
+
+        try:
+            # Get the original names of the ss and senso image directories
+            if platform.system() == "Windows":
+                ss_img_dir_name = path_ss_img.split('\\')[-1]
+                senso_img_dir_name = path_senso_img.split('\\')[-1]
+            else:
+                ss_img_dir_name = path_ss_img.split('/')[-1]
+                senso_img_dir_name = path_senso_img.split('/')[-1]
+
+            dir_temp_ss_img = os.path.join(tmp_img_dir, ss_img_dir_name)
+            dir_temp_senso_img = os.path.join(tmp_img_dir, senso_img_dir_name)
+
+            # Copy directories from original to temp
+            shutil.copytree(path_ss_img, dir_temp_ss_img)
+            shutil.copytree(path_senso_img, dir_temp_senso_img)
+
+            # Rename the images in the original and store the new paths to the returned df_ss_txt and df_senso_txt DF's
+            df_ss_txt = rename_images(df_analysis=df_ss_txt, path_img=path_ss_img, image_type='ss',
+                                            raw_data_file_name=raw_data_filename)
+            df_senso_txt = rename_images(df_analysis=df_senso_txt, path_img=path_senso_img,
+                                            image_type='senso', raw_data_file_name=raw_data_filename)
+        except Exception:
+            # Remove the original directories
+            shutil.rmtree(path_ss_img)
+            shutil.rmtree(path_senso_img)
+
+            # Copy back the image backup directories
+            shutil.copytree(dir_temp_ss_img, path_ss_img)
+            shutil.copytree(dir_temp_senso_img, path_senso_img)
+            raise RuntimeError('Issue reading in data from either steady state or kinetic Excels files.')
 
     try:
-
-        df_ss_txt = rename_images(df_analysis=df_ss_txt, path_img=path_ss_img, image_type='ss',
-                                            raw_data_file_name=raw_data_filename)
-        df_senso_txt = rename_images(df_analysis=df_senso_txt, path_img=path_senso_img,
-                                            image_type='senso', raw_data_file_name=raw_data_filename)
-
         # Start building the final Dotmatics DataFrame
         df_final_for_dot = pd.DataFrame()
 
         # Start by adding the Broad ID in the correct order.
         # NB: For the 8k each compound has it's own channel so no need to replicate the BRD as is required on T200 and S200
         df_final_for_dot.loc[:, 'BROAD_ID'] = df_cmpd_set['Broad ID']
+
+        # Add structure column
+        df_final_for_dot.loc[:, 'STRUCTURES'] = ''
 
         # Add the Project Code.  Get this from the config file.
         df_final_for_dot.loc[:, 'PROJECT_CODE'] = project_code
@@ -231,7 +283,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         df_final_for_dot['KD_SS_UM'] = df_ss_txt['KD_SS_UM']
 
         # Add the chi2_steady_state_affinity
-        df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Affinity Chi']
+        df_final_for_dot['CHI2_SS_AFFINITY'] = df_ss_txt['Affinity Chi² (RU²)']
 
         # Add the Fitted_Rmax_steady_state_affinity
         df_final_for_dot['FITTED_RMAX_SS_AFFINITY'] = df_ss_txt['Rmax (RU)']
@@ -241,13 +293,13 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka']
         df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd']
         df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
-        df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Kinetics Chi']
+        df_final_for_dot['chi2_1_1_binding'] = df_senso_txt['Kinetics Chi² (RU²)']
 
         # Not sure what this is???
         df_final_for_dot.loc[:, 'U_VALUE_1_1_BINDING'] = ''
 
         # Continue creating new columns
-        df_final_for_dot['FITTED_RMAX_1_1_BINDING'] = df_senso_txt['Rmax (RU)']
+        df_final_for_dot['FITTED_RMAX_1_1_BINDING'] = df_senso_txt['Rmax']
         df_final_for_dot.loc[:, 'COMMENTS'] = ''
 
         # Add the flow channel column
@@ -308,15 +360,23 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
             'RMAX_THEORETICAL']) * 100, 2)
 
         # Rearrange the columns for the final DataFrame (without images)
-        df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'PROJECT_CODE', 'CURVE_VALID', 'STEADY_STATE_IMG',
-           '1to1_IMG', 'TOP_COMPOUND_UM', 'RMAX_THEORETICAL', 'RU_TOP_CMPD', 'PERCENT_BINDING_TOP', 'KD_SS_UM',
-           'CHI2_SS_AFFINITY', 'FITTED_RMAX_SS_AFFINITY', 'KA_1_1_BINDING',
-           'KD_LITTLE_1_1_BINDING', 'KD_1_1_BINDING_UM', 'chi2_1_1_binding',
-           'U_VALUE_1_1_BINDING', 'FITTED_RMAX_1_1_BINDING', 'COMMENTS', 'FC',
-           'PROTEIN_RU', 'PROTEIN_MW', 'PROTEIN_ID', 'MW', 'INSTRUMENT', 'ASSAY_MODE',
-           'EXP_DATE', 'NUCLEOTIDE', 'CHIP_LOT', 'OPERATOR', 'PROTOCOL_ID',
-           'RAW_DATA_FILE', 'DIR_FOLDER', 'UNIQUE_ID', 'SS_IMG_ID', 'SENSO_IMG_ID']]
+        df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID','STRUCTURES', 'PROJECT_CODE', 'CURVE_VALID',
+                                                    'STEADY_STATE_IMG', '1to1_IMG', 'TOP_COMPOUND_UM',
+                                                    'RMAX_THEORETICAL',
+                                                    'RU_TOP_CMPD', 'PERCENT_BINDING_TOP', 'KD_SS_UM',
+                                                    'CHI2_SS_AFFINITY', 'FITTED_RMAX_SS_AFFINITY', 'KA_1_1_BINDING',
+                                                    'KD_LITTLE_1_1_BINDING', 'KD_1_1_BINDING_UM', 'chi2_1_1_binding',
+                                                    'U_VALUE_1_1_BINDING', 'FITTED_RMAX_1_1_BINDING', 'COMMENTS', 'FC',
+                                                    'PROTEIN_RU', 'PROTEIN_MW', 'PROTEIN_ID', 'MW', 'INSTRUMENT',
+                                                    'ASSAY_MODE', 'EXP_DATE', 'NUCLEOTIDE', 'CHIP_LOT', 'OPERATOR',
+                                                    'PROTOCOL_ID', 'RAW_DATA_FILE', 'DIR_FOLDER', 'UNIQUE_ID',
+                                                    'SS_IMG_ID', 'SENSO_IMG_ID']]
 
+    except Exception:
+        raise RuntimeError('Issue creating main DataFrame for Excel output file.')
+
+    # Write the DataFrame to an Excel workbook
+    try:
         # Create a Pandas Excel writer using XlsxWriter as the engine.
         writer = pd.ExcelWriter(adlp_save_file_path, engine='xlsxwriter')
 
@@ -366,54 +426,41 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         # Insert images into file.
         SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images(tuple_list_imgs, worksheet1, path_ss_img,
                                                                           path_senso_img, biacore=instrument)
+    except Exception:
+        raise RuntimeError('Issue writing DataFrame to Excel file.')
 
-        # Insert structure images
-        # Render the smiles into png images in a temp directory
-        with tempfile.TemporaryDirectory() as tmp_img_dir:
+    # Insert structure images
+    # Render the smiles into png images in a temp directory
+    with tempfile.TemporaryDirectory() as tmp_img_dir:
 
-            # This line gets all the smiles from the database
-            df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
-                df_mstr_tbl=df_cmpd_set)
+        # This line gets all the smiles from the database
+        df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
+            df_mstr_tbl=df_cmpd_set)
 
-            # Issue with connecting to resultsdb, then skip inserting structures.
-            if df_struct_smiles is not None:
+        # Issue with connecting to resultsdb, then skip inserting structures.
+        if df_struct_smiles is not None:
 
-                # Render the structure images
-                df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
-                    df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
+            # Render the structure images
+            df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
+                df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
 
-                # Create an list of the images paths in order
-                ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths,
-                                                                                          col_name='IMG_PATH',
-                                                                                          times_dup=1)
+            # Create an list of the images paths in order
+            ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths,
+                                                                                      col_name='IMG_PATH',
+                                                                                      times_dup=1)
 
-                # Insert the structures into the Excel workbook object
-                SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
-                                                                             worksheet=worksheet1)
+            # Insert the structures into the Excel workbook object
+            SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
+                                                                         worksheet=worksheet1)
 
-                # Save the writer object inside the context manager.
-                writer.save()
+            # Save the writer object inside the context manager.
+            writer.save()
 
-            else:
-                # Save the writer object inside the context manager.
-                writer.save()
+        else:
+            # Save the writer object inside the context manager.
+            writer.save()
 
-        print('\nProgram Done!')
-        print("The ADLP result was saved to your desktop.")
-
-    except:
-        # Recover original names after crash...
-        # Remove the original image file folders
-        shutil.rmtree(path_ss_img)
-        shutil.rmtree(path_senso_img)
-
-        # Recreate the original folders with the original files saved to the temp directories.
-        shutil.copytree(dir_temp_ss_img, path_ss_img)
-        shutil.copytree(dir_temp_senso_img, path_senso_img)
-
-        # Remove the temp directories.
-        shutil.rmtree(dir_temp_ss_img)
-        shutil.rmtree(dir_temp_senso_img)
-        raise RuntimeError('An error occurred during runtime.  All images have been returned to their original names.')
+    print('\nProgram Done!')
+    print("The ADLP result was saved to your desktop.")
 
     return df_final_for_dot
