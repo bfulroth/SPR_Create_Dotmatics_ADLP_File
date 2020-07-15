@@ -244,10 +244,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
             # Copy back the image backup directories
             shutil.copytree(dir_temp_ss_img, path_ss_img)
             shutil.copytree(dir_temp_senso_img, path_senso_img)
-            raise RuntimeError('Error occurred when renaming image files.\n\n'
-                               'Please delete steady state and kinetic image folders on Iron\n'
-                               'and replace with the original file folders from the 8k before attempting to run\n'
-                               'the script again.')
+            raise RuntimeError('Error occurred when renaming image files.\n All images have been returned to their '
+                               'original names.')
 
     try:
         # Start building the final Dotmatics DataFrame
