@@ -244,7 +244,10 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
             # Copy back the image backup directories
             shutil.copytree(dir_temp_ss_img, path_ss_img)
             shutil.copytree(dir_temp_senso_img, path_senso_img)
-            raise RuntimeError('Issue reading in data from either steady state or kinetic Excels files.')
+            raise RuntimeError('Error occurred when renaming image files.\n\n'
+                               'Please delete steady state and kinetic image folders on Iron\n'
+                               'and replace with the original file folders from the 8k before attempting to run\n'
+                               'the script again.')
 
     try:
         # Start building the final Dotmatics DataFrame
@@ -373,7 +376,12 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                                     'SS_IMG_ID', 'SENSO_IMG_ID']]
 
     except Exception:
-        raise RuntimeError('Issue creating main DataFrame for Excel output file.')
+        raise RuntimeError('Issue creating main DataFrame for Excel output file.\n\n'
+                           'Once the issue is resolved and before running the script again:\n'
+                           'Delete steady state and kinetic image folders on Iron\n'
+                           'and replace with the original file folders from the 8k before attempting to run\n'
+                           'the script again.'
+                           )
 
     # Write the DataFrame to an Excel workbook
     try:
@@ -427,7 +435,11 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images(tuple_list_imgs, worksheet1, path_ss_img,
                                                                           path_senso_img, biacore=instrument)
     except Exception:
-        raise RuntimeError('Issue writing DataFrame to Excel file.')
+        raise RuntimeError('Issue writing DataFrame to Excel file.\n\n'
+                           'Once the issue is resolved and before running the script again:\n'
+                           'Delete steady state and kinetic image folders on Iron\n'
+                           'and replace with the original file folders from the 8k before attempting to run\n'
+                           'the script again.')
 
     # Insert structure images
     # Render the smiles into png images in a temp directory
