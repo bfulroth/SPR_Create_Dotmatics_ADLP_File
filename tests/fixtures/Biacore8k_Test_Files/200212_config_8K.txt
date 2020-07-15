@@ -1,0 +1,46 @@
+[paths]
+path_mstr_tbl: ./tests/fixtures/Biacore8k_Test_Files/200212_SPR_Setup_Table_8k.csv
+path_ss_img: ./tests/fixtures/Biacore8k_Test_Files/200212_7260_ss
+path_ss_txt: ./tests/fixtures/Biacore8k_Test_Files/200212_7260_ss/200212_ss.csv
+path_senso_img: ./tests/fixtures/Biacore8k_Test_Files/200212_7260_kinetics
+path_senso_txt: ./tests/fixtures/Biacore8k_Test_Files/200212_7260_kinetics/200212_kinetics.csv
+path_report_pt: ./tests/fixtures/Biacore8k_Test_Files/200212_report_point.xlsx
+
+[meta]
+immobilized_fc: 1,2,3,4,5,6,7,8
+experiment_date: 2020_02_12
+project_code: 7260
+operator: USER_TEST
+instrument: Biacore8K
+protocol:TEST_V1
+chip_lot: 10285867
+nucleotide: None
+raw_data_filename: 200212_7260_affinity
+directory_folder: Biacore8K/USER_TEST
+
+fc1_protein_BIP: BIP-0474-01
+fc2_protein_BIP: BIP-0474-01
+fc3_protein_BIP: BIP-0474-01
+fc4_protein_BIP: BIP-0474-01
+fc5_protein_BIP: BIP-0474-01
+fc6_protein_BIP: BIP-0474-01
+fc7_protein_BIP: BIP-0474-01
+fc8_protein_BIP: BIP-0474-01
+
+fc1_protein_MW: 52332
+fc2_protein_MW: 52332
+fc3_protein_MW: 52332
+fc4_protein_MW: 52332
+fc5_protein_MW: 52332
+fc6_protein_MW: 52332
+fc7_protein_MW: 52332
+fc8_protein_MW: 52332
+
+fc1_protein_RU: 4785.5
+fc2_protein_RU: 4588.1
+fc3_protein_RU: 4847.0
+fc4_protein_RU: 4464.8
+fc5_protein_RU: 4616.2
+fc6_protein_RU: 5048.0
+fc7_protein_RU: 4669.7
+fc8_protein_RU: 4498.9

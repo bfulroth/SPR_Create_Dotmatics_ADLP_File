@@ -1,0 +1,22 @@
+name: SPR_Create_Dotmatics_ADLP_File
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pandas
+  - rdkit
+  - pip=20.0.2
+  - setuptools=46.1.3
+  - cryptography
+  - pip:
+    - click==7.1.1
+    - cx-oracle==7.3.0
+    - numpy==1.18.2
+    - pytest==5.4.1
+    - python-dotenv==0.12.0
+    - pytest-cov==2.8.1
+    - setuptools-scm==3.5.0
+    - sqlalchemy==1.3.16
+    - xlrd==1.2.0
+    - xlsxwriter==1.2.8
+prefix: /Users/bfulroth/.conda/envs/SPR_Create_Dotmatics_ADLP_File
