@@ -537,6 +537,6 @@ class SPR_to_ADLP_8K_Cli(TestCase):
         # result = runner.invoke(main, ['--config_file', './tests/fixtures/Biacore8k_Test_Files'
         #                                                                      '/200212_config_8K.txt',
         #                                                     '--save_file','Test.xlsx'])
-        # 
+        #
         # print(result.output)
         # self.assertEqual(0, result.exit_code)

@@ -213,7 +213,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     """
 
     # Save images in a temporary directory in case of a crash.
-    with tempfile.TemporaryDirectory() as tmp_img_dir:
+        with tempfile.TemporaryDirectory() as tmp_img_dir:
 
         try:
             # Get the original names of the ss and senso image directories
