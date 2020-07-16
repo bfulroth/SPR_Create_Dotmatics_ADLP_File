@@ -155,7 +155,7 @@ def render_structure_imgs(df_with_smiles, dir):
             m = Chem.MolFromSmiles(current_smile_str)
             # TODO: Impelement ability to align structures to a common smile core.
             #AllChem.GenerateDepictionMatching2DStructure(m, template)
-            Draw.MolToFile(mol=m, filename=img_full_path, size=(300, 300))
+            Draw.MolToFile(mol=m, filename=img_full_path, size=(250, 250))
 
             # Save the image path to the DataFrame
             df_with_smiles.loc[idx, 'IMG_PATH'] = img_full_path
@@ -181,7 +181,7 @@ def spr_insert_structures(ls_img_struct_paths, worksheet):
         worksheet.set_row(row=row, height=210)
 
     # Set the width of each column
-    worksheet.set_column(first_col=1, last_col=1, width=45)
+    worksheet.set_column(first_col=1, last_col=1, width=35)
 
     row = 2
     for img in ls_img_struct_paths:
