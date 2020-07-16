@@ -2,6 +2,7 @@ import pandas as pd
 import os
 from glob import glob
 import platform
+import tempfile
 import numpy as np
 import SPR_to_ADLP_Functions
 from _version import __version__
@@ -302,6 +303,9 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     # NB: For the 8k each row of a 96 well testing plate corresponds to compound which corresponds to 1 flow channel.
     df_final_for_dot['BROAD_ID'] = df_cmpd_set['Broad ID']
 
+    # Add structure column
+    df_final_for_dot.loc[:, 'STRUCTURES'] = ''
+
     # Add the Project Code.  Get this from the config file.
     df_final_for_dot['PROJECT_CODE'] = project_code
 
@@ -322,9 +326,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot['MAX_THEORETICAL_DISP_RU'] = calc_max_theory_disp(path_report_pt, immobilized_fc_arr)
 
     # Get the percent displacement at the top conc for each flow channel using the report point file.
-    percent_disp = pd.Series(spr_displacement_top_conc(report_pt_file=path_report_pt,
-                                      df_cmpd_set=df_cmpd_set, instrument=instrument,
-                                                                fc_used=immobilized_fc_arr))
+    percent_disp = pd.Series(spr_displacement_top_conc(report_pt_file=path_report_pt, df_cmpd_set=df_cmpd_set))
 
     # Extract the RU Max for each compound using the report point file.
     df_final_for_dot['RU_TOP_CMPD'] = df_final_for_dot['MAX_THEORETICAL_DISP_RU'] - percent_disp
@@ -408,12 +410,16 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_ss_and_senso_txt['Senso_Img']
 
     # Rearrange the columns for the final DataFrame (without images)
-    df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'PROJECT_CODE', 'CURVE_VALID', 'STEADY_STATE_IMG',
-       '1to1_IMG', 'TOP_COMPOUND_UM', 'MAX_THEORETICAL_DISP_RU', 'RU_TOP_CMPD', 'DISP_TOP_CMPD', 'IC50_UM',
-        'KA_1_1_BINDING', 'KD_LITTLE_1_1_BINDING', 'KD_1_1_BINDING_UM', 'COMMENTS', 'FC', 'PROTEIN_RU', 'PROTEIN_MW',
-        'PROTEIN_ID','PROTEIN_FLOATED_ID', 'PROTEIN_FLOATED_CONC_UM', 'PROTEIN_FLOATED_MW', 'MW', 'INSTRUMENT',
-        'EXP_DATE', 'NUCLEOTIDE', 'CHIP_LOT', 'OPERATOR', 'PROTOCOL_ID',
-        'RAW_DATA_FILE', 'DIR_FOLDER', 'UNIQUE_ID', 'SS_IMG_ID', 'SENSO_IMG_ID']]
+    df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'STRUCTURES', 'PROJECT_CODE', 'CURVE_VALID',
+                                                'STEADY_STATE_IMG', '1to1_IMG', 'TOP_COMPOUND_UM',
+                                                'MAX_THEORETICAL_DISP_RU', 'RU_TOP_CMPD', 'DISP_TOP_CMPD',
+                                                'IC50_UM', 'KA_1_1_BINDING', 'KD_LITTLE_1_1_BINDING',
+                                                'KD_1_1_BINDING_UM', 'COMMENTS', 'FC', 'PROTEIN_RU',
+                                                'PROTEIN_MW', 'PROTEIN_ID','PROTEIN_FLOATED_ID',
+                                                'PROTEIN_FLOATED_CONC_UM', 'PROTEIN_FLOATED_MW',
+                                                'MW', 'INSTRUMENT', 'EXP_DATE', 'NUCLEOTIDE', 'CHIP_LOT',
+                                                'OPERATOR', 'PROTOCOL_ID', 'RAW_DATA_FILE', 'DIR_FOLDER',
+                                                'UNIQUE_ID', 'SS_IMG_ID', 'SENSO_IMG_ID']]
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     writer = pd.ExcelWriter(adlp_save_file_path, engine='xlsxwriter')
@@ -473,8 +479,36 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images(tuple_list_imgs, worksheet1, path_ss_img,
                                                                       path_senso_img, biacore='Biacore8K')
 
-    # Close the Pandas Excel writer and output the Excel file.
-    writer.save()
+    # Insert structure images
+    # Render the smiles into png images in a temp directory
+    with tempfile.TemporaryDirectory() as tmp_img_dir:
+
+        # This line gets all the smiles from the database
+        df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
+            df_mstr_tbl=df_cmpd_set)
+
+        # Issue with connecting to resultsdb, then skip inserting structures.
+        if df_struct_smiles is not None:
+
+            # Render the structure images
+            df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
+                df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
+
+            # Create an list of the images paths in order
+            ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths,
+                                                                                      col_name='IMG_PATH',
+                                                                                      times_dup=1)
+
+            # Insert the structures into the Excel workbook object
+            SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
+                                                                         worksheet=worksheet1)
+
+            # Save the writer object inside the context manager.
+            writer.save()
+
+        else:
+            # Save the writer object inside the context manager.
+            writer.save()
 
     print('Program Done!')
     print("The ADLP result was saved to your desktop.")
