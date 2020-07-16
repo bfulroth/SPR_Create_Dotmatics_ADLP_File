@@ -3,6 +3,7 @@ import os
 from glob import glob
 import platform
 import numpy as np
+import SPR_to_ADLP_Functions
 from _version import __version__
 
 # Get the users Home Directory
@@ -13,33 +14,7 @@ else:
     homedir = os.environ['HOME']
 
 
-def spr_insert_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img):
-    """
-    Does the work of inserting the spr steady state and sensorgram images into the excel worksheet.
-    :param tuple_list_imgs: List of tuples containing (steady state image, sensorgram image)
-    :param worksheet: xlsxwriter object used to insert the images to a worksheet
-    :param path_ss_img: Directory to the steady state images to insert.
-    :param path_senso_img: Directory to the sensorgram images to insert.
-    :return: None
-    """
-    # Format the rows and columns in the worksheet to fit the images.
-    num_images = len(tuple_list_imgs)
-
-    # Set height of each row
-    for row in range(1, num_images + 1):
-        worksheet.set_row(row=row, height=145)
-
-    # Set the width of each column
-    worksheet.set_column(first_col=3, last_col=4, width=24)
-
-    row = 2
-    for ss_img, senso_img in tuple_list_imgs:
-        worksheet.insert_image('D' + str(row), path_ss_img + '/' + ss_img)
-        worksheet.insert_image('E' + str(row), path_senso_img + '/' + senso_img)
-        row += 1
-
-
-def spr_displacement_top_conc(report_pt_file, df_cmpd_set, instrument, fc_used):
+def spr_displacement_top_conc(report_pt_file, df_cmpd_set):
     """This method calculates the binding in RU at the top concentration.
 
         :param report_pt_file: reference to the report point file exported from the Biacore Instrument.
@@ -49,9 +24,6 @@ def spr_displacement_top_conc(report_pt_file, df_cmpd_set, instrument, fc_used):
         :param fc_used: The flow channels that were immobilized in the experiment.
         :returns Series containing the RU at the top concentration tested for each compound in the order tested.
         """
-    if (instrument == 'Biacore8k'):
-        raise ValueError('Instrument argument must be Biacore8k for this data processing method to work')
-
     try:
         # Read in data
         df_rpt_pts_all = pd.read_excel(report_pt_file, sheet_name='Report point table', skiprows=2)
@@ -59,7 +31,6 @@ def spr_displacement_top_conc(report_pt_file, df_cmpd_set, instrument, fc_used):
         raise FileNotFoundError('The files could not be imported please check.')
 
     # TODO: Check that the columns in the report point file match the expected values.
-
     # Trim the df to only the columns we need.
     df_rpt_pts_trim = df_rpt_pts_all[['Cycle', 'Channel', 'Flow cell', 'Sensorgram type', 'Name','Step purpose',
                                       'Relative response (RU)', 'A-B-A 1 Concentration (µM)' ,
@@ -499,7 +470,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     tuple_list_imgs = list(zip(list_ss_img, list_sonso_img))
 
     # Insert images into file.
-    spr_insert_images(tuple_list_imgs, worksheet1, path_ss_img, path_senso_img)
+    SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images(tuple_list_imgs, worksheet1, path_ss_img,
+                                                                      path_senso_img, biacore='Biacore8K')
 
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
