@@ -3,6 +3,9 @@ import os
 from glob import glob
 import platform
 import tempfile
+import shutil
+import re
+import xlrd
 import numpy as np
 import SPR_to_ADLP_Functions
 from _version import __version__
@@ -119,7 +122,7 @@ def calc_max_theory_disp(file_path, fc_used_arr):
     return pd.Series(ls_max_theory_neg)
 
 
-def rename_images(df_ss_senso, path_img, image_type, raw_data_file_name):
+def rename_images(df, path_img, image_type, raw_data_file_name):
     """
     Method that renames the images in a folder.  Also adds the names of the images to the passed in df.
     :param df_ss_senso: Dataframe containing the steady state and kinetic fit results.
@@ -135,11 +138,17 @@ def rename_images(df_ss_senso, path_img, image_type, raw_data_file_name):
     # Change the Directory to the ss image folder
     os.chdir(path_img)
 
+    # Delete legend from folder.
+    ls_legend_file = [f for f in os.listdir(path_img) if re.search(r'Legend\.png', f)]
+    if not len(ls_legend_file) == 0:
+        legend_file_path = os.path.join(path_img, ls_legend_file[0])
+        os.unlink(legend_file_path)
+
     # Get the image file names.
     img_files = glob('*.png')
 
     # Sort df_ss_senso
-    df_ss_senso = df_ss_senso.sort_values(['Channel'])
+    df_ss_senso = df.sort_values(['Channel'])
     df_ss_senso = df_ss_senso.reset_index(drop=True)
 
     # Create a DataFrame with the file names.
@@ -212,15 +221,14 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
         path_ss_img = config.get('paths', 'path_ss_img')
         path_senso_img = config.get('paths', 'path_senso_img')
-        path_ss_and_senso_txt = config.get('paths', 'path_ss_and_senso_txt')
+        path_ss_txt = config.get('paths', 'path_ss_txt')
+        path_senso_txt = config.get('paths', 'path_senso_txt')
         path_report_pt = config.get('paths', 'path_report_pt')
 
         # Get all of the metadata variables
-        # TODO: If processing biacore 8k data then this var will bee equal to the number of compounds tested
         num_fc_used = config.get('meta','num_fc_used')
 
         # Get the flow channels immobilized
-        # TODO: If processing biacore 8k how should I account for this? (e.g. all 8 would be 1,2,3,4,5,6,7,8)
         immobilized_fc = str(config.get('meta', 'immobilized_fc'))
         immobilized_fc = immobilized_fc.strip(" ")
         immobilized_fc = immobilized_fc.replace(' ', '')
@@ -281,203 +289,266 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     except Exception:
         raise RuntimeError('Something is wrong with the config file. Please check.')
 
-    """
-    Read in the text file that has the calculated values for steady state and kinetic analysis.
-    NB: Had issues saving as a text file so I saved as an Excel and read in the excel file using pd.read_excel(
-    Read this in first as some fields are needed for the image rename method.
-    """
-    df_ss_and_senso_txt = pd.read_excel(path_ss_and_senso_txt)
+    # Read in the text files that have the calculated values for steady-state and kinetic analysis.
+    try:
+
+        def _find_cell(sh, searched_value):
+            """Private function used to find the row and column of a particular value in an Excel worksheet"""
+            for row in range(sh.nrows):
+                for col in range(sh.ncols):
+                    my_cell = sh.cell(row, col)
+                    if my_cell.value == searched_value:
+                        return row, col
+            return -1
+
+        # Open the ss and kinetic workbooks
+        wb_ss = xlrd.open_workbook(path_ss_txt)
+        sheet_ss = wb_ss.sheet_by_index(0)
+
+        wb_senso = xlrd.open_workbook(path_senso_txt)
+        sheet_senso = wb_senso.sheet_by_index(0)
+
+        # Find the Row and Col of "Group"
+        val = 'Group'
+
+        r_ss, c_ss = _find_cell(sh=sheet_ss, searched_value=val)
+        r_senso, c_senso = _find_cell(sh=sheet_senso, searched_value=val)
+
+        df_ss_txt = pd.read_excel(path_ss_txt, skiprows=r_ss)
+        df_senso_txt = pd.read_excel(path_senso_txt, skiprows=r_senso)
+
+    except Exception:
+        raise RuntimeError('Issue reading in data from either steady state or kinetic Excels files.')
 
     """
     Biacore 8k names the images in different way compared to S200 and T200. Therefore, we need to rename the images
     to be consistent for Dotmatics.
     """
-    df_ss_and_senso_txt = rename_images(df_ss_senso=df_ss_and_senso_txt, path_img=path_ss_img, image_type='ss',
-                                        raw_data_file_name=raw_data_filename)
-    df_ss_and_senso_txt = rename_images(df_ss_senso=df_ss_and_senso_txt, path_img=path_senso_img,
-                                        image_type='senso', raw_data_file_name=raw_data_filename)
+    # Save images in a temporary directory in case of a crash.
+    # Note that a significant amount of code is nested in this context mangager so that if a crash occurres the images
+    # are returned to their original state.
+    with tempfile.TemporaryDirectory() as tmp_img_dir:
 
-    # Start building the final Dotmatics DataFrame
-    df_final_for_dot = pd.DataFrame()
+        try:
+            # Get the original names of the ss and senso image directories
+            if platform.system() == "Windows":
+                ss_img_dir_name = path_ss_img.split('\\')[-1]
+                senso_img_dir_name = path_senso_img.split('\\')[-1]
+            else:
+                ss_img_dir_name = path_ss_img.split('/')[-1]
+                senso_img_dir_name = path_senso_img.split('/')[-1]
 
-    # NB: For the 8k each row of a 96 well testing plate corresponds to compound which corresponds to 1 flow channel.
-    df_final_for_dot['BROAD_ID'] = df_cmpd_set['Broad ID']
+            dir_temp_ss_img = os.path.join(tmp_img_dir, ss_img_dir_name)
+            dir_temp_senso_img = os.path.join(tmp_img_dir, senso_img_dir_name)
 
-    # Add structure column
-    df_final_for_dot.loc[:, 'STRUCTURES'] = ''
+            # Copy directories from original to temp
+            shutil.copytree(path_ss_img, dir_temp_ss_img)
+            shutil.copytree(path_senso_img, dir_temp_senso_img)
 
-    # Add the Project Code.  Get this from the config file.
-    df_final_for_dot['PROJECT_CODE'] = project_code
+            # Rename the images in the original and store the new paths to the returned df_ss_txt and df_senso_txt DF's
+            df_ss_txt = rename_images(df=df_ss_txt, path_img=path_ss_img, image_type='ss',
+                                      raw_data_file_name=raw_data_filename)
+            df_senso_txt = rename_images(df=df_senso_txt, path_img=path_senso_img,
+                                         image_type='senso', raw_data_file_name=raw_data_filename)
 
-    #  Add an empty column called curve_valid
-    df_final_for_dot.loc[:, 'CURVE_VALID'] = ''
+            try:
+                # Start building the final Dotmatics DataFrame
+                df_final_for_dot = pd.DataFrame()
 
-    # Add an empty column called steady_state_img
-    df_final_for_dot.loc[:, 'STEADY_STATE_IMG'] = ''
+                # NB: For the 8k each row of a 96 well testing plate corresponds to compound which corresponds to 1 flow channel.
+                df_final_for_dot['BROAD_ID'] = df_cmpd_set['Broad ID']
 
-    # Add an empty column called 1to1_img
-    df_final_for_dot.loc[:, '1to1_IMG'] = ''
+                # Add structure column
+                df_final_for_dot.loc[:, 'STRUCTURES'] = ''
 
-    # Add the starting compound concentrations
-    df_final_for_dot['TOP_COMPOUND_UM'] = df_cmpd_set['Test [Cpd] uM']
+                # Add the Project Code.  Get this from the config file.
+                df_final_for_dot['PROJECT_CODE'] = project_code
 
-    # Calculate Max theoretical displacement
-    # Average of the 2 blanks for each flow cell
-    df_final_for_dot['MAX_THEORETICAL_DISP_RU'] = calc_max_theory_disp(path_report_pt, immobilized_fc_arr)
+                #  Add an empty column called curve_valid
+                df_final_for_dot.loc[:, 'CURVE_VALID'] = ''
 
-    # Get the percent displacement at the top conc for each flow channel using the report point file.
-    percent_disp = pd.Series(spr_displacement_top_conc(report_pt_file=path_report_pt, df_cmpd_set=df_cmpd_set))
+                # Add an empty column called steady_state_img
+                df_final_for_dot.loc[:, 'STEADY_STATE_IMG'] = ''
 
-    # Extract the RU Max for each compound using the report point file.
-    df_final_for_dot['RU_TOP_CMPD'] = df_final_for_dot['MAX_THEORETICAL_DISP_RU'] - percent_disp
+                # Add an empty column called 1to1_img
+                df_final_for_dot.loc[:, '1to1_IMG'] = ''
 
-    # Calculate percent displacement at top conc.
-    df_final_for_dot['DISP_TOP_CMPD'] = round(((df_final_for_dot['RU_TOP_CMPD']/
-                                                df_final_for_dot['MAX_THEORETICAL_DISP_RU'])*100), 2)
+                # Add the starting compound concentrations
+                df_final_for_dot['TOP_COMPOUND_UM'] = df_cmpd_set['Test [Cpd] uM']
 
-    """
-    NB: For the Biacore 8k exporting 2 seperate files, one for Steady state and one for kinetics is currently not 
-    supported.
-    Therefore, it's necessary to ready both KD and Kinetics results from a single text file.
-    """
+                # Calculate Max theoretical displacement
+                # Average of the 2 blanks for each flow cell
+                df_final_for_dot['MAX_THEORETICAL_DISP_RU'] = calc_max_theory_disp(path_report_pt, immobilized_fc_arr)
 
-    # Sort by Channel
-    df_ss_and_senso_txt = df_ss_and_senso_txt.sort_values(['Channel'])
+                # Get the percent displacement at the top conc for each flow channel using the report point file.
+                percent_disp = pd.Series(spr_displacement_top_conc(report_pt_file=path_report_pt, df_cmpd_set=df_cmpd_set))
 
-    # Add steady state analysis parameters to the final DataFrame.
-    df_ss_and_senso_txt['IC50_UM'] = df_ss_and_senso_txt['KD (M)'] * 1000000
+                # Extract the RU Max for each compound using the report point file.
+                df_final_for_dot['RU_TOP_CMPD'] = df_final_for_dot['MAX_THEORETICAL_DISP_RU'] - percent_disp
 
-    # Add the KD steady state
-    df_final_for_dot['IC50_UM'] = df_ss_and_senso_txt['IC50_UM']
+                # Calculate percent displacement at top conc.
+                df_final_for_dot['DISP_TOP_CMPD'] = round(((df_final_for_dot['RU_TOP_CMPD']/
+                                                            df_final_for_dot['MAX_THEORETICAL_DISP_RU'])*100), 2)
 
-    # Add the kinetic results to the final df.
-    df_final_for_dot['KA_1_1_BINDING'] = df_ss_and_senso_txt['ka (1/Ms)']
-    df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_ss_and_senso_txt['kd (1/s)']
-    df_final_for_dot['KD_1_1_BINDING_UM'] = df_ss_and_senso_txt['KD (M).1'] * 1000000
+                """
+                Add info from ss and senso text files
+                """
 
-    # Continue creating new columns
-    df_final_for_dot['COMMENTS'] = ''
+                # Add steady state analysis parameters to the final DataFrame.
+                df_ss_txt['IC50_UM'] = df_ss_txt['KD (M)'] * 1000000
 
-    # Rename the flow channels and add the flow channel column
-    df_final_for_dot.loc[:, 'FC'] = '2-1'
+                # Add the KD steady state
+                df_final_for_dot['IC50_UM'] = df_ss_txt['IC50_UM']
 
-    # Add protein RU
-    protein_ru_dict = {1: fc1_protein_RU, 2: fc2_protein_RU, 3: fc3_protein_RU,
-                       4: fc4_protein_RU, 5: fc5_protein_RU, 6: fc6_protein_RU, 7: fc7_protein_RU, 8: fc8_protein_RU}
-    df_final_for_dot['PROTEIN_RU'] = df_ss_and_senso_txt['Channel'].map(protein_ru_dict)
+                # Add the kinetic results to the final df.
+                df_final_for_dot['KA_1_1_BINDING'] = df_senso_txt['ka (1/Ms)']
+                df_final_for_dot['KD_LITTLE_1_1_BINDING'] = df_senso_txt['kd (1/s)']
+                df_final_for_dot['KD_1_1_BINDING_UM'] = df_senso_txt['KD (M)'] * 1000000
 
-    # Add protein MW
-    protein_mw_dict = {1: fc1_protein_MW, 2: fc2_protein_MW, 3: fc3_protein_MW,
-                       4: fc4_protein_MW, 5: fc5_protein_MW, 6: fc6_protein_MW, 7: fc7_protein_MW, 8: fc8_protein_MW}
-    df_final_for_dot['PROTEIN_MW'] = df_ss_and_senso_txt['Channel'].map(protein_mw_dict)
+                # Continue creating new columns
+                df_final_for_dot['COMMENTS'] = ''
 
-    # Add protein BIP
-    protein_bip_dict = {1: fc1_protein_BIP, 2 : fc2_protein_BIP, 3: fc3_protein_BIP,
-                        4: fc4_protein_BIP, 5: fc5_protein_BIP, 6: fc6_protein_BIP, 7: fc7_protein_BIP, 8: fc8_protein_BIP}
-    df_final_for_dot['PROTEIN_ID'] = df_ss_and_senso_txt['Channel'].map(protein_bip_dict)
+                # Rename the flow channels and add the flow channel column
+                df_final_for_dot.loc[:, 'FC'] = '2-1'
 
-    # Add columns for protein floated meta data.
-    df_final_for_dot['PROTEIN_FLOATED_ID'] = protein_floated_BIP
-    df_final_for_dot['PROTEIN_FLOATED_CONC_UM'] = protein_floated_conc_uM
-    df_final_for_dot['PROTEIN_FLOATED_MW'] = protein_floated_MW
+                # Add protein RU
+                protein_ru_dict = {1: fc1_protein_RU, 2: fc2_protein_RU, 3: fc3_protein_RU,
+                                   4: fc4_protein_RU, 5: fc5_protein_RU, 6: fc6_protein_RU, 7: fc7_protein_RU,
+                                   8: fc8_protein_RU}
+                df_final_for_dot['PROTEIN_RU'] = df_senso_txt['Channel'].map(protein_ru_dict)
 
-    # Add the MW for each compound. Uses the step table.
-    df_final_for_dot['MW'] = df_cmpd_set['MW']
+                # Add protein MW
+                protein_mw_dict = {1: fc1_protein_MW, 2: fc2_protein_MW, 3: fc3_protein_MW,
+                                   4: fc4_protein_MW, 5: fc5_protein_MW, 6: fc6_protein_MW,
+                                   7: fc7_protein_MW, 8: fc8_protein_MW}
+                df_final_for_dot['PROTEIN_MW'] = df_senso_txt['Channel'].map(protein_mw_dict)
 
-    # Continue adding columns to final DataFrame
-    df_final_for_dot.loc[:, 'INSTRUMENT'] = instrument
-    df_final_for_dot.loc[:, 'EXP_DATE'] = experiment_date
-    df_final_for_dot.loc[:, 'NUCLEOTIDE'] = nucleotide
-    df_final_for_dot.loc[:, 'CHIP_LOT'] = chip_lot
-    df_final_for_dot.loc[:, 'OPERATOR'] = operator
-    df_final_for_dot.loc[:, 'PROTOCOL_ID'] = protocol
-    df_final_for_dot.loc[:, 'RAW_DATA_FILE'] = raw_data_filename
-    df_final_for_dot.loc[:, 'DIR_FOLDER'] = directory_folder
+                # Add protein BIP
+                protein_bip_dict = {1: fc1_protein_BIP, 2 : fc2_protein_BIP, 3: fc3_protein_BIP,
+                                    4: fc4_protein_BIP, 5: fc5_protein_BIP, 6: fc6_protein_BIP,
+                                    7: fc7_protein_BIP, 8: fc8_protein_BIP}
+                df_final_for_dot['PROTEIN_ID'] = df_senso_txt['Channel'].map(protein_bip_dict)
 
-    # Add the unique ID #
-    df_final_for_dot['UNIQUE_ID'] = df_ss_and_senso_txt['A-B-A 1 Solution'] + '_' + df_final_for_dot['FC'] + '_' \
-                                    + project_code + '_' + experiment_date + '_' + \
-                                    df_ss_and_senso_txt['Steady_State_Img'].str.split('_', expand=True)[5]
+                # Add columns for protein floated meta data.
+                df_final_for_dot['PROTEIN_FLOATED_ID'] = protein_floated_BIP
+                df_final_for_dot['PROTEIN_FLOATED_CONC_UM'] = protein_floated_conc_uM
+                df_final_for_dot['PROTEIN_FLOATED_MW'] = protein_floated_MW
 
-    # Add steady state image file path
-    # Need to replace /Volumes with //flynn
-    path_ss_img_edit = path_ss_img.replace('/Volumes', '//flynn')
-    df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_and_senso_txt['Steady_State_Img']
+                # Add the MW for each compound. Uses the step table.
+                df_final_for_dot['MW'] = df_cmpd_set['MW']
 
-    # Add sensorgram image file path
-    # Need to replace /Volumes with //flynn
-    path_senso_img_edit = path_senso_img.replace('/Volumes', '//flynn')
-    df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_ss_and_senso_txt['Senso_Img']
+                # Continue adding columns to final DataFrame
+                df_final_for_dot.loc[:, 'INSTRUMENT'] = instrument
+                df_final_for_dot.loc[:, 'EXP_DATE'] = experiment_date
+                df_final_for_dot.loc[:, 'NUCLEOTIDE'] = nucleotide
+                df_final_for_dot.loc[:, 'CHIP_LOT'] = chip_lot
+                df_final_for_dot.loc[:, 'OPERATOR'] = operator
+                df_final_for_dot.loc[:, 'PROTOCOL_ID'] = protocol
+                df_final_for_dot.loc[:, 'RAW_DATA_FILE'] = raw_data_filename
+                df_final_for_dot.loc[:, 'DIR_FOLDER'] = directory_folder
 
-    # Rearrange the columns for the final DataFrame (without images)
-    df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'STRUCTURES', 'PROJECT_CODE', 'CURVE_VALID',
-                                                'STEADY_STATE_IMG', '1to1_IMG', 'TOP_COMPOUND_UM',
-                                                'MAX_THEORETICAL_DISP_RU', 'RU_TOP_CMPD', 'DISP_TOP_CMPD',
-                                                'IC50_UM', 'KA_1_1_BINDING', 'KD_LITTLE_1_1_BINDING',
-                                                'KD_1_1_BINDING_UM', 'COMMENTS', 'FC', 'PROTEIN_RU',
-                                                'PROTEIN_MW', 'PROTEIN_ID','PROTEIN_FLOATED_ID',
-                                                'PROTEIN_FLOATED_CONC_UM', 'PROTEIN_FLOATED_MW',
-                                                'MW', 'INSTRUMENT', 'EXP_DATE', 'NUCLEOTIDE', 'CHIP_LOT',
-                                                'OPERATOR', 'PROTOCOL_ID', 'RAW_DATA_FILE', 'DIR_FOLDER',
-                                                'UNIQUE_ID', 'SS_IMG_ID', 'SENSO_IMG_ID']]
+                # Add the unique ID #
+                df_final_for_dot['UNIQUE_ID'] = df_ss_txt['A-B-A 1 Solution'] + '_' + df_final_for_dot['FC'] + '_' \
+                                                + project_code + '_' + experiment_date + '_' + \
+                                                df_ss_txt['Steady_State_Img'].str.split('_', expand=True)[5]
 
-    # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter(adlp_save_file_path, engine='xlsxwriter')
+                # Add steady state image file path
+                # Need to replace /Volumes with //flynn
+                path_ss_img_edit = path_ss_img.replace('/Volumes', '//Iron')
+                df_final_for_dot['SS_IMG_ID'] = path_ss_img_edit + '/' + df_ss_txt['Steady_State_Img']
 
-    # Convert the DataFrame to an XlsxWriter Excel object.
-    df_final_for_dot.to_excel(writer, sheet_name='Sheet1', startcol=0, index=None)
+                # Add sensorgram image file path
+                # Need to replace /Volumes with //Iron
+                path_senso_img_edit = path_senso_img.replace('/Volumes', '//Iron')
+                df_final_for_dot['SENSO_IMG_ID'] = path_senso_img_edit + '/' + df_senso_txt['Senso_Img']
 
-    # Get the xlsxwriter workbook and worksheet objects.
-    workbook = writer.book
-    worksheet1 = writer.sheets['Sheet1']
+                # Rearrange the columns for the final DataFrame (without images)
+                df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'STRUCTURES', 'PROJECT_CODE', 'CURVE_VALID',
+                                                            'STEADY_STATE_IMG', '1to1_IMG', 'TOP_COMPOUND_UM',
+                                                            'MAX_THEORETICAL_DISP_RU', 'RU_TOP_CMPD', 'DISP_TOP_CMPD',
+                                                            'IC50_UM', 'KA_1_1_BINDING', 'KD_LITTLE_1_1_BINDING',
+                                                            'KD_1_1_BINDING_UM', 'COMMENTS', 'FC', 'PROTEIN_RU',
+                                                            'PROTEIN_MW', 'PROTEIN_ID','PROTEIN_FLOATED_ID',
+                                                            'PROTEIN_FLOATED_CONC_UM', 'PROTEIN_FLOATED_MW',
+                                                            'MW', 'INSTRUMENT', 'EXP_DATE', 'NUCLEOTIDE', 'CHIP_LOT',
+                                                            'OPERATOR', 'PROTOCOL_ID', 'RAW_DATA_FILE', 'DIR_FOLDER',
+                                                            'UNIQUE_ID', 'SS_IMG_ID', 'SENSO_IMG_ID']]
 
-    # Add a drop down list of comments.
-    # Calculate the number of rows to add the drop down menu.
-    num_cpds = len(df_cmpd_set.index)
-    num_data_pts = num_cpds + 1
+            except Exception:
+                raise RuntimeError('Issue creating main DataFrame for Excel output file.')
 
-    # Write the comments to the comment sheet.
-    comments_list = pd.DataFrame({'Comments':
-                                    ['No displacement.',
-                                     'Normal curve.',
-                                     'Normal curve. Below 50% Displacement.',
-                                     'Below 50% Displacement.',
-                                     'Issues with compound.',
-                                     'Poor fit. IC50 not reported.',
-                                     'Issues at top concentration'
-                                   ]})
+            try:
 
-    # Convert comments list to DataFrame
-    comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
+                # Create a Pandas Excel writer using XlsxWriter as the engine.
+                writer = pd.ExcelWriter(adlp_save_file_path, engine='xlsxwriter')
 
-    # For larger drop down lists > 255 characters its necessary to create a list on a seperate worksheet.
-    worksheet1.data_validation('O1:N' + str(num_data_pts),
-                                        {'validate': 'list',
-                                         'source': '=Sheet2!$A$2:$A$' + str(len(comments_list) + 1)
-                                         })
+                # Convert the DataFrame to an XlsxWriter Excel object.
+                df_final_for_dot.to_excel(writer, sheet_name='Sheet1', startcol=0, index=None)
 
-    # Freeze the top row of the excel worksheet.
-    worksheet1.freeze_panes(1, 0)
+                # Get the xlsxwriter workbook and worksheet objects.
+                workbook = writer.book
+                worksheet1 = writer.sheets['Sheet1']
 
-    # Add a cell format object to align text center.
-    cell_format = workbook.add_format()
-    cell_format.set_align('center')
-    cell_format.set_align('vcenter')
-    worksheet1.set_column('A:AI', 28, cell_format)
+                # Add a drop down list of comments.
+                # Calculate the number of rows to add the drop down menu.
+                num_cpds = len(df_cmpd_set.index)
+                num_data_pts = num_cpds + 1
 
-    # Start preparing to insert the steady state and sensorgram images.
-    # Get list of image files from df_ss_txt Datafßrame.
-    list_ss_img = df_ss_and_senso_txt['Steady_State_Img'].tolist()
+                # Write the comments to the comment sheet.
+                comments_list = pd.DataFrame({'Comments':
+                                                ['No displacement.',
+                                                 'Normal curve.',
+                                                 'Normal curve. Below 50% Displacement.',
+                                                 'Below 50% Displacement.',
+                                                 'Issues with compound.',
+                                                 'Poor fit. IC50 not reported.',
+                                                 'Issues at top concentration'
+                                               ]})
 
-    # Get list of images files in the df_senso_txt DataFrame.
-    list_sonso_img = df_ss_and_senso_txt['Senso_Img'].tolist()
+                # Convert comments list to DataFrame
+                comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
 
-    # Create a list of tuples containing the names of the steady state image and sensorgram image.
-    tuple_list_imgs = list(zip(list_ss_img, list_sonso_img))
+                # For larger drop down lists > 255 characters its necessary to create a list on a seperate worksheet.
+                worksheet1.data_validation('O1:N' + str(num_data_pts),
+                                                    {'validate': 'list',
+                                                     'source': '=Sheet2!$A$2:$A$' + str(len(comments_list) + 1)
+                                                     })
 
-    # Insert images into file.
-    SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images(tuple_list_imgs, worksheet1, path_ss_img,
-                                                                      path_senso_img, biacore='Biacore8K')
+                # Freeze the top row of the excel worksheet.
+                worksheet1.freeze_panes(1, 0)
+
+                # Add a cell format object to align text center.
+                cell_format = workbook.add_format()
+                cell_format.set_align('center')
+                cell_format.set_align('vcenter')
+                worksheet1.set_column('A:AI', 28, cell_format)
+
+                # Start preparing to insert the steady state and sensorgram images.
+                # Get list of image files from df_ss_txt Datafßrame.
+                list_ss_img = df_ss_txt['Steady_State_Img'].tolist()
+
+                # Get list of images files in the df_senso_txt DataFrame.
+                list_sonso_img = df_senso_txt['Senso_Img'].tolist()
+
+                # Create a list of tuples containing the names of the steady state image and sensorgram image.
+                tuple_list_imgs = list(zip(list_ss_img, list_sonso_img))
+
+                # Insert images into file.
+                SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images(tuple_list_imgs, worksheet1, path_ss_img,
+                                                                                path_senso_img, biacore='Biacore8K')
+            except Exception:
+                raise RuntimeError('Issue writing DataFrame to Excel file.')
+
+        # If a crash occurs return all images files back to their original names.
+        except Exception:
+            # Remove the original directories
+            shutil.rmtree(path_ss_img)
+            shutil.rmtree(path_senso_img)
+
+            # Copy back the image backup directories
+            shutil.copytree(dir_temp_ss_img, path_ss_img)
+            shutil.copytree(dir_temp_senso_img, path_senso_img)
+            raise RuntimeError('All images have been returned to their original names.')
 
     # Insert structure images
     # Render the smiles into png images in a temp directory
