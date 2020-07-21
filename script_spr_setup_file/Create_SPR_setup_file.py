@@ -64,16 +64,6 @@ def spr_setup_sheet(args=None):
             print("Exiting program... Please try again.")
             raise RuntimeError
 
-        if int(df_setup_ori.iloc[1]['num_pts']) == 10:
-            print('Currently this script supports processing one 384W plate at a time.')
-            print("Exiting program... Please try again.")
-            raise RuntimeError
-
-        if int(df_setup_ori.iloc[1]['num_pts']) == 6:
-            print('Currently this script supports processing one 384W plate at a time.')
-            print("Exiting program... Please try again.")
-            raise RuntimeError
-
     # Reformat the original table for the Biacore instruments. (S200, T200, 8K)
     try:
         # Trim the sheet down to only the columns we need for the SPR setup sheet.
