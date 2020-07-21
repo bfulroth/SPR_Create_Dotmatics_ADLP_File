@@ -64,12 +64,12 @@ def spr_setup_sheet(args=None):
             print("Exiting program... Please try again.")
             raise RuntimeError
 
-        if (len(df_setup_ori) > 32) & (int(df_setup_ori.iloc[1]['num_pts']) == 10):
+        if int(df_setup_ori.iloc[1]['num_pts']) == 10:
             print('Currently this script supports processing one 384W plate at a time.')
             print("Exiting program... Please try again.")
             raise RuntimeError
 
-        if (len(df_setup_ori) > 48) & (int(df_setup_ori.iloc[1]['num_pts']) == 6):
+        if int(df_setup_ori.iloc[1]['num_pts']) == 6:
             print('Currently this script supports processing one 384W plate at a time.')
             print("Exiting program... Please try again.")
             raise RuntimeError
