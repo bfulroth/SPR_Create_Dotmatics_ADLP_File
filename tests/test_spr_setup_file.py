@@ -17,6 +17,7 @@ class SetupFileScriptRegularAffinity(TestCase):
                         'MW': [496.557, 497.524, 497.524],
                         'Sol. (uM)': [400, 500, 10.6],
                         'Plate': ['Plate_06', 'Plate_07', 'Plate_07'],
+                        'Plate_Barcode': ['TEST1', 'TEST1', 'TEST1'],
                         'Barcode': [1172907815, 1196291078, 1196291070],
                         'BC Added': [1172907815, 1196291078, 1196291070],
                         'Well': ['H06', 'E03', 'E08'],
@@ -39,7 +40,7 @@ class SetupFileScriptRegularAffinity(TestCase):
         Test that ensures that the correct headers are listed in the test DF.
         """
 
-        ls_corr_headers = ['Broad ID', 'Comment', 'MW', 'Sol. (uM)', 'Plate', 'Barcode',
+        ls_corr_headers = ['Broad ID', 'Comment', 'MW', 'Sol. (uM)', 'Plate', 'Plate_Barcode', 'Barcode',
                            'BC Added', 'Well', 'Conc. (mM)', 'Conc (uM)', '384W Dest.',
                            'Total Vol. (uL)', 'Test [Cpd] uM', 'fold_dil', 'num_pts',
                            'Buffer (uL)', 'Cmpd to Add (uL)', 'DMSO to Add (uL)']
@@ -72,7 +73,7 @@ class SetupFileScriptRegularAffinity(TestCase):
 
         :return:
         """
-        expected_headers = ['BRD', 'MW', 'CONC', 'BAR']
+        expected_headers = ['BRD', 'MW', 'CONC', 'BAR', 'PLATE_BAR']
         df_result = spr_setup_sheet()
         self.assertEqual(expected_headers, list(df_result.columns))
 
@@ -189,7 +190,7 @@ class SetupFileScriptAffinity_8k(TestCase):
         """
         :return:
         """
-        expected_headers = ['BRD', 'MW', 'CONC', 'BAR']
+        expected_headers = ['BRD', 'MW', 'CONC', 'BAR', 'PLATE_BAR']
         df_result = spr_setup_sheet()
         self.assertEqual(expected_headers, list(df_result.columns))
 

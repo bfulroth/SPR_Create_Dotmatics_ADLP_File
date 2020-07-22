@@ -533,10 +533,10 @@ class SPR_to_ADLP_8K_Cli(TestCase):
         # mock_7.side_effect = [SPR_to_ADLP_8K_Cli.df_ru_top_result]
         #
         # # Use the click CliRunner object for testing Click implemented Cli programs.
-        # runner = CliRunner()
-        # result = runner.invoke(main, ['--config_file', './tests/fixtures/Biacore8k_Test_Files'
-        #                                                                      '/200212_config_8K.txt',
-        #                                                     '--save_file','Test.xlsx'])
+        runner = CliRunner()
+        result = runner.invoke(main, ['--config_file',
+                                      './tests/fixtures/Biacore8k_Funct_Test_Files/200716-1_config_8K_funct.txt',
+                                                            '--save_file','Test.xlsx'])
         #
         # print(result.output)
         # self.assertEqual(0, result.exit_code)
