@@ -230,17 +230,20 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Calculate Percent Binding
 
-    df_final_for_dot['PERCENT_BINDING_TOP'] = round((df_final_for_dot['RU_TOP_CMPD'] / df_final_for_dot['RMAX_THEORETICAL']) * 100, 2)
+    df_final_for_dot['PERCENT_BINDING_TOP'] = round((df_final_for_dot['RU_TOP_CMPD'] /
+                                                     df_final_for_dot['RMAX_THEORETICAL']) * 100, 2)
 
     # Rearrange the columns for the final DataFrame (without images)
-    df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'STRUCTURES', 'PROJECT_CODE', 'CURVE_VALID', 'STEADY_STATE_IMG',
-       '1to1_IMG', 'TOP_COMPOUND_UM', 'RMAX_THEORETICAL', 'RU_TOP_CMPD', 'PERCENT_BINDING_TOP', 'KD_SS_UM',
-       'CHI2_SS_AFFINITY', 'FITTED_RMAX_SS_AFFINITY', 'KA_1_1_BINDING',
-       'KD_LITTLE_1_1_BINDING', 'KD_1_1_BINDING_UM', 'chi2_1_1_binding',
-       'U_VALUE_1_1_BINDING', 'FITTED_RMAX_1_1_BINDING', 'COMMENTS', 'FC',
-       'PROTEIN_RU', 'PROTEIN_MW', 'PROTEIN_ID', 'MW', 'INSTRUMENT', 'ASSAY_MODE',
-       'EXP_DATE', 'NUCLEOTIDE', 'CHIP_LOT', 'OPERATOR', 'PROTOCOL_ID',
-       'RAW_DATA_FILE', 'DIR_FOLDER', 'UNIQUE_ID', 'SS_IMG_ID', 'SENSO_IMG_ID']]
+    df_final_for_dot = df_final_for_dot.loc[:, ['BROAD_ID', 'STRUCTURES', 'PROJECT_CODE', 'CURVE_VALID',
+                                                'STEADY_STATE_IMG', '1to1_IMG', 'TOP_COMPOUND_UM',
+                                                'RMAX_THEORETICAL', 'RU_TOP_CMPD', 'PERCENT_BINDING_TOP',
+                                                'KD_SS_UM', 'CHI2_SS_AFFINITY', 'FITTED_RMAX_SS_AFFINITY',
+                                                'KA_1_1_BINDING', 'KD_LITTLE_1_1_BINDING', 'KD_1_1_BINDING_UM',
+                                                'chi2_1_1_binding', 'U_VALUE_1_1_BINDING', 'FITTED_RMAX_1_1_BINDING',
+                                                'COMMENTS', 'FC', 'PROTEIN_RU', 'PROTEIN_MW', 'PROTEIN_ID', 'MW',
+                                                'INSTRUMENT', 'ASSAY_MODE', 'EXP_DATE', 'NUCLEOTIDE', 'CHIP_LOT',
+                                                'OPERATOR', 'PROTOCOL_ID', 'RAW_DATA_FILE', 'DIR_FOLDER', 'UNIQUE_ID',
+                                                'SS_IMG_ID', 'SENSO_IMG_ID']]
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     writer = pd.ExcelWriter(adlp_save_file_path, engine='xlsxwriter')
