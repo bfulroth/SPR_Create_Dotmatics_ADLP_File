@@ -31,7 +31,6 @@ def spr_setup_sheet(args=None):
     # Determine at runtime if the user wants to format the file for a Biacore 8k run.
     process_for_8k = False
 
-    # TODO: How to test using click?
     # Ask user if they want the output table to be formatted for the 8K
     while True:
         process_for_8k_confirm = input("Do you want to format the file for Biacore 8K [y/N]?")
@@ -50,8 +49,6 @@ def spr_setup_sheet(args=None):
         if args.clip:
             df_setup_ori = pd.read_clipboard()
         else:
-            #TODO: How to test using click?
-            #file = click.prompt("Paste the path to the setup table", type=click.Path(exists=True))
             file = input('Paste the path to the setup table: ')
             df_setup_ori = pd.read_csv(file)
     except:
@@ -64,20 +61,11 @@ def spr_setup_sheet(args=None):
             print("Exiting program... Please try again.")
             raise RuntimeError
 
-        if (len(df_setup_ori) > 32) & (int(df_setup_ori.iloc[1]['num_pts']) == 10):
-            print('Currently this script supports processing one 384W plate at a time.')
-            print("Exiting program... Please try again.")
-            raise RuntimeError
-
-        if (len(df_setup_ori) > 48) & (int(df_setup_ori.iloc[1]['num_pts']) == 6):
-            print('Currently this script supports processing one 384W plate at a time.')
-            print("Exiting program... Please try again.")
-            raise RuntimeError
-
     # Reformat the original table for the Biacore instruments. (S200, T200, 8K)
     try:
         # Trim the sheet down to only the columns we need for the SPR setup sheet.
-        df_setup_trim = df_setup_ori.loc[:, ['Broad ID', 'MW', 'Barcode', 'Test [Cpd] uM', 'fold_dil', 'num_pts']]
+        df_setup_trim = df_setup_ori.loc[:, ['Broad ID', 'MW', 'Plate_Barcode', 'Barcode', 'Test [Cpd] uM',
+                                             'fold_dil', 'num_pts']]
 
         # Start building the setup sheet.
         # Store the dimensions of the DataFrame in variables that are used later in the method.
@@ -88,6 +76,7 @@ def spr_setup_sheet(args=None):
         mw_list = []
         bar_list = []
         conc_list = []
+        bar_plate_list = []
 
         # Inner method uses the original DataFrame to construct each column of the setup sheet.
         def create_lists(header, list):
@@ -143,12 +132,14 @@ def spr_setup_sheet(args=None):
         create_lists(header='MW', list=mw_list)
         dose_conc_list()
         create_lists(header='Barcode', list=bar_list)
+        create_lists(header='Plate_Barcode', list=bar_plate_list)
 
         # Create the final DataFrame from all of the lists.
-        final_df = pd.DataFrame({'BRD': brd_list, 'MW': mw_list, 'CONC': conc_list, 'BAR': bar_list})
+        final_df = pd.DataFrame({'BRD': brd_list, 'MW': mw_list, 'CONC': conc_list,
+                                 'BAR': bar_list, 'PLATE_BAR': bar_plate_list})
 
         # Reorder the columns
-        final_df = final_df.loc[:, ['BRD', 'MW', 'CONC', 'BAR']]
+        final_df = final_df.loc[:, ['BRD', 'MW', 'CONC', 'BAR', 'PLATE_BAR']]
 
         """
         If Format is for Biacore 8k
@@ -251,7 +242,6 @@ def spr_setup_sheet(args=None):
                 row_count = 0
 
                 for i in range(0, num_pts_curve):
-
                     for j in range(0, int(len(df_active)), num_pts_curve):
                         df_active.loc[row_count, 'sort_non_zero'] = non_zero_count
                         non_zero_count += 1
@@ -270,44 +260,36 @@ def spr_setup_sheet(args=None):
                 # Append the sorted group of 8 compound titrations to the list of dfs
                 ls_dfs_non_zeros_sorted.append(df_active)
 
-            # Need to paste all the zero and non-zero df's together in the right order.
-            if ((len(df_setup_ori) == 8) & (num_pts_curve == 10)) | ((len(df_setup_ori) == 8) & (num_pts_curve == 6)):
-                final_df = pd.concat([ls_df_zeros[0], ls_df_zeros[1],
-                                      ls_dfs_non_zeros_sorted[0]])
+            # Dict where keys are num compounds run and value is the assignment of second_zero
+            # The second zero df in the list of zero df's is offset by the num cmpds run and num needles.
+            sec_zero_offset_dict = {8: 1, 16: 2, 24: 3, 32: 4, 40: 5,
+                                    48: 6, 56: 7, 64: 8, 72: 9, 80: 10,
+                                    88: 11, 96: 12, 104: 13, 112: 14,
+                                    120: 15, 128: 16, 136: 17, 144: 18}
 
-            elif ((len(df_setup_ori) == 16) & (num_pts_curve == 10)) | (
-                    (len(df_setup_ori) == 16) & (num_pts_curve == 6)):
-                final_df = pd.concat([ls_df_zeros[0], ls_df_zeros[2], ls_dfs_non_zeros_sorted[0],
-                                      ls_df_zeros[1], ls_df_zeros[3], ls_dfs_non_zeros_sorted[1]])
+            # Create some counters
+            first_zero = 0
+            second_zero = sec_zero_offset_dict[len(df_setup_ori)]
+            non_zero = 0
 
-            elif ((len(df_setup_ori) == 24) & (num_pts_curve == 10)) | (
-                    (len(df_setup_ori) == 24) & (num_pts_curve == 6)):
-                final_df = pd.concat([ls_df_zeros[0], ls_df_zeros[3], ls_dfs_non_zeros_sorted[0],
-                                      ls_df_zeros[1], ls_df_zeros[4], ls_dfs_non_zeros_sorted[1],
-                                      ls_df_zeros[2], ls_df_zeros[5], ls_dfs_non_zeros_sorted[2]])
+            # Calculate the number of needle passes in an experiment.
+            num_needle_pass = int(len(df_setup_ori)/num_active_needles)
 
-            elif ((len(df_setup_ori) == 32) & (num_pts_curve == 10)) | (
-                    (len(df_setup_ori) == 32) & (num_pts_curve == 6)):
-                final_df = pd.concat([ls_df_zeros[0], ls_df_zeros[4], ls_dfs_non_zeros_sorted[0],
-                                      ls_df_zeros[1], ls_df_zeros[5], ls_dfs_non_zeros_sorted[1],
-                                      ls_df_zeros[2], ls_df_zeros[6], ls_dfs_non_zeros_sorted[2],
-                                      ls_df_zeros[3], ls_df_zeros[7], ls_dfs_non_zeros_sorted[3]])
+            # For each loop, Concat 1 needle pass of zeros and non-zero points.
+            ls_df_final =[]
+            for each_needle_pass in range(0, num_needle_pass):
+                final_df = pd.concat([ls_df_zeros[first_zero], ls_df_zeros[second_zero],
+                                      ls_dfs_non_zeros_sorted[non_zero]])
 
-            elif (len(df_setup_ori) == 40) & (num_pts_curve == 6):
-                final_df = pd.concat([ls_df_zeros[0], ls_df_zeros[5], ls_dfs_non_zeros_sorted[0],
-                                      ls_df_zeros[1], ls_df_zeros[6], ls_dfs_non_zeros_sorted[1],
-                                      ls_df_zeros[2], ls_df_zeros[7], ls_dfs_non_zeros_sorted[2],
-                                      ls_df_zeros[3], ls_df_zeros[8], ls_dfs_non_zeros_sorted[3],
-                                      ls_df_zeros[4], ls_df_zeros[9], ls_dfs_non_zeros_sorted[4]])
+                # Append the zeros and non-zeros of one needle swip to a list of df's
+                ls_df_final.append(final_df)
 
-            elif (len(df_setup_ori) == 48) & (num_pts_curve == 6):
-                final_df = pd.concat([ls_df_zeros[0], ls_df_zeros[6], ls_dfs_non_zeros_sorted[0],
-                                      ls_df_zeros[1], ls_df_zeros[7], ls_dfs_non_zeros_sorted[1],
-                                      ls_df_zeros[2], ls_df_zeros[8], ls_dfs_non_zeros_sorted[2],
-                                      ls_df_zeros[3], ls_df_zeros[9], ls_dfs_non_zeros_sorted[3],
-                                      ls_df_zeros[4], ls_df_zeros[10], ls_dfs_non_zeros_sorted[4],
-                                      ls_df_zeros[5], ls_df_zeros[11], ls_dfs_non_zeros_sorted[5]])
+                first_zero += 1
+                second_zero += 1
+                non_zero += 1
 
+            # Concat all of the needle passes together for the final df.
+            final_df = pd.concat(ls_df_final)
             final_df = final_df.reset_index(drop=True)
 
     except RuntimeError:
