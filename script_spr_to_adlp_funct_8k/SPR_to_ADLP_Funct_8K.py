@@ -552,7 +552,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
             # Copy back the image backup directories
             shutil.copytree(dir_temp_ss_img, os.path.join(homedir, 'desktop', NOW + '_SPR_SAVED_IMGS', ss_img_dir_name))
-            shutil.copytree(dir_temp_senso_img, os.path.join(homedir, 'desktop', NOW + 'SPR_SAVED_IMGS', \
+            shutil.copytree(dir_temp_senso_img, os.path.join(homedir, 'desktop', NOW + '_SPR_SAVED_IMGS', \
                                                                                       senso_img_dir_name))
             raise RuntimeError('Dang it! A crash occurred!!\n'
                                'IMPORTANT: The original image names have been saved to your desktop in folder '
