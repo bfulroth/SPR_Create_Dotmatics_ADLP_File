@@ -4,6 +4,7 @@ from glob import glob
 import platform
 import tempfile
 import shutil
+from datetime import datetime
 import re
 import xlrd
 import numpy as np
@@ -16,6 +17,10 @@ if platform.system() == "Windows":
     homedir = str(Path.home())
 else:
     homedir = os.environ['HOME']
+
+# Set the date to include in the file directory if a crash occures
+NOW = datetime.now()
+NOW = NOW.strftime('%y%m%d')
 
 
 def spr_displacement_top_conc(report_pt_file, df_cmpd_set):
@@ -546,8 +551,9 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
             shutil.rmtree(path_senso_img)
 
             # Copy back the image backup directories
-            shutil.copytree(dir_temp_ss_img, os.path.join(homedir, 'desktop', 'SPR_SAVED_IMGS', ss_img_dir_name))
-            shutil.copytree(dir_temp_senso_img, os.path.join(homedir, 'desktop', 'SPR_SAVED_IMGS', senso_img_dir_name))
+            shutil.copytree(dir_temp_ss_img, os.path.join(homedir, 'desktop', NOW + '_SPR_SAVED_IMGS', ss_img_dir_name))
+            shutil.copytree(dir_temp_senso_img, os.path.join(homedir, 'desktop', NOW + 'SPR_SAVED_IMGS', \
+                                                                                      senso_img_dir_name))
             raise RuntimeError('Dang it! A crash occurred!!\n'
                                'IMPORTANT: The original image names have been saved to your desktop in folder '
                                'SPR_SAVED_IMGS\n'

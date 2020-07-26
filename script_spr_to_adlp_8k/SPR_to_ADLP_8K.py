@@ -5,6 +5,7 @@ import platform
 import numpy as np
 from glob import glob
 import shutil
+from datetime import datetime
 import SPR_to_ADLP_Functions
 import tempfile
 from _version import __version__
@@ -17,6 +18,10 @@ if platform.system() == "Windows":
     homedir = str(Path.home())
 else:
     homedir = os.environ['HOME']
+
+# Set the date to include in the file directory if a crash occures
+NOW = datetime.now()
+NOW = NOW.strftime('%y%m%d')
 
 
 def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
@@ -434,9 +439,14 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
             shutil.rmtree(path_senso_img)
 
             # Copy back the image backup directories
-            shutil.copytree(dir_temp_ss_img, path_ss_img)
-            shutil.copytree(dir_temp_senso_img, path_senso_img)
-            raise RuntimeError('All images have been returned to their original names.')
+            # Copy back the image backup directories
+            shutil.copytree(dir_temp_ss_img, os.path.join(homedir, 'desktop', NOW + '_SPR_SAVED_IMGS', ss_img_dir_name))
+            shutil.copytree(dir_temp_senso_img, os.path.join(homedir, 'desktop', NOW + '_SPR_SAVED_IMGS', \
+                                                                                   senso_img_dir_name))
+            raise RuntimeError('Dang it! A crash occurred!!\n'
+                               'IMPORTANT: The original image names have been saved to your desktop in folder '
+                               'SPR_SAVED_IMGS\n'
+                               'Please copy back these original images to the Iron server.')
 
     # Insert structure images
     # Render the smiles into png images in a temp directory
