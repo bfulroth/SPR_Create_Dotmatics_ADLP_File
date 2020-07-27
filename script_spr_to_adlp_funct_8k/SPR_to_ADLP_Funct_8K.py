@@ -18,7 +18,7 @@ if platform.system() == "Windows":
 else:
     homedir = os.environ['HOME']
 
-# Set the date to include in the file directory if a crash occures
+# Set the date to include in the file directory for images if a crash occurs
 NOW = datetime.now()
 NOW = NOW.strftime('%y%m%d')
 
@@ -29,8 +29,6 @@ def spr_displacement_top_conc(report_pt_file, df_cmpd_set):
         :param report_pt_file: reference to the report point file exported from the Biacore Instrument.
         :param df_cmpd_set: DataFrame containing the compound set data. This is used to extract the binding
         RU at the top concentration of compound tested.
-        :param instrument: The instrument as a string. (e.g. 'BiacoreS200', 'Biacore1, 'Biacore2')
-        :param fc_used: The flow channels that were immobilized in the experiment.
         :returns Series containing the RU at the top concentration tested for each compound in the order tested.
         """
     try:
@@ -50,7 +48,6 @@ def spr_displacement_top_conc(report_pt_file, df_cmpd_set):
     df_rpt_pts_trim = df_rpt_pts_trim[df_rpt_pts_trim['Sensorgram type'] == 'Corrected']
     df_rpt_pts_trim = df_rpt_pts_trim[(df_rpt_pts_trim['Name'] == 'A-B-A binding late_1')]
 
-    # TODO: May need to add in conditionals if you test any fewer than 8 channels.
     # Create a new column of BRD 4 digit numbers to merge
     df_rpt_pts_trim['BRD_MERGE'] = df_rpt_pts_trim['A-B-A 1 Flanking solution'].str.split('_', expand=True)[0]
     df_cmpd_set['BRD_MERGE'] = 'BRD-' + df_cmpd_set['Broad ID'].str[9:13]
@@ -83,7 +80,7 @@ def spr_displacement_top_conc(report_pt_file, df_cmpd_set):
 
 def calc_max_theory_disp(file_path, fc_used_arr):
     """
-    This method takes a report point file from a Biacore S200 instrument and extracts the blank/ zero concentration
+    This method takes a report point file from a Biacore 8k instrument and extracts the blank/ zero concentration
     values. These only contain competitor protein and not compound. These values represent the maximum amount that
     a compound could theoretically displace a binding partner from the immobilized protein. The values are returned
     in the order they were run on the instrument.
@@ -130,11 +127,11 @@ def calc_max_theory_disp(file_path, fc_used_arr):
 def rename_images(df, path_img, image_type, raw_data_file_name):
     """
     Method that renames the images in a folder.  Also adds the names of the images to the passed in df.
-    :param df_ss_senso: Dataframe containing the steady state and kinetic fit results.
+    :param df: Dataframe containing the steady state or kinetic fit results.
     :param path_img: Path to the folder containing the images to rename
     :param image_type: The type of image eight 'ss' for steady state or 'senso' for kinetic fits.
     :param raw_data_file_name: Name of thee raw data file used when renaming the images.
-    :return: The df_ss_senso df with the column with the image names added.
+    :return: The df passed in with the column with the image names added.
     """
 
     # Store the current working directory
@@ -223,7 +220,6 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
             path_master_tbl = config.get('paths', 'path_mstr_tbl')
             df_cmpd_set = pd.read_csv(path_master_tbl)
 
-
         path_ss_img = config.get('paths', 'path_ss_img')
         path_senso_img = config.get('paths', 'path_senso_img')
         path_ss_txt = config.get('paths', 'path_ss_txt')
@@ -296,7 +292,6 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Read in the text files that have the calculated values for steady-state and kinetic analysis.
     try:
-
         def _find_cell(sh, searched_value):
             """Private function used to find the row and column of a particular value in an Excel worksheet"""
             for row in range(sh.nrows):
@@ -326,11 +321,11 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         raise RuntimeError('Issue reading in data from either steady state or kinetic Excels files.')
 
     """
-    Biacore 8k names the images in different way compared to S200 and T200. Therefore, we need to rename the images
+    Biacore 8k names the images in a different way compared to S200 and T200. Therefore, we need to rename the images
     to be consistent for Dotmatics.
     """
     # Save images in a temporary directory in case of a crash.
-    # Note that a significant amount of code is nested in this context mangager so that if a crash occurres the images
+    # Note that a significant amount of code is nested in this context mangager so that if a crash occurs the images
     # are returned to their original state.
     with tempfile.TemporaryDirectory() as tmp_img_dir:
 
@@ -343,6 +338,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                 ss_img_dir_name = path_ss_img.split('/')[-1]
                 senso_img_dir_name = path_senso_img.split('/')[-1]
 
+            # Create a temporary backup directory for both ss and senso images
             dir_temp_ss_img = os.path.join(tmp_img_dir, ss_img_dir_name)
             dir_temp_senso_img = os.path.join(tmp_img_dir, senso_img_dir_name)
 
@@ -552,11 +548,11 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
             # Copy back the image backup directories
             shutil.copytree(dir_temp_ss_img, os.path.join(homedir, 'desktop', NOW + '_SPR_SAVED_IMGS', ss_img_dir_name))
-            shutil.copytree(dir_temp_senso_img, os.path.join(homedir, 'desktop', NOW + '_SPR_SAVED_IMGS', \
-                                                                                      senso_img_dir_name))
+            shutil.copytree(dir_temp_senso_img, os.path.join(homedir, 'desktop', NOW + '_SPR_SAVED_IMGS',
+                                                             senso_img_dir_name))
             raise RuntimeError('Dang it! A crash occurred!!\n'
-                               'IMPORTANT: The original image names have been saved to your desktop in folder '
-                               'SPR_SAVED_IMGS\n'
+                               'IMPORTANT: The original image names have been saved to your desktop in folder ' +
+                               NOW + '_SPR_SAVED_IMGS\n'
                                'Please copy back these original images to the Iron server.')
 
     # Insert structure images
