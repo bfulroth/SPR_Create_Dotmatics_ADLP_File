@@ -36,7 +36,7 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
 
     # Store the current working directory
     my_dir = os.getcwd()
-
+    
     # Change the Directory to the ss image folder
     os.chdir(path_img)
 
@@ -450,34 +450,39 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Insert structure images
     # Render the smiles into png images in a temp directory
-    with tempfile.TemporaryDirectory() as tmp_img_dir:
+    # TODO: Issue connecting to resultsdb on Windows
+    if platform.system() != "Windows":
 
-        # This line gets all the smiles from the database
-        df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
-            df_mstr_tbl=df_cmpd_set)
+        with tempfile.TemporaryDirectory() as tmp_img_dir:
 
-        # Issue with connecting to resultsdb, then skip inserting structures.
-        if df_struct_smiles is not None:
+            # This line gets all the smiles from the database
+            df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
+                df_mstr_tbl=df_cmpd_set)
 
-            # Render the structure images
-            df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
-                df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
+            # Issue with connecting to resultsdb, then skip inserting structures.
+            if df_struct_smiles is not None:
 
-            # Create an list of the images paths in order
-            ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths,
-                                                                                      col_name='IMG_PATH',
-                                                                                      times_dup=1)
+                # Render the structure images
+                df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
+                    df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
 
-            # Insert the structures into the Excel workbook object
-            SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
-                                                                         worksheet=worksheet1)
+                # Create an list of the images paths in order
+                ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths,
+                                                                                          col_name='IMG_PATH',
+                                                                                          times_dup=1)
 
-            # Save the writer object inside the context manager.
-            writer.save()
+                # Insert the structures into the Excel workbook object
+                SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
+                                                                             worksheet=worksheet1)
 
-        else:
-            # Save the writer object inside the context manager.
-            writer.save()
+                # Save the writer object inside the context manager.
+                writer.save()
+
+            else:
+                # Save the writer object inside the context manager.
+                writer.save()
+    else:
+        writer.save()
 
     print('\nProgram Done!')
     print("The ADLP result was saved to your desktop.")
