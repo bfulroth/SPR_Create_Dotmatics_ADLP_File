@@ -308,7 +308,7 @@ def save_output_file(df_final):
     now = now.strftime('%y%m%d')
 
     # Save file path for server Iron
-    save_file_path_iron = os.path.join('iron', 'tdts_users', 'SPR Setup Files',
+    save_file_path_iron = os.path.join('Iron', 'tdts_users', 'SPR Setup Files',
                                        now + '_spr_setup_affinity_APPVersion_' + str(__version__))
 
     save_file_path_iron = save_file_path_iron.replace('.', '_')
