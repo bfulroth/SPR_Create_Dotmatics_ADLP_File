@@ -449,9 +449,10 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                 df_final_for_dot.loc[:, 'DIR_FOLDER'] = directory_folder
 
                 # Add the unique ID #
+                rand_int = np.random.randint(low=10, high=99)
                 df_final_for_dot['UNIQUE_ID'] = df_ss_txt['A-B-A 1 Solution'] + '_' + df_final_for_dot['FC'] + '_' \
-                                                + project_code + '_' + experiment_date + '_' + \
-                                                df_ss_txt['Steady_State_Img'].str.split('_', expand=True)[5]
+                                                + project_code + '_' + experiment_date + '_' + str(rand_int) + '_' + \
+                                                df_ss_txt['Steady_State_Img'].str.split('_').str[-1]
 
                 # Add steady state image file path
                 # Need to replace /Volumes with //flynn
@@ -499,12 +500,15 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                 comments_list = pd.DataFrame({'Comments':
                                                 ['No displacement.',
                                                  'Normal curve.',
+                                                 'Greater than 50% displacement. Partial Saturation.',
                                                  'Greater than 50% displacement. Curve does not saturate.',
                                                  'Normal curve. Below 50% Displacement.',
                                                  'Below 50% Displacement.',
+                                                 'Positive displacement',
                                                  'Issues with compound.',
                                                  'Poor fit. IC50 not reported.',
-                                                 'Issues at top concentration'
+                                                 'Issues at top concentration',
+                                                 'Mark for retest.'
                                                ]})
 
                 # Convert comments list to DataFrame

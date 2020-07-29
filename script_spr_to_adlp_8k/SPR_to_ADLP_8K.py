@@ -10,7 +10,7 @@ import SPR_to_ADLP_Functions
 import tempfile
 from _version import __version__
 import xlrd
-
+import logging
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -23,6 +23,8 @@ else:
 NOW = datetime.now()
 NOW = NOW.strftime('%y%m%d')
 
+# Configure logger
+logging.basicConfig(level=logging.INFO)
 
 def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     """
@@ -34,9 +36,11 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     :return: The df_ss_senso df with the column with the image names added.
     """
 
+    logging.info('Attempting to rename images...')
+
     # Store the current working directory
     my_dir = os.getcwd()
-    
+
     # Change the Directory to the ss image folder
     os.chdir(path_img)
 
@@ -88,6 +92,8 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
 
     # change the directory back to the working dir.
     os.chdir(my_dir)
+
+    logging.info('Images were renamed successfully...')
     return df_analysis
 
 def spr_create_dot_upload_file(config_file, save_file, clip):
@@ -121,6 +127,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
             path_master_tbl = config.get('paths', 'path_mstr_tbl')
             df_cmpd_set = pd.read_csv(path_master_tbl)
 
+        logging.info('Collecting metadata from configuration file...')
         path_ss_img = config.get('paths', 'path_ss_img')
         path_senso_img = config.get('paths', 'path_senso_img')
         path_ss_txt = config.get('paths', 'path_ss_txt')
@@ -180,6 +187,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         raise RuntimeError('Something is wrong with the config file. Please check.')
 
     # Read in the text files that have the calculated values for steady-state and kinetic analysis.
+    logging.info('Reading in Steady State and Kinetic Data from Excel files on Iron...')
     try:
 
         def _find_cell(sh, searched_value):
@@ -244,6 +252,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                             image_type='senso', raw_data_file_name=raw_data_filename)
 
             try:
+
+                logging.info('Creating the main file for ADLP...')
                 # Start building the final Dotmatics DataFrame
                 df_final_for_dot = pd.DataFrame()
 
