@@ -6,6 +6,7 @@ from rdkit.Chem import Draw, AllChem
 import cx_Oracle
 import sqlalchemy
 import crypt
+import logging
 
 
 def rep_item_for_dot_df(df, col_name, times_dup=3, sort=False):
@@ -43,6 +44,7 @@ def _connect(engine):
     Private method that actually makes the connection to resultsdb
     :param engine: Sqlalchemy engine object
     """
+    logging.warning('Making a connection attempt to resultsdb...')
     c = engine.connect()
     return c
 
