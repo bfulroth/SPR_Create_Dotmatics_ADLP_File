@@ -499,6 +499,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                 comments_list = pd.DataFrame({'Comments':
                                                 ['No displacement.',
                                                  'Normal curve.',
+                                                 'Greater than 50% displacement. Curve does not saturate.',
                                                  'Normal curve. Below 50% Displacement.',
                                                  'Below 50% Displacement.',
                                                  'Issues with compound.',
