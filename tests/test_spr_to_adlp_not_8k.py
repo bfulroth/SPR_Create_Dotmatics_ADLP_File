@@ -107,7 +107,8 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
                                                                        38.61, 45.64, 44.77, 31.41, 37.33, 35.79]})
 
         config_file_path = './tests/fixtures/Biacore1_Test_Files/200312-1_config_affinit_Biacore1.txt'
-        cls.df_result = spr_create_dot_upload_file(config_file=config_file_path, save_file='Test', clip=False)
+        cls.df_result = spr_create_dot_upload_file(config_file=config_file_path, save_file='Test', clip=False,
+                                                   structures=False)
 
     def test_final_df_correct_col_names(self):
 

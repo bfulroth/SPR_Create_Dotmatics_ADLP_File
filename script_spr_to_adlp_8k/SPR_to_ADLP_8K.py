@@ -96,13 +96,15 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     logging.info('Images were renamed successfully...')
     return df_analysis
 
-def spr_create_dot_upload_file(config_file, save_file, clip):
+
+def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
     """
     Function the aggregates all data from and SPR binding experiment run with compounds at dose into one Excel File.
 
     :arg config_file: Text file containing all of the metadata for an SPR experiment run at dose.
     :arg save_file: Name of the final Excel file.
     :arg clip: Optional flag that indicates if the setup table exists on the clipboard.
+    :param structures: Optional flag that indicates if the program should attempt to insert chemical structures.
     :return None
 
     """
@@ -466,7 +468,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         logging.info('As you are running on Windows, inserting compound structures into the final Excel file has '
                      'been\n disabled due to database connections issues when using Windows.\n  A fix is in the '
                      'pipeline..')
-    if platform.system() != "Windows":
+    if platform.system() != "Windows" and structures:
 
         with tempfile.TemporaryDirectory() as tmp_img_dir:
 

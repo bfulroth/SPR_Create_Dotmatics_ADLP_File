@@ -19,13 +19,14 @@ else:
 logging.basicConfig(level=logging.INFO)
 
 
-def spr_create_dot_upload_file(config_file, save_file, clip):
+def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
     """
     Function the aggregates all data from and SPR binding experiment run with compounds at dose into one Excel File.
 
     :arg config_file: Text file containing all of the metadata for an SPR experiment run at dose.
     :arg save_file: Name of the final Excel file.
     :arg clip: Optional flag that indicates if the setup table exists on the clipboard.
+    :param structures: Optional flag that indicates if the program should attempt to insert chemical structures.
     :return None
 
     """
@@ -306,33 +307,42 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Insert structure images
     # Render the smiles into png images in a temp directory
-    with tempfile.TemporaryDirectory() as tmp_img_dir:
+    # TODO: Issue connecting to resultsdb on Windows
+    if platform.system() == "Windows":
+        logging.info('As you are running on Windows, inserting compound structures into the final Excel file has '
+                     'been\n disabled due to database connections issues when using Windows.\n  A fix is in the '
+                     'pipeline..')
+    if platform.system() != "Windows" and structures:
 
-        # This line gets all the smiles from the database
-        df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
-            df_mstr_tbl=df_cmpd_set)
+        with tempfile.TemporaryDirectory() as tmp_img_dir:
 
-        # Issue with connecting to resultsdb, then skip inserting structures.
-        if df_struct_smiles is not None:
+            # This line gets all the smiles from the database
+            df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
+                df_mstr_tbl=df_cmpd_set)
 
-            # Render the structure images
-            df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
-                df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
+            # Issue with connecting to resultsdb, then skip inserting structures.
+            if df_struct_smiles is not None:
 
-            # Create an list of the images paths in order
-            ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths, col_name='IMG_PATH',
-                                                                     times_dup=num_fc_used)
+                # Render the structure images
+                df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
+                    df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
 
-            # Insert the structures into the Excel workbook object
-            SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
-                                                                         worksheet=worksheet1)
+                # Create an list of the images paths in order
+                ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths, col_name='IMG_PATH',
+                                                                         times_dup=num_fc_used)
 
-            # Save the writer object inside the context manager.
-            writer.save()
+                # Insert the structures into the Excel workbook object
+                SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
+                                                                             worksheet=worksheet1)
 
-        else:
-            # Save the writer object inside the context manager.
-            writer.save()
+                # Save the writer object inside the context manager.
+                writer.save()
+
+            else:
+                # Save the writer object inside the context manager.
+                writer.save()
+    else:
+        writer.save()
 
     print('\nProgram Done!')
     print("The ADLP result was saved to your desktop.")
