@@ -22,6 +22,9 @@ else:
 NOW = datetime.now()
 NOW = NOW.strftime('%y%m%d')
 
+# Configure logger
+logging.basicConfig(level=logging.INFO)
+
 
 def spr_displacement_top_conc(report_pt_file, df_cmpd_set):
     """This method calculates the binding in RU at the top concentration.

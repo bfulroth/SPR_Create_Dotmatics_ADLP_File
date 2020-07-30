@@ -453,14 +453,19 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
             shutil.copytree(dir_temp_ss_img, os.path.join(homedir, 'desktop', NOW + '_SPR_SAVED_IMGS', ss_img_dir_name))
             shutil.copytree(dir_temp_senso_img, os.path.join(homedir, 'desktop', NOW + '_SPR_SAVED_IMGS', \
                                                                                    senso_img_dir_name))
-            raise RuntimeError('Dang it! A crash occurred!!\n'
-                               'IMPORTANT: The original image names have been saved to your desktop in folder '
-                               'SPR_SAVED_IMGS\n'
-                               'Please copy back these original images to the Iron server.')
+
+            logging.info(f"A crash occurred.  A folder named {NOW + '_SPR_SAVED_IMGS'} has be created on you desktop\n"
+                         f"with the original images and their names.  To prevent an inconsistent state the image\n "
+                         f"folders on Iron have been removed")
+            raise RuntimeError('Dang it! A crash occurred!!')
 
     # Insert structure images
     # Render the smiles into png images in a temp directory
     # TODO: Issue connecting to resultsdb on Windows
+    if platform.system() == "Windows":
+        logging.info('As you are running on Windows, inserting compound structures into the final Excel file has '
+                     'been\n disabled due to database connections issues when using Windows.\n  A fix is in the '
+                     'pipeline..')
     if platform.system() != "Windows":
 
         with tempfile.TemporaryDirectory() as tmp_img_dir:

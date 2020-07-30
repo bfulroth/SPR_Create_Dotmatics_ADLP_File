@@ -3,6 +3,7 @@ import platform
 import tempfile
 import configparser
 import os
+import logging
 
 import SPR_to_ADLP_Functions
 from _version import __version__
@@ -13,6 +14,9 @@ if platform.system() == "Windows":
     homedir = str(Path.home())
 else:
     homedir = os.environ['HOME']
+
+# Configure logger
+logging.basicConfig(level=logging.INFO)
 
 
 def spr_create_dot_upload_file(config_file, save_file, clip):
@@ -34,6 +38,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
     adlp_save_file_path = adlp_save_file_path + '.xlsx'
 
     try:
+        logging.info('Collecting metadata from configuration file...')
         config = configparser.ConfigParser()
         config.read(config_file)
 
@@ -90,9 +95,11 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         fc4_protein_BIP = config.get('meta','fc4_protein_BIP')
         fc4_protein_RU = float(config.get('meta','fc4_protein_RU'))
         fc4_protein_MW = float(config.get('meta','fc4_protein_MW'))
+        logging.info('Finished collecting metadata from configuration file. Proceeding...')
     except:
         raise RuntimeError('Something is wrong with the config file. Please check.')
 
+    logging.info('Creating the ADLP File...')
     # Start building the final Dotmatics DataFrame
     df_final_for_dot = pd.DataFrame()
 
@@ -131,6 +138,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Extract the steady state data and add to DataFrame
     # Read in the steady state text file into a DataFrame
+    logging.info('Reading data from steady state fit file...')
     df_ss_txt = pd.read_csv(path_ss_txt, sep='\t')
 
     # Create new columns to sort the DataFrame as the original is out of order.
@@ -152,6 +160,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
 
     # Extract the sensorgram data and add to DataFrame
     # Read in the sensorgram data into a DataFrame
+    logging.info('Reading data from kinetic fit file...')
     df_senso_txt = pd.read_csv(path_senso_txt, sep='\t')
     df_senso_txt['sample_order'] = df_senso_txt['Image File'].str.split('_', expand=True)[1]
     df_senso_txt['sample_order'] = pd.to_numeric(df_senso_txt['sample_order'])
