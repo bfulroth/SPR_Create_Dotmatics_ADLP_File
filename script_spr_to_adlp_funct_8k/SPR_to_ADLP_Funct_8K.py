@@ -9,6 +9,7 @@ import re
 import xlrd
 import numpy as np
 import SPR_to_ADLP_Functions
+import logging
 from _version import __version__
 
 # Get the users Home Directory
