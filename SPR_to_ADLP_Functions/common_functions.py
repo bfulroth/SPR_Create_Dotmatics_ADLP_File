@@ -6,6 +6,7 @@ from rdkit.Chem import Draw, AllChem
 import cx_Oracle
 import sqlalchemy
 import crypt
+import logging
 
 
 def rep_item_for_dot_df(df, col_name, times_dup=3, sort=False):
@@ -43,7 +44,9 @@ def _connect(engine):
     Private method that actually makes the connection to resultsdb
     :param engine: Sqlalchemy engine object
     """
+    logging.info('Making a connection attempt to resultsdb...')
     c = engine.connect()
+    logging.info('Connection successful, proceeding...')
     return c
 
 
@@ -124,6 +127,7 @@ def render_structure_imgs(df_with_smiles, dir):
     :param dir: directory to story the images.
     :return None
     """
+    logging.info('Attempting to render structures...')
 
     # Tag the smile field if it is not found.
     df_with_smiles = df_with_smiles.fillna('Not Found')
@@ -162,6 +166,7 @@ def render_structure_imgs(df_with_smiles, dir):
 
             img_num += 1
 
+    logging.info('Structures rendered successfully, proceeding...')
     return df_with_smiles
 
 
@@ -173,6 +178,7 @@ def spr_insert_structures(ls_img_struct_paths, worksheet):
     :param worksheet: xlsxwriter object used to insert the images to a worksheet
     :return: None
     """
+    logging.info('Attempting to insert structures into Excel workbook...')
     # Format the rows and columns in the worksheet to fit the images.
     num_images = len(ls_img_struct_paths)
 
@@ -194,6 +200,8 @@ def spr_insert_structures(ls_img_struct_paths, worksheet):
             worksheet.insert_image('B' + str(row), img)
             row += 1
 
+    logging.info('Structures inserted into Excel workbook successfully, proceeding...')
+
 
 def spr_insert_ss_senso_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img, biacore):
     """
@@ -205,6 +213,8 @@ def spr_insert_ss_senso_images(tuple_list_imgs, worksheet, path_ss_img, path_sen
     :param biacore: Instrument used in experiment.  Images are sized differently between 8k and all other instruments.
     :return: None
     """
+
+    logging.info('Attempting to insert Sensogram Images into Excel workbook...')
 
     # Dictionary of Excel cell format parameters for each instrument as the images are slightly different.
     if biacore == 'Biacore8K':
@@ -228,6 +238,8 @@ def spr_insert_ss_senso_images(tuple_list_imgs, worksheet, path_ss_img, path_sen
         worksheet.insert_image('E' + str(row), path_ss_img + '/' + ss_img)
         worksheet.insert_image('F' + str(row), path_senso_img + '/' + senso_img)
         row += 1
+
+    logging.info('Sensorgram images inserted into Excel workbook successfully, proceeding...')
 
 
 def get_predefined_comments():
@@ -310,6 +322,8 @@ def _percent_bind_helper_filter_non_corr_data_non_8k(df, ref_fc_used_arr, fc_use
 
 
 def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_used, ref_fc_used_arr=None):
+
+    logging.info('Calculating percent binding of compound at top concentration...')
 
     # Check that the correct instrument is specified in the configuration file.
     if (instrument != 'BiacoreS200') & (instrument != 'Biacore1') & (instrument != 'Biacore3') & \
@@ -448,6 +462,8 @@ def spr_binding_top_for_dot_file(report_pt_file, df_cmpd_set, instrument, fc_use
         df_rpt_pts_trim['sample_order'] = df_rpt_pts_trim['Sample_1_Sample'].str.split('_', expand=True)[1]
         df_rpt_pts_trim = df_rpt_pts_trim.sort_values(['Cycle', 'sample_order'])
         df_rpt_pts_trim = df_rpt_pts_trim.reset_index(drop=True)
+
+    logging.info('Finished calculating percent binding of compound at top concentration, proceeding...')
 
     return round(df_rpt_pts_trim['RelResp [RU]'], 2)
 

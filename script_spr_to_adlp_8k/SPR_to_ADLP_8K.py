@@ -5,11 +5,12 @@ import platform
 import numpy as np
 from glob import glob
 import shutil
+from datetime import datetime
 import SPR_to_ADLP_Functions
 import tempfile
 from _version import __version__
 import xlrd
-
+import logging
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -18,6 +19,12 @@ if platform.system() == "Windows":
 else:
     homedir = os.environ['HOME']
 
+# Set the date to include in the file directory if a crash occures
+NOW = datetime.now()
+NOW = NOW.strftime('%y%m%d')
+
+# Configure logger
+logging.basicConfig(level=logging.INFO)
 
 def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     """
@@ -28,6 +35,8 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     :param raw_data_file_name: Name of the raw data file used when renaming the images.
     :return: The df_ss_senso df with the column with the image names added.
     """
+
+    logging.info('Attempting to rename images...')
 
     # Store the current working directory
     my_dir = os.getcwd()
@@ -83,6 +92,8 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
 
     # change the directory back to the working dir.
     os.chdir(my_dir)
+
+    logging.info('Images were renamed successfully...')
     return df_analysis
 
 def spr_create_dot_upload_file(config_file, save_file, clip):
@@ -116,6 +127,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
             path_master_tbl = config.get('paths', 'path_mstr_tbl')
             df_cmpd_set = pd.read_csv(path_master_tbl)
 
+        logging.info('Collecting metadata from configuration file...')
         path_ss_img = config.get('paths', 'path_ss_img')
         path_senso_img = config.get('paths', 'path_senso_img')
         path_ss_txt = config.get('paths', 'path_ss_txt')
@@ -175,6 +187,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
         raise RuntimeError('Something is wrong with the config file. Please check.')
 
     # Read in the text files that have the calculated values for steady-state and kinetic analysis.
+    logging.info('Reading in Steady State and Kinetic Data from Excel files on Iron...')
     try:
 
         def _find_cell(sh, searched_value):
@@ -239,6 +252,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                             image_type='senso', raw_data_file_name=raw_data_filename)
 
             try:
+
+                logging.info('Creating the main file for ADLP...')
                 # Start building the final Dotmatics DataFrame
                 df_final_for_dot = pd.DataFrame()
 
@@ -434,40 +449,55 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
             shutil.rmtree(path_senso_img)
 
             # Copy back the image backup directories
-            shutil.copytree(dir_temp_ss_img, path_ss_img)
-            shutil.copytree(dir_temp_senso_img, path_senso_img)
-            raise RuntimeError('All images have been returned to their original names.')
+            # Copy back the image backup directories
+            shutil.copytree(dir_temp_ss_img, os.path.join(homedir, 'desktop', NOW + '_SPR_SAVED_IMGS', ss_img_dir_name))
+            shutil.copytree(dir_temp_senso_img, os.path.join(homedir, 'desktop', NOW + '_SPR_SAVED_IMGS', \
+                                                                                   senso_img_dir_name))
+
+            logging.info(f"A crash occurred.  A folder named {NOW + '_SPR_SAVED_IMGS'} has be created on you desktop\n"
+                         f"with the original images and their names.  To prevent an inconsistent state the image\n "
+                         f"folders on Iron have been removed")
+            raise RuntimeError('Dang it! A crash occurred!!')
 
     # Insert structure images
     # Render the smiles into png images in a temp directory
-    with tempfile.TemporaryDirectory() as tmp_img_dir:
+    # TODO: Issue connecting to resultsdb on Windows
+    if platform.system() == "Windows":
+        logging.info('As you are running on Windows, inserting compound structures into the final Excel file has '
+                     'been\n disabled due to database connections issues when using Windows.\n  A fix is in the '
+                     'pipeline..')
+    if platform.system() != "Windows":
 
-        # This line gets all the smiles from the database
-        df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
-            df_mstr_tbl=df_cmpd_set)
+        with tempfile.TemporaryDirectory() as tmp_img_dir:
 
-        # Issue with connecting to resultsdb, then skip inserting structures.
-        if df_struct_smiles is not None:
+            # This line gets all the smiles from the database
+            df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
+                df_mstr_tbl=df_cmpd_set)
 
-            # Render the structure images
-            df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
-                df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
+            # Issue with connecting to resultsdb, then skip inserting structures.
+            if df_struct_smiles is not None:
 
-            # Create an list of the images paths in order
-            ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths,
-                                                                                      col_name='IMG_PATH',
-                                                                                      times_dup=1)
+                # Render the structure images
+                df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
+                    df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
 
-            # Insert the structures into the Excel workbook object
-            SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
-                                                                         worksheet=worksheet1)
+                # Create an list of the images paths in order
+                ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths,
+                                                                                          col_name='IMG_PATH',
+                                                                                          times_dup=1)
 
-            # Save the writer object inside the context manager.
-            writer.save()
+                # Insert the structures into the Excel workbook object
+                SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
+                                                                             worksheet=worksheet1)
 
-        else:
-            # Save the writer object inside the context manager.
-            writer.save()
+                # Save the writer object inside the context manager.
+                writer.save()
+
+            else:
+                # Save the writer object inside the context manager.
+                writer.save()
+    else:
+        writer.save()
 
     print('\nProgram Done!')
     print("The ADLP result was saved to your desktop.")
