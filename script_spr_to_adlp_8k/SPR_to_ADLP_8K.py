@@ -191,7 +191,6 @@ def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
     # Read in the text files that have the calculated values for steady-state and kinetic analysis.
     logging.info('Reading in Steady State and Kinetic Data from Excel files on Iron...')
     try:
-
         def _find_cell(sh, searched_value):
             """Private function used to find the row and column of a particular value in an Excel worksheet"""
             for row in range(sh.nrows):
@@ -462,45 +461,9 @@ def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
             raise RuntimeError('Dang it! A crash occurred!!')
 
     # Insert structure images
-    # Render the smiles into png images in a temp directory
-    # TODO: Issue connecting to resultsdb on Windows
-    if platform.system() == "Windows":
-        logging.info('As you are running on Windows, inserting compound structures into the final Excel file has '
-                     'been\n disabled due to database connections issues when using Windows.\n  A fix is in the '
-                     'pipeline..')
-    if platform.system() != "Windows" and structures:
-
-        with tempfile.TemporaryDirectory() as tmp_img_dir:
-
-            # This line gets all the smiles from the database
-            df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
-                df_mstr_tbl=df_cmpd_set)
-
-            # Issue with connecting to resultsdb, then skip inserting structures.
-            if df_struct_smiles is not None:
-
-                # Render the structure images
-                df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
-                    df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
-
-                # Create an list of the images paths in order
-                ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths,
-                                                                                          col_name='IMG_PATH',
-                                                                                          times_dup=1)
-
-                # Insert the structures into the Excel workbook object
-                SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
-                                                                             worksheet=worksheet1)
-
-                # Save the writer object inside the context manager.
-                writer.save()
-
-            else:
-                # Save the writer object inside the context manager.
-                writer.save()
-    else:
-        writer.save()
-
+    SPR_to_ADLP_Functions.common_functions.manage_structure_insertion(df_cmpd_set=df_cmpd_set,
+                                                                       num_fc_used=1, worksheet=worksheet1,
+                                                                       structures=structures, writer=writer)
     print('\nProgram Done!')
     print("The ADLP result was saved to your desktop.")
 
