@@ -9,7 +9,9 @@ import click
 @click.command()
 @click.option('--config_file', prompt="Please paste the path of the configuration file", type=click.Path(exists=True))
 @click.option('--save_file', prompt="Please type the name of the ADLP result file NO .xlsx extension NEEDED")
-@click.option('--clip', is_flag=True, help="Option to indicate that the contents of the setup file are on the clipboard.")
-@click.option('--structures', is_flag=True, help="Option to indicate attempting to insert structures from database.")
+@click.option('--clip', '-c', is_flag=True,
+              help="Option to indicate that the contents of the setup file are on the clipboard.")
+@click.option('--structures', '-s', is_flag=True,
+              help="Option to indicate attempting to insert structures from database.")
 def main(config_file, save_file, clip, structures):
     spr_create_dot_upload_file(config_file=config_file, save_file=save_file, clip=clip, structures=structures)

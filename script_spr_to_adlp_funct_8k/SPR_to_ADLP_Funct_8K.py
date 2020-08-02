@@ -131,7 +131,7 @@ def calc_max_theory_disp(file_path, fc_used_arr):
 def rename_images(df, path_img, image_type, raw_data_file_name):
     """
     Method that renames the images in a folder.  Also adds the names of the images to the passed in df.
-    
+
     :param df: Dataframe containing the steady state or kinetic fit results.
     :param path_img: Path to the folder containing the images to rename
     :param image_type: The type of image eight 'ss' for steady state or 'senso' for kinetic fits.
