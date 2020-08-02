@@ -131,6 +131,7 @@ def calc_max_theory_disp(file_path, fc_used_arr):
 def rename_images(df, path_img, image_type, raw_data_file_name):
     """
     Method that renames the images in a folder.  Also adds the names of the images to the passed in df.
+    
     :param df: Dataframe containing the steady state or kinetic fit results.
     :param path_img: Path to the folder containing the images to rename
     :param image_type: The type of image eight 'ss' for steady state or 'senso' for kinetic fits.
@@ -201,6 +202,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip, structures):
     :param config_file: Path of the configuration file containing the paths to the needed files and meta data for a particular experiment.
     :param save_file: Path of the saved ADLP Excel file. This is saved to the users desktop.
     :param clip: Option that indicates that the contents of the SPR setup table are on the clipboard.
+    :param structures: Option that indicates that the program should attempt getting structures.
 
     """
     import configparser
