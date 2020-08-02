@@ -495,19 +495,16 @@ class SPR_to_ADLP_8K_Cli(TestCase):
                                              28.53, 32.5, 31.72, 16.22, 26.1, 77.67, 35.74, 18.94, 24.05, 32.55, 35.72,
                                              44.11, 51.18, 63.29, 17.97]})
 
-    @patch('SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db', return_value='Structures Here')
-    @patch('SPR_to_ADLP_Functions.common_functions.render_structure_imgs',
-           return_value=pd.DataFrame({'IMG_PATH': ['Fake/File/Path', 'Fake/File/Path2']}))
-    @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_structures')
     @patch('SPR_to_ADLP_Functions.common_functions.spr_binding_top_for_dot_file')
     @patch('shutil.rmtree')
     @patch('shutil.copytree')
+    @patch('SPR_to_ADLP_Functions.common_functions.manage_structure_insertion')
     @patch('SPR_to_ADLP_Functions.common_functions.spr_insert_ss_senso_images', return_value='Image Place Holder')
     @patch('script_spr_to_adlp_8k.SPR_to_ADLP_8K.rename_images')
     @patch('pandas.ExcelWriter')
     @patch('pandas.DataFrame.to_excel')
     def test_Cli_and_adlp_df_created_Biacore8k(self, mock_1, mock_2, mock_3, mock_4, mock_5, mock_6, mock_7,
-                                               mock_8, mock_9, mock_10) -> None:
+                                               mock_8) -> None:
         """
         Test that the final DataFrame for ADLP upload is created in memory.  Note that all methods related to writing
         the DataFrame to a file using Pandas and the xlsxwriter engine have been patched.
@@ -524,19 +521,19 @@ class SPR_to_ADLP_8K_Cli(TestCase):
         :param mock_10: Mocks the get_structures_smiles_from_db method
         :return: None
         """
-        pass
+
         # TODO Fix this test!!
-        # # Define the Return value of the mocked rename_images function
-        # mock_3.side_effect = [SPR_to_ADLP_8K_Cli.df_ss_txt_test, SPR_to_ADLP_8K_Cli.df_senso_txt_test]
-        #
-        # # Define the Return value of the mocked spr_binding_top_for_dot_file function
-        # mock_7.side_effect = [SPR_to_ADLP_8K_Cli.df_ru_top_result]
-        #
-        # # Use the click CliRunner object for testing Click implemented Cli programs.
+        # Define the Return value of the mocked rename_images function
+        mock_3.side_effect = [SPR_to_ADLP_8K_Cli.df_ss_txt_test, SPR_to_ADLP_8K_Cli.df_senso_txt_test]
+
+        # Define the Return value of the mocked spr_binding_top_for_dot_file function
+        mock_8.side_effect = [SPR_to_ADLP_8K_Cli.df_ru_top_result]
+
+        # Use the click CliRunner object for testing Click implemented Cli programs.
         runner = CliRunner()
         result = runner.invoke(main, ['--config_file',
-                                      './tests/fixtures/Biacore8k_Funct_Test_Files/200716-1_config_8K_funct.txt',
+                                      './tests/fixtures/Biacore8k_Test_Files/200708_8K_Config.txt',
                                                             '--save_file','Test.xlsx'])
-        #
-        # print(result.output)
-        # self.assertEqual(0, result.exit_code)
+
+        print(result.output)
+        self.assertEqual(0, result.exit_code)

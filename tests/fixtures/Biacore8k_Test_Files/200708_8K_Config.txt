@@ -1,0 +1,46 @@
+[paths]
+path_mstr_tbl: ./tests/fixtures/Biacore8k_Test_Files/20200708_setup.csv
+path_ss_img: ./tests/fixtures/Biacore8k_Test_Files/20200708_7324_images_ss
+path_ss_txt: ./tests/fixtures/Biacore8k_Test_Files/20200708_7324_images_ss/20200708_7324_affinity_STEADY.xlsx
+path_senso_img: ./tests/fixtures/Biacore8k_Test_Files/20200708_7324_images_kinetics
+path_senso_txt: ./tests/fixtures/Biacore8k_Test_Files/20200708_7324_images_kinetics/20200708_7324_affinity_KINETICS.xlsx
+path_report_pt: ./tests/fixtures/Biacore8k_Test_Files/20200708_7324_affinity_report_pt.xlsx
+
+[meta]
+immobilized_fc: 1,2,3,4,5,6,7,8
+experiment_date: 2020_07_08
+project_code: 7324
+operator: TEST
+instrument: Biacore8K
+protocol:7324_v1
+chip_lot: None
+nucleotide: None
+raw_data_filename: 20200708_7324_affinity
+directory_folder: Biacore8K/AMOR
+
+fc1_protein_BIP: BIP-0712-01
+fc2_protein_BIP: BIP-0712-01
+fc3_protein_BIP: BIP-0712-01
+fc4_protein_BIP: BIP-0712-01
+fc5_protein_BIP: BIP-0712-01
+fc6_protein_BIP: BIP-0712-01
+fc7_protein_BIP: BIP-0712-01
+fc8_protein_BIP: BIP-0712-01
+
+fc1_protein_MW: 27686
+fc2_protein_MW: 27686
+fc3_protein_MW: 27686
+fc4_protein_MW: 27686
+fc5_protein_MW: 27686
+fc6_protein_MW: 27686
+fc7_protein_MW: 27686
+fc8_protein_MW: 27686
+
+fc1_protein_RU: 2779.5
+fc2_protein_RU: 2781.3
+fc3_protein_RU: 2735.9
+fc4_protein_RU: 2570.6
+fc5_protein_RU: 2595.5
+fc6_protein_RU: 2732.5
+fc7_protein_RU: 2590.5
+fc8_protein_RU: 2645.3
