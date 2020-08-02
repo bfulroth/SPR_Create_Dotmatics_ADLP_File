@@ -7,6 +7,8 @@ import cx_Oracle
 import sqlalchemy
 import crypt
 import logging
+import platform
+import tempfile
 
 
 def rep_item_for_dot_df(df, col_name, times_dup=3, sort=False):
@@ -201,6 +203,51 @@ def spr_insert_structures(ls_img_struct_paths, worksheet):
             row += 1
 
     logging.info('Structures inserted into Excel workbook successfully, proceeding...')
+
+
+def manage_structure_insertion(df_cmpd_set, num_fc_used, worksheet, structures, writer):
+    """
+    Private method that manages inserting structures by creating a temp directory to temporarily store images. Also
+    manages all of the calls to methods that connect to the database as well as render the images using RDKit
+
+    :param df_cmpd_set:
+    :param num_fc_used:
+    :param worksheet: xlsxwriter object used to insert the images to a worksheet
+    :param structures:
+    :param writer:
+    :return:
+    """
+    if platform.system() == "Windows":
+        logging.info('As you are running on Windows, inserting compound structures into the final Excel file has '
+                     'been\n disabled due to database connections issues when using Windows.\n  A fix is in the '
+                     'pipeline..')
+    if platform.system() != "Windows" and structures:
+
+        with tempfile.TemporaryDirectory() as tmp_img_dir:
+
+            # This line gets all the smiles from the database
+            df_struct_smiles = get_structures_smiles_from_db(df_mstr_tbl=df_cmpd_set)
+
+            # Issue with connecting to resultsdb, then skip inserting structures.
+            if df_struct_smiles is not None:
+
+                # Render the structure images
+                df_with_paths = render_structure_imgs(df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
+
+                # Create an list of the images paths in order
+                ls_img_paths = rep_item_for_dot_df(df=df_with_paths, col_name='IMG_PATH', times_dup=num_fc_used)
+
+                # Insert the structures into the Excel workbook object
+                spr_insert_structures(ls_img_struct_paths=ls_img_paths, worksheet=worksheet)
+
+                # Save the writer object inside the context manager.
+                writer.save()
+
+            else:
+                # Save the writer object inside the context manager.
+                writer.save()
+    else:
+        writer.save()
 
 
 def spr_insert_ss_senso_images(tuple_list_imgs, worksheet, path_ss_img, path_senso_img, biacore):

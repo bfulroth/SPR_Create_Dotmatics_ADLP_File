@@ -131,6 +131,7 @@ def calc_max_theory_disp(file_path, fc_used_arr):
 def rename_images(df, path_img, image_type, raw_data_file_name):
     """
     Method that renames the images in a folder.  Also adds the names of the images to the passed in df.
+
     :param df: Dataframe containing the steady state or kinetic fit results.
     :param path_img: Path to the folder containing the images to rename
     :param image_type: The type of image eight 'ss' for steady state or 'senso' for kinetic fits.
@@ -194,13 +195,14 @@ def rename_images(df, path_img, image_type, raw_data_file_name):
     return df_ss_senso
 
 
-def spr_create_dot_upload_file(config_file, save_file, clip):
+def spr_create_dot_upload_file(config_file, save_file, clip, structures):
     """
     This program aggregates all of the data from and SPR Dose Functional assay into one Excel file for ADLP upload.
 
     :param config_file: Path of the configuration file containing the paths to the needed files and meta data for a particular experiment.
     :param save_file: Path of the saved ADLP Excel file. This is saved to the users desktop.
     :param clip: Option that indicates that the contents of the SPR setup table are on the clipboard.
+    :param structures: Option that indicates that the program should attempt getting structures.
 
     """
     import configparser
@@ -564,36 +566,10 @@ def spr_create_dot_upload_file(config_file, save_file, clip):
                                NOW + '_SPR_SAVED_IMGS\n'
                                'Please copy back these original images to the Iron server.')
 
-    # Insert structure images
-    # Render the smiles into png images in a temp directory
-    with tempfile.TemporaryDirectory() as tmp_img_dir:
-
-        # This line gets all the smiles from the database
-        df_struct_smiles = SPR_to_ADLP_Functions.common_functions.get_structures_smiles_from_db(
-            df_mstr_tbl=df_cmpd_set)
-
-        # Issue with connecting to resultsdb, then skip inserting structures.
-        if df_struct_smiles is not None:
-
-            # Render the structure images
-            df_with_paths = SPR_to_ADLP_Functions.common_functions.render_structure_imgs(
-                df_with_smiles=df_struct_smiles, dir=tmp_img_dir)
-
-            # Create an list of the images paths in order
-            ls_img_paths = SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df=df_with_paths,
-                                                                                      col_name='IMG_PATH',
-                                                                                      times_dup=1)
-
-            # Insert the structures into the Excel workbook object
-            SPR_to_ADLP_Functions.common_functions.spr_insert_structures(ls_img_struct_paths=ls_img_paths,
-                                                                         worksheet=worksheet1)
-
-            # Save the writer object inside the context manager.
-            writer.save()
-
-        else:
-            # Save the writer object inside the context manager.
-            writer.save()
+        # Insert structure images
+        SPR_to_ADLP_Functions.common_functions.manage_structure_insertion(df_cmpd_set=df_cmpd_set,
+                                                                          num_fc_used=1, worksheet=worksheet1,
+                                                                          structures=structures, writer=writer)
 
     print('Program Done!')
     print("The ADLP result was saved to your desktop.")

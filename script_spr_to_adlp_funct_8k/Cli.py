@@ -12,7 +12,9 @@ import click
                    "data for a particular experiment.")
 @click.option('--save_file', prompt="Please type the name of the ADLP result file NO .xlsx extension NEEDED",
               help="Name of the ADLP results file which is an Excel file.")
-@click.option('--clip', is_flag=True,
+@click.option('--clip', '-c', is_flag=True,
               help="Option to indicate that the contents of the setup file are on the clipboard.")
-def main(config_file, save_file, clip):
-    spr_create_dot_upload_file(config_file=config_file, save_file=save_file, clip=clip)
+@click.option('--structures','-s', is_flag=True,
+              help="Option to indicate attempting to insert structures from database.")
+def main(config_file, save_file, clip, structures):
+    spr_create_dot_upload_file(config_file=config_file, save_file=save_file, clip=clip, structures=structures)

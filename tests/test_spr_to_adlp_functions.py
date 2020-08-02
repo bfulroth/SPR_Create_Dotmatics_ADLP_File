@@ -119,6 +119,9 @@ class TestReplicateItemFunct(TestCase):
 
 class TestGetStructSmilesDB(TestCase):
 
+    df_setup_tbl = None
+    results_from_db = None
+
     @classmethod
     def setUpClass(cls) -> None:
         # Create a test DataFrame of the setup table.
@@ -324,18 +327,22 @@ class TestRUatTopConc8K(TestCase):
         """
 
         #Create parameters for method testing
-        cls.report_path = './tests/fixtures/Biacore8k_Test_Files/200212_report_point.xlsx'
-        cls.df_cmpd_set = pd.read_csv('./tests/fixtures/Biacore8k_Test_Files/200212_SPR_Setup_Table_8k.csv')
+        cls.report_path = './tests/fixtures/Biacore8k_Test_Files/20200708_7324_affinity_report_pt.xlsx'
+        cls.df_cmpd_set = pd.read_csv('./tests/fixtures/Biacore8k_Test_Files/20200708_setup.csv')
         cls.instrument = 'Biacore8K'
         cls.fc_used = [1, 2, 3, 4, 5, 6, 7, 8]
         cls.ref_fc_used_arr=None
 
     def test_binding_RU_TOP(self):
 
-        expected = [35.83, 36.49, 36.34, 34.89, 35.17, 36.48, 36.19, 33.92, 23.81, 20.23, 63.57, 22.11, 22.66, 59.98,
-                    53.59, 28.1, 49.93, 40.9, 75.32, 50.51, 47.63, 83.6, 28.59, 36.58, 52.61, 12.46, 15.19, 16.84,
-                    28.72, 26.97, 18.81, 30.92, 28.53, 32.5, 31.72, 16.22, 26.1, 77.67, 35.74, 18.94, 24.05, 32.55,
-                    35.72, 44.11, 51.18, 63.29, 17.97, 22.09]
+        expected = [46.1, 17.67, 20.97, 14.17, 11.27, 0.91, 10.95, 5.94, 19.83, 14.1, 9.48, 10.85, 4.81,
+                    12.92, 8.01, 8.75, 44.17, 13.72, 6.08, 13.62, 4.74, 4.94, 6.49, 10.07, 6.79, 7.91,
+                    8.0, 16.21, 14.26, 11.69, 9.7, 7.51, 41.88, 5.04, 15.88, 8.89, 12.02, 12.17, 10.06,
+                    17.38, 17.63, 9.98, 9.56, 13.47, 8.06, 19.52, 16.53, 7.13, 45.27, 25.32, 14.11, 17.88,
+                    5.47, 4.26, 10.77, 15.67, 11.78, 33.63, 15.05, 13.38, 13.93, 19.45, 11.8, 17.57, 42.03,
+                    11.84, 13.99, 9.44, 22.29, 7.0, 9.27, 15.99, 19.83, 18.91, 12.84, 10.5, 6.59, 6.09,
+                    6.85, 10.12, 44.24, 8.61, 6.31, 10.48, 15.76, 9.21, 23.89, 3.79, 19.64, 0.63, 14.2,
+                    12.74, 26.4, 22.73, 10.59, 4.83]
 
         result = spr_binding_top_for_dot_file(report_pt_file=TestRUatTopConc8K.report_path,
                                               df_cmpd_set=TestRUatTopConc8K.df_cmpd_set,
