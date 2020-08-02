@@ -36,7 +36,7 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     :return: The df_ss_senso df with the column with the image names added.
     """
 
-    logging.info('Attempting to rename images...')
+    logging.info('Attempting to rename %s images...', image_type)
 
     # Store the current working directory
     my_dir = os.getcwd()
@@ -93,7 +93,7 @@ def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     # change the directory back to the working dir.
     os.chdir(my_dir)
 
-    logging.info('Images were renamed successfully...')
+    logging.info('%s Images were renamed successfully...', image_type)
     return df_analysis
 
 
