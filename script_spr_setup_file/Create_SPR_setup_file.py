@@ -63,6 +63,12 @@ def spr_setup_sheet(args=None):
 
     # Reformat the original table for the Biacore instruments. (S200, T200, 8K)
     try:
+        # If plate barcode column doesn't exist, add it.
+        plate_bar = True
+        if 'Plate_Barcode' not in df_setup_ori.columns:
+            df_setup_ori.loc[:, 'Plate_Barcode'] = ''
+            plate_bar = False
+
         # Trim the sheet down to only the columns we need for the SPR setup sheet.
         df_setup_trim = df_setup_ori.loc[:, ['Broad ID', 'MW', 'Plate_Barcode', 'Barcode', 'Test [Cpd] uM',
                                              'fold_dil', 'num_pts']]
@@ -132,14 +138,23 @@ def spr_setup_sheet(args=None):
         create_lists(header='MW', list=mw_list)
         dose_conc_list()
         create_lists(header='Barcode', list=bar_list)
-        create_lists(header='Plate_Barcode', list=bar_plate_list)
+
+        if plate_bar:
+            create_lists(header='Plate_Barcode', list=bar_plate_list)
 
         # Create the final DataFrame from all of the lists.
-        final_df = pd.DataFrame({'BRD': brd_list, 'MW': mw_list, 'CONC': conc_list,
+        if plate_bar:
+            final_df = pd.DataFrame({'BRD': brd_list, 'MW': mw_list, 'CONC': conc_list,
                                  'BAR': bar_list, 'PLATE_BAR': bar_plate_list})
+        else:
+            final_df = pd.DataFrame({'BRD': brd_list, 'MW': mw_list, 'CONC': conc_list,
+                                     'BAR': bar_list})
 
         # Reorder the columns
-        final_df = final_df.loc[:, ['BRD', 'MW', 'CONC', 'BAR', 'PLATE_BAR']]
+        if plate_bar:
+            final_df = final_df.loc[:, ['BRD', 'MW', 'CONC', 'BAR', 'PLATE_BAR']]
+        else:
+            final_df = final_df.loc[:, ['BRD', 'MW', 'CONC', 'BAR']]
 
         """
         If Format is for Biacore 8k
