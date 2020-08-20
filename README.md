@@ -10,6 +10,11 @@ Project for processing SPR Data for upload to Dotmatics via ADLP
 
 Takes SPR binding data and reformats the data into an Excel file for upload to Dotmatics through Broad's ADLP data upload portal.
 
+*If using scripts for the first time please view this instructional video at the server path below.<br> 
+Note: you must be connected to the Broad Internal network.*
+
+__//Iron/tdts_users/SPR to ADLP Python Script Overview__
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*

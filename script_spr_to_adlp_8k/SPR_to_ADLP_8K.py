@@ -413,7 +413,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
                 comments_list.to_excel(writer, sheet_name='Sheet2', startcol=0, index=0)
 
                 # For larger drop down lists > 255 characters its necessary to create a list on a seperate worksheet.
-                worksheet1.data_validation('S1:S' + str(num_data_pts),
+                worksheet1.data_validation('T1:T' + str(num_data_pts),
                                            {'validate': 'list',
                                             'source': '=Sheet2!$A$2:$A$' + str(len(comments_list) + 1)
                                             })

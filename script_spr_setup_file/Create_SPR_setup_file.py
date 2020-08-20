@@ -63,6 +63,12 @@ def spr_setup_sheet(args=None):
 
     # Reformat the original table for the Biacore instruments. (S200, T200, 8K)
     try:
+        # If plate barcode column doesn't exist, add it.
+        plate_bar = True
+        if 'Plate_Barcode' not in df_setup_ori.columns:
+            df_setup_ori.loc[:, 'Plate_Barcode'] = ''
+            plate_bar = False
+
         # Trim the sheet down to only the columns we need for the SPR setup sheet.
         df_setup_trim = df_setup_ori.loc[:, ['Broad ID', 'MW', 'Plate_Barcode', 'Barcode', 'Test [Cpd] uM',
                                              'fold_dil', 'num_pts']]
@@ -132,172 +138,188 @@ def spr_setup_sheet(args=None):
         create_lists(header='MW', list=mw_list)
         dose_conc_list()
         create_lists(header='Barcode', list=bar_list)
-        create_lists(header='Plate_Barcode', list=bar_plate_list)
+
+        if plate_bar:
+            create_lists(header='Plate_Barcode', list=bar_plate_list)
 
         # Create the final DataFrame from all of the lists.
-        final_df = pd.DataFrame({'BRD': brd_list, 'MW': mw_list, 'CONC': conc_list,
+        if plate_bar:
+            final_df = pd.DataFrame({'BRD': brd_list, 'MW': mw_list, 'CONC': conc_list,
                                  'BAR': bar_list, 'PLATE_BAR': bar_plate_list})
+        else:
+            final_df = pd.DataFrame({'BRD': brd_list, 'MW': mw_list, 'CONC': conc_list,
+                                     'BAR': bar_list})
 
         # Reorder the columns
-        final_df = final_df.loc[:, ['BRD', 'MW', 'CONC', 'BAR', 'PLATE_BAR']]
-
-        """
-        If Format is for Biacore 8k
-    
-        Complication: No easy way to sort the final_df for the 8k.
-        Must treat the zeros or blank injections differently as there are 2 blanks for every compound titration.
-        In addition, the 8k head sweeps across an entire 384 well plate so there will be more than one compound 
-        titration for each of the 8 needles in a single pass of the 8 needled head and therefore more than 
-        one set of blanks separated with compound titrations within the plate.
-    
-        Logic
-        1. From the final_df created for non-8k instruments above...
-        2. Locate and label the first and second blank injections (zeros).
-        3. Sort the blank injections
-        4. Remove the non-blank injections and save to a separate df.
-        5. Separate the sorted blank injections into df's of 8 rows each that correspond to the 8 needles of the 8k.
-        6. Add each 8 rowed df to a new list.
-        7. Reorder the list of df's so that they are consistent with the correct order across the plate from left to right.
-        8. Address the non-zero points by taking the original final_df above and removing the zero points.
-        9. Separate each group of titrations (number of points/ curve * 8 needles) into separate dfs.
-        10. Label each row of each separated df so that it can be sorted for the 8k needle.
-        11. Sort each df.
-        12. Concatenate the zero df and non-zero df's in the correct order into the final df.
-        """
+        if plate_bar:
+            final_df = final_df.loc[:, ['BRD', 'MW', 'CONC', 'BAR', 'PLATE_BAR']]
+        else:
+            final_df = final_df.loc[:, ['BRD', 'MW', 'CONC', 'BAR']]
 
         if process_for_8k:
+            final_df = process_df_for_8k(df_setup_ori=df_setup_ori, final_df=final_df)
 
-            # Variables needed to reorganize compound titrations for 8k.
-            num_pts_curve = int(df_setup_ori.iloc[1]['num_pts'])
-            num_active_needles = 8
-            total_pts_per_pass = num_pts_curve * num_active_needles
+            # Save the file to the desktop
+            save_output_file(df_final=final_df)
+        else:
+            # Save the file to the desktop
+            save_output_file(df_final=final_df)
 
-            # add column for sorting
-            final_df.loc[:, 'sort_zero'] = ''
+        return final_df
 
-            # Variables needed to keep track of where a zero is located in original df
-            zero_num = 2
-            zero_count = 1
+    except Exception:
+        raise RuntimeError('Something is wrong. Please check.')
 
-            for i in range(zero_num):
-                for index, row in final_df.iterrows():
-                    if row['CONC'] == 0:
-                        if (index % 2 == 0) & (i == 0):
-                            final_df.loc[index, 'sort_zero'] = zero_count
-                            zero_count += 1
-                        elif (index % 2 != 0) & (i != 0):
-                            final_df.loc[index, 'sort_zero'] = zero_count
-                            zero_count += 1
-                    else:
-                        final_df.loc[index, 'sort_zero'] = np.nan
 
-            # Create a copy of the final df so that the final_df is preserved.
-            df_zeros = final_df.copy()
-            df_zeros = df_zeros.dropna(how='any', subset=['sort_zero'])
+def process_df_for_8k(df_setup_ori, final_df):
+    """
+    Method that formats the setup file for the Biacore 8k Instrument
 
-            df_zeros = df_zeros.sort_values(['sort_zero'])
-            df_zeros = df_zeros.reset_index(drop=True)
+    Complication: No easy way to sort the final_df for the 8k.
+    Must treat the zeros or blank injections differently as there are 2 blanks for every compound titration.
+    In addition, the 8k head sweeps across an entire 384 well plate so there will be more than one compound
+    titration for each of the 8 needles in a single pass of the 8 needled head and therefore more than
+    one set of blanks separated with compound titrations within the plate.
 
-            # Create a list to store the sorted DataFrames of zero concentration.
-            ls_df_zeros = []
+    Logic
+    1. From the final_df created for non-8k instruments above...
+    2. Locate and label the first and second blank injections (zeros).
+    3. Sort the blank injections
+    4. Remove the non-blank injections and save to a separate df.
+    5. Separate the sorted blank injections into df's of 8 rows each that correspond to the 8 needles of the 8k.
+    6. Add each 8 rowed df to a new list.
+    7. Reorder the list of df's so that they are consistent with the correct order across the plate from left to right.
+    8. Address the non-zero points by taking the original final_df above and removing the zero points.
+    9. Separate each group of titrations (number of points/ curve * 8 needles) into separate dfs.
+    10. Label each row of each separated df so that it can be sorted for the 8k needle.
+    11. Sort each df.
+    12. Concatenate the zero df and non-zero df's in the correct order into the final df.
+    """
 
-            row_start = 0
-            row_end = num_active_needles
+    # Variables needed to reorganize compound titrations for 8k.
+    num_pts_curve = int(df_setup_ori.iloc[1]['num_pts'])
+    num_active_needles = 8
+    total_pts_per_pass = num_pts_curve * num_active_needles
 
-            # Group into df's of 8 rows each corresponding to the 8 needles.
-            for i in range(0, int(len(df_zeros)), num_active_needles):
-                df_active = df_zeros.iloc[row_start:row_end, :]
-                df_active = df_active.reset_index(drop=True)
-                del df_active['sort_zero']
-                ls_df_zeros.append(df_active)
-                row_start += 8
-                row_end += 8
+    # add column for sorting
+    final_df.loc[:, 'sort_zero'] = ''
 
-            # At this point the blanks ordered are placed into separate DF's of length 8 for the 8 needles of the 8k.
-            # Now the non-blank concentrations must be handled...
-            df_non_zero = final_df[final_df['sort_zero'].isna()].copy()
-            df_non_zero.loc[:,'sort_non_zero'] = ''
-            df_non_zero = df_non_zero.reset_index(drop=True)
+    # Variables needed to keep track of where a zero is located in original df
+    zero_num = 2
+    zero_count = 1
 
-            # As done with the blanks, split DF into groups of 8 for the 8 needles
-            ls_dfs_non_zeros = []
-            row_start = 0
-            row_end = total_pts_per_pass
+    for i in range(zero_num):
+        for index, row in final_df.iterrows():
+            if row['CONC'] == 0:
+                if (index % 2 == 0) & (i == 0):
+                    final_df.loc[index, 'sort_zero'] = zero_count
+                    zero_count += 1
+                elif (index % 2 != 0) & (i != 0):
+                    final_df.loc[index, 'sort_zero'] = zero_count
+                    zero_count += 1
+            else:
+                final_df.loc[index, 'sort_zero'] = np.nan
 
-            # Create a list of DataFrames separated by each pass of the 8k head.
-            for i in range(0, int(len(df_non_zero)), total_pts_per_pass):
-                df_active = df_non_zero.iloc[row_start:row_end, :]
-                df_active = df_active.reset_index(drop=True)
-                ls_dfs_non_zeros.append(df_active)
-                row_start += total_pts_per_pass
-                row_end += total_pts_per_pass
+    # Create a copy of the final df so that the final_df is preserved.
+    df_zeros = final_df.copy()
+    df_zeros = df_zeros.dropna(how='any', subset=['sort_zero'])
 
-            # For each df in the non zero df list..
-            # Pull out the df and label the sorting column so that sorting can be done.
-            ls_dfs_non_zeros_sorted = []
+    df_zeros = df_zeros.sort_values(['sort_zero'])
+    df_zeros = df_zeros.reset_index(drop=True)
 
-            for df_active in ls_dfs_non_zeros:
+    # Create a list to store the sorted DataFrames of zero concentration.
+    ls_df_zeros = []
 
-                non_zero_count = 1
-                row_count = 0
+    row_start = 0
+    row_end = num_active_needles
 
-                for i in range(0, num_pts_curve):
-                    for j in range(0, int(len(df_active)), num_pts_curve):
-                        df_active.loc[row_count, 'sort_non_zero'] = non_zero_count
-                        non_zero_count += 1
-                        row_count += num_pts_curve
+    # Group into df's of 8 rows each corresponding to the 8 needles.
+    for i in range(0, int(len(df_zeros)), num_active_needles):
+        df_active = df_zeros.iloc[row_start:row_end, :]
+        df_active = df_active.reset_index(drop=True)
+        del df_active['sort_zero']
+        ls_df_zeros.append(df_active)
+        row_start += 8
+        row_end += 8
 
-                    row_count = i + 1
+    # At this point the blanks ordered are placed into separate DF's of length 8 for the 8 needles of the 8k.
+    # Now the non-blank concentrations must be handled...
+    df_non_zero = final_df[final_df['sort_zero'].isna()].copy()
+    df_non_zero.loc[:,'sort_non_zero'] = ''
+    df_non_zero = df_non_zero.reset_index(drop=True)
 
-                # Sort based on the newly created 'sort_non_zero' column
-                df_active = df_active.sort_values(['sort_non_zero'])
-                df_active = df_active.reset_index(drop=True)
+    # As done with the blanks, split DF into groups of 8 for the 8 needles
+    ls_dfs_non_zeros = []
+    row_start = 0
+    row_end = total_pts_per_pass
 
-                # Remove the columns needed for sorting
-                del df_active['sort_zero']
-                del df_active['sort_non_zero']
+    # Create a list of DataFrames separated by each pass of the 8k head.
+    for i in range(0, int(len(df_non_zero)), total_pts_per_pass):
+        df_active = df_non_zero.iloc[row_start:row_end, :]
+        df_active = df_active.reset_index(drop=True)
+        ls_dfs_non_zeros.append(df_active)
+        row_start += total_pts_per_pass
+        row_end += total_pts_per_pass
 
-                # Append the sorted group of 8 compound titrations to the list of dfs
-                ls_dfs_non_zeros_sorted.append(df_active)
+    # For each df in the non zero df list..
+    # Pull out the df and label the sorting column so that sorting can be done.
+    ls_dfs_non_zeros_sorted = []
 
-            # Dict where keys are num compounds run and value is the assignment of second_zero
-            # The second zero df in the list of zero df's is offset by the num cmpds run and num needles.
-            sec_zero_offset_dict = {8: 1, 16: 2, 24: 3, 32: 4, 40: 5,
-                                    48: 6, 56: 7, 64: 8, 72: 9, 80: 10,
-                                    88: 11, 96: 12, 104: 13, 112: 14,
-                                    120: 15, 128: 16, 136: 17, 144: 18}
+    for df_active in ls_dfs_non_zeros:
 
-            # Create some counters
-            first_zero = 0
-            second_zero = sec_zero_offset_dict[len(df_setup_ori)]
-            non_zero = 0
+        non_zero_count = 1
+        row_count = 0
 
-            # Calculate the number of needle passes in an experiment.
-            num_needle_pass = int(len(df_setup_ori)/num_active_needles)
+        for i in range(0, num_pts_curve):
+            for j in range(0, int(len(df_active)), num_pts_curve):
+                df_active.loc[row_count, 'sort_non_zero'] = non_zero_count
+                non_zero_count += 1
+                row_count += num_pts_curve
 
-            # For each loop, Concat 1 needle pass of zeros and non-zero points.
-            ls_df_final =[]
-            for each_needle_pass in range(0, num_needle_pass):
-                final_df = pd.concat([ls_df_zeros[first_zero], ls_df_zeros[second_zero],
-                                      ls_dfs_non_zeros_sorted[non_zero]])
+            row_count = i + 1
 
-                # Append the zeros and non-zeros of one needle swip to a list of df's
-                ls_df_final.append(final_df)
+        # Sort based on the newly created 'sort_non_zero' column
+        df_active = df_active.sort_values(['sort_non_zero'])
+        df_active = df_active.reset_index(drop=True)
 
-                first_zero += 1
-                second_zero += 1
-                non_zero += 1
+        # Remove the columns needed for sorting
+        del df_active['sort_zero']
+        del df_active['sort_non_zero']
 
-            # Concat all of the needle passes together for the final df.
-            final_df = pd.concat(ls_df_final)
-            final_df = final_df.reset_index(drop=True)
+        # Append the sorted group of 8 compound titrations to the list of dfs
+        ls_dfs_non_zeros_sorted.append(df_active)
 
-    except RuntimeError:
-        print("Something is wrong. Check the original file.")
-        raise
+    # Dict where keys are num compounds run and value is the assignment of second_zero
+    # The second zero df in the list of zero df's is offset by the num cmpds run and num needles.
+    sec_zero_offset_dict = {8: 1, 16: 2, 24: 3, 32: 4, 40: 5,
+                            48: 6, 56: 7, 64: 8, 72: 9, 80: 10,
+                            88: 11, 96: 12, 104: 13, 112: 14,
+                            120: 15, 128: 16, 136: 17, 144: 18}
 
-    # Save the file to the desktop
-    save_output_file(df_final=final_df)
+    # Create some counters
+    first_zero = 0
+    second_zero = sec_zero_offset_dict[len(df_setup_ori)]
+    non_zero = 0
+
+    # Calculate the number of needle passes in an experiment.
+    num_needle_pass = int(len(df_setup_ori)/num_active_needles)
+
+    # For each loop, Concat 1 needle pass of zeros and non-zero points.
+    ls_df_final =[]
+    for each_needle_pass in range(0, num_needle_pass):
+        final_df = pd.concat([ls_df_zeros[first_zero], ls_df_zeros[second_zero],
+                              ls_dfs_non_zeros_sorted[non_zero]])
+
+        # Append the zeros and non-zeros of one needle swip to a list of df's
+        ls_df_final.append(final_df)
+
+        first_zero += 1
+        second_zero += 1
+        non_zero += 1
+
+    # Concat all of the needle passes together for the final df.
+    final_df = pd.concat(ls_df_final)
+    final_df = final_df.reset_index(drop=True)
 
     return final_df
 
@@ -308,7 +330,7 @@ def save_output_file(df_final):
     now = now.strftime('%y%m%d')
 
     # Save file path for server Iron
-    save_file_path_iron = os.path.join('iron', 'tdts_users', 'SPR Setup Files',
+    save_file_path_iron = os.path.join('Iron', 'tdts_users', 'SPR Setup Files',
                                        now + '_spr_setup_affinity_APPVersion_' + str(__version__))
 
     save_file_path_iron = save_file_path_iron.replace('.', '_')
