@@ -26,6 +26,7 @@ NOW = NOW.strftime('%y%m%d')
 # Configure logger
 logging.basicConfig(level=logging.INFO)
 
+
 def rename_images(df_analysis, path_img, image_type, raw_data_file_name):
     """
     Method that renames the images in a folder.  Also adds the names of the images to the passed in df.
@@ -425,7 +426,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
                 cell_format = workbook.add_format()
                 cell_format.set_align('center')
                 cell_format.set_align('vcenter')
-                worksheet1.set_column('A:AJ', 28, cell_format)
+                worksheet1.set_column('A:AK', 28, cell_format)
 
                 # Start preparing to insert the steady state and sensorgram images.
                 # Get list of image files from df_ss_txt Dataframe.
