@@ -329,6 +329,7 @@ def get_predefined_comments():
                                        'Saturation not reached. Low % binding. Insolubility likely.',
                                        'Binding to reference at top concentrations.',
                                        'Superstoichiometric binding.',
+                                       'Issues with compound in SPR. KD not determined.',
                                        'Poor curve fit. Retest.',
                                        'Issue. Retest.',
                                        'Retest.']})
