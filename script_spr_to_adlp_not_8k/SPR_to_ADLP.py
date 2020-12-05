@@ -4,6 +4,7 @@ import tempfile
 import configparser
 import os
 import logging
+import numpy as np
 
 import SPR_to_ADLP_Functions
 from _version import __version__
@@ -240,8 +241,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
 
     # Add the unique ID #
     df_final_for_dot['UNIQUE_ID'] = df_senso_txt['Sample'] + '_' + df_final_for_dot['FC'] + '_' + project_code + \
-                                    '_' + experiment_date + \
-                                    '_' + df_senso_txt['Image File'].str.split('_', expand=True)[5]
+                                    '_' + experiment_date + '_' + str(np.random.choice(a=100, size=1)[0]) + '_' + \
+                                    df_senso_txt['Image File'].str.split('_', expand=True)[5]
 
     # Add steady state image file path
     # Need to replace /Volumes with //Iron
