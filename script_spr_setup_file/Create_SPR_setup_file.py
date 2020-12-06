@@ -327,7 +327,7 @@ def process_df_for_8k(df_setup_ori, final_df):
 def save_output_file(df_final):
     # Truncate the year in the file name.
     now = datetime.now()
-    now = now.strftime('%y%m%d')
+    now = now.strftime('%y%m%d_%H_%M')
 
     # Save file path for server Iron
     save_file_path_iron = os.path.join('/Volumes', 'tdts_users', 'SPR Setup Files',
