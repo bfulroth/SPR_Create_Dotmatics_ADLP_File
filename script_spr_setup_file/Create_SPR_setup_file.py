@@ -54,8 +54,6 @@ def spr_setup_sheet(args=None):
     except:
         raise ImportError("Issues reading contents of file.")
 
-    process_for_8k = True
-
     # If process_for_8k is True, preform checks of the current supported scenarios.
     if process_for_8k:
         if not len(df_setup_ori) % 8 == 0:
