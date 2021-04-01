@@ -4,6 +4,7 @@ import tempfile
 import configparser
 import os
 import logging
+import numpy as np
 
 import SPR_to_ADLP_Functions
 from _version import __version__
@@ -87,15 +88,27 @@ def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
         nucleotide = config.get('meta','nucleotide')
         raw_data_filename = config.get('meta','raw_data_filename')
         directory_folder = config.get('meta','directory_folder')
-        fc2_protein_BIP = config.get('meta','fc2_protein_BIP')
-        fc2_protein_RU = float(config.get('meta','fc2_protein_RU'))
-        fc2_protein_MW = float(config.get('meta','fc2_protein_MW'))
-        fc3_protein_BIP = config.get('meta','fc3_protein_BIP')
-        fc3_protein_RU = float(config.get('meta','fc3_protein_RU'))
-        fc3_protein_MW = float(config.get('meta','fc3_protein_MW'))
-        fc4_protein_BIP = config.get('meta','fc4_protein_BIP')
-        fc4_protein_RU = float(config.get('meta','fc4_protein_RU'))
-        fc4_protein_MW = float(config.get('meta','fc4_protein_MW'))
+
+        if immobilized_fc_arr[0] == 2 and int(num_fc_used) == 1:
+            fc2_protein_BIP = config.get('meta','fc2_protein_BIP')
+            fc2_protein_RU = float(config.get('meta','fc2_protein_RU'))
+            fc2_protein_MW = float(config.get('meta','fc2_protein_MW'))
+
+        elif immobilized_fc_arr[0] == 4 and int(num_fc_used) == 1:
+            fc4_protein_BIP = config.get('meta', 'fc4_protein_BIP')
+            fc4_protein_RU = float(config.get('meta', 'fc4_protein_RU'))
+            fc4_protein_MW = float(config.get('meta', 'fc4_protein_MW'))
+
+        else:
+            fc2_protein_BIP = config.get('meta', 'fc2_protein_BIP')
+            fc2_protein_RU = float(config.get('meta', 'fc2_protein_RU'))
+            fc2_protein_MW = float(config.get('meta', 'fc2_protein_MW'))
+            fc3_protein_BIP = config.get('meta','fc3_protein_BIP')
+            fc3_protein_RU = float(config.get('meta','fc3_protein_RU'))
+            fc3_protein_MW = float(config.get('meta','fc3_protein_MW'))
+            fc4_protein_BIP = config.get('meta','fc4_protein_BIP')
+            fc4_protein_RU = float(config.get('meta','fc4_protein_RU'))
+            fc4_protein_MW = float(config.get('meta','fc4_protein_MW'))
         logging.info('Finished collecting metadata from configuration file. Proceeding...')
     except:
         raise RuntimeError('Something is wrong with the config file. Please check.')
@@ -187,25 +200,33 @@ def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
     df_senso_txt['FC'] = df_senso_txt['FC'].apply(lambda x: x.replace(' ', ''))
     df_final_for_dot['FC'] = df_senso_txt['FC']
 
-    # Add protein RU
-    protein_ru_dict = {'FC2-1Corr': fc2_protein_RU, 'FC3-1Corr': fc3_protein_RU, 'FC4-1Corr': fc4_protein_RU,
-                       'FC4-3Corr': fc4_protein_RU}
+    # Protein RU, MW, and BIP to corresponding columns
+    if immobilized_fc_arr[0] == 2 and int(num_fc_used) == 1:
+        protein_ru_dict = {'FC2-1Corr': fc2_protein_RU}
+        protein_mw_dict = {'FC2-1Corr': fc2_protein_MW}
+        protein_bip_dict = {'FC2-1Corr': fc2_protein_BIP}
+
+    elif immobilized_fc_arr[0] == 4 and int(num_fc_used) == 1:
+        protein_ru_dict = {'FC4-3Corr': fc4_protein_RU}
+        protein_mw_dict = {'FC4-3Corr': fc4_protein_MW}
+        protein_bip_dict = {'FC4-3Corr': fc4_protein_BIP}
+
+    else:
+        protein_ru_dict = {'FC2-1Corr': fc2_protein_RU, 'FC3-1Corr': fc3_protein_RU, 'FC4-1Corr': fc4_protein_RU,
+                           'FC4-3Corr': fc4_protein_RU}
+        protein_mw_dict = {'FC2-1Corr': fc2_protein_MW, 'FC3-1Corr': fc3_protein_MW, 'FC4-1Corr': fc4_protein_MW,
+                           'FC4-3Corr': fc4_protein_MW}
+        protein_bip_dict = {'FC2-1Corr': fc2_protein_BIP, 'FC3-1Corr': fc3_protein_BIP, 'FC4-1Corr': fc4_protein_BIP,
+                            'FC4-3Corr': fc4_protein_BIP}
+
     df_final_for_dot['PROTEIN_RU'] = df_final_for_dot['FC'].map(protein_ru_dict)
-
-    # Add protein MW
-    protein_mw_dict = {'FC2-1Corr': fc2_protein_MW, 'FC3-1Corr': fc3_protein_MW, 'FC4-1Corr': fc4_protein_MW,
-                       'FC4-3Corr': fc4_protein_MW }
     df_final_for_dot['PROTEIN_MW'] = df_final_for_dot['FC'].map(protein_mw_dict)
-
-    # Add BIP
-    protein_bip_dict = {'FC2-1Corr': fc2_protein_BIP, 'FC3-1Corr': fc3_protein_BIP, 'FC4-1Corr': fc4_protein_BIP,
-                        'FC4-3Corr': fc4_protein_BIP}
     df_final_for_dot['PROTEIN_ID'] = df_final_for_dot['FC'].map(protein_bip_dict)
 
     # Add the MW for each compound.
-    df_final_for_dot['MW'] = round(pd.Series(SPR_to_ADLP_Functions.common_functions.rep_item_for_dot_df(df_cmpd_set,
-                                                                                                        col_name='MW',
-                                                           times_dup=num_fc_used)), 3)
+    df_final_for_dot['MW'] = round(pd.Series(SPR_to_ADLP_Functions.
+                                             common_functions.rep_item_for_dot_df(df_cmpd_set, col_name='MW',
+                                                                                  times_dup=num_fc_used)), 3)
 
     # Continue adding columns to final DataFrame
     df_final_for_dot['INSTRUMENT'] = instrument
@@ -220,8 +241,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
 
     # Add the unique ID #
     df_final_for_dot['UNIQUE_ID'] = df_senso_txt['Sample'] + '_' + df_final_for_dot['FC'] + '_' + project_code + \
-                                    '_' + experiment_date + \
-                                    '_' + df_senso_txt['Image File'].str.split('_', expand=True)[5]
+                                    '_' + experiment_date + '_' + str(np.random.choice(a=100, size=1)[0]) + '_' + \
+                                    df_senso_txt['Image File'].str.split('_', expand=True)[5]
 
     # Add steady state image file path
     # Need to replace /Volumes with //Iron
