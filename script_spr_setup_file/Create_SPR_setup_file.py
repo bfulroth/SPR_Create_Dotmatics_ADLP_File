@@ -54,6 +54,8 @@ def spr_setup_sheet(args=None):
     except:
         raise ImportError("Issues reading contents of file.")
 
+    process_for_8k = True
+
     # If process_for_8k is True, preform checks of the current supported scenarios.
     if process_for_8k:
         if not len(df_setup_ori) % 8 == 0:
@@ -291,10 +293,9 @@ def process_df_for_8k(df_setup_ori, final_df):
 
     # Dict where keys are num compounds run and value is the assignment of second_zero
     # The second zero df in the list of zero df's is offset by the num cmpds run and num needles.
-    sec_zero_offset_dict = {8: 1, 16: 2, 24: 3, 32: 4, 40: 5,
-                            48: 6, 56: 7, 64: 8, 72: 9, 80: 10,
-                            88: 11, 96: 12, 104: 13, 112: 14,
-                            120: 15, 128: 16, 136: 17, 144: 18}
+    keys = np.arange(8, 296, 8)
+    vals = np.arange(1, 37, 1)
+    sec_zero_offset_dict = dict(zip(keys, vals))
 
     # Create some counters
     first_zero = 0
@@ -349,3 +350,8 @@ def save_output_file(df_final):
         print('')
         df_final.to_excel(save_file_path_desk)
         print('File created on desktop.')
+
+
+if __name__ == '__main__':
+
+    spr_setup_sheet(args=None)
