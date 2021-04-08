@@ -9,7 +9,6 @@ from _version import __version__
 # Get the users Home Directory
 if platform.system() == "Windows":
     from pathlib import Path
-
     homedir = str(Path.home())
 else:
     homedir = os.environ['HOME']
@@ -329,7 +328,11 @@ def save_output_file(df_final):
     now = now.strftime('%y%m%d_%H_%M')
 
     # Save file path for server Iron
-    save_file_path_iron = os.path.join('/Volumes', 'tdts_users', 'SPR Setup Files',
+    if platform.system() == "Windows":
+        save_file_path_iron = os.path.join('tdts_users', 'SPR Setup Files', now + '_spr_setup_affinity_APPVersion_' +
+                                           str(__version__))
+    else:
+        save_file_path_iron = os.path.join('/Volumes', 'tdts_users', 'SPR Setup Files',
                                        now + '_spr_setup_affinity_APPVersion_' + str(__version__))
 
     save_file_path_iron = save_file_path_iron.replace('.', '_')
