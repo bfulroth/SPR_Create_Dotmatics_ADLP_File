@@ -343,14 +343,27 @@ def save_output_file(df_final):
     save_file_path_desk = save_file_path_desk.replace('.', '_')
     save_file_path_desk = save_file_path_desk + '.xlsx'
 
+    # Option 2 save to Desktop due to some PC's using one-drive in path.
+    save_file_path_desk_opt_2 = os.path.join(homedir,'OneDrive - The Broad Institute', 'Desktop',
+                                             now + '_spr_setup_affinity_APPVersion_' + str(__version__))
+    save_file_path_desk_opt_2 = save_file_path_desk_opt_2.replace('.', '_')
+    save_file_path_desk_opt_2 = save_file_path_desk_opt_2 + '.xlsx'
+
     try:
         df_final.to_excel(save_file_path_iron)
         print('Setup file has been placed on Iron in folder: SRP Setup Files')
+
     except:
         print('Issue connecting to Iron. Mount drive and try again.')
+        print('Attempting to save file to desktop...')
         print('')
-        df_final.to_excel(save_file_path_desk)
-        print('File created on desktop.')
+        
+        try:
+            df_final.to_excel(save_file_path_desk)
+        except:
+            df_final.to_excel(save_file_path_desk_opt_2)
+        finally:
+            print('File created on desktop.')
 
 
 if __name__ == '__main__':
