@@ -622,7 +622,7 @@ class SetupFileScriptAffinity_8k(TestCase):
                    455.44, 411.431, 496.55699999999996, 496.55699999999996, 398.392, 525.577, 352.36199999999997,
                    457.45599999999996, 455.44, 411.431, 496.55699999999996, 496.55699999999996, 398.392, 525.577]
 
-        self.assertEqual(ls_corr, list(df_result))
+        self.assertAlmostEqual(ls_corr, list(df_result))
 
     @patch('script_spr_setup_file.Create_SPR_setup_file.save_output_file')
     @patch('builtins.input', side_effect=['y', 'tests/fixtures/spr_setup_table_32_cpds_10_pt_dose.csv'])
