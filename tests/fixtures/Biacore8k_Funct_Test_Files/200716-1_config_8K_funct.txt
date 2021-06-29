@@ -1,0 +1,51 @@
+[paths]
+path_mstr_tbl: /Users/bfulroth/GitProjects/SPR_Create_Dotmatics_ADLP_File/tests/fixtures/Biacore8k_Funct_Test_Files/E200716_setup_table_run_1.csv
+path_ss_img: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2020_07/200716_7279_ss1
+path_ss_txt: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2020_07/200716_7279_ss1/200716_7279_Functional1_SS.xlsx
+path_senso_img: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2020_07/200716_7279_senso1
+path_senso_txt: /Volumes/tdts_users/Informatics and computational research/SPR_Image_import/2020_07/200716_7279_senso1/200716_7279_Functional1_SENSO.xlsx
+path_report_pt: /Users/bfulroth/GitProjects/SPR_Create_Dotmatics_ADLP_File/tests/fixtures/Biacore8k_Funct_Test_Files/200716_7279_Functional1_rp.xlsx
+
+[meta]
+num_fc_used: 8
+immobilized_fc: 1,2,3,4,5,6,7,8
+experiment_date: 2020_07_16
+project_code: 7279
+operator: bfulroth
+instrument: Biacore8K
+protocol:KRAS_SPR_Assay_v6
+chip_lot: 10288455
+nucleotide: GMPPCP
+raw_data_filename: 200716_7279_functional
+directory_folder: Biacore8K/Ben/KRAS
+
+fc1_protein_BIP: BIP-0384-01
+fc2_protein_BIP: BIP-0384-01
+fc3_protein_BIP: BIP-0384-01
+fc4_protein_BIP: BIP-0384-01
+fc5_protein_BIP: BIP-0384-01
+fc6_protein_BIP: BIP-0384-01
+fc7_protein_BIP: BIP-0384-01
+fc8_protein_BIP: BIP-0384-01
+
+fc1_protein_MW: 26870.04
+fc2_protein_MW: 26870.04
+fc3_protein_MW: 26870.04
+fc4_protein_MW: 26870.04
+fc5_protein_MW: 26870.04
+fc6_protein_MW: 26870.04
+fc7_protein_MW: 26870.04
+fc8_protein_MW: 26870.04
+
+fc1_protein_RU: 405.2
+fc2_protein_RU: 404.9
+fc3_protein_RU: 392.9
+fc4_protein_RU: 367.3
+fc5_protein_RU: 366.4
+fc6_protein_RU: 398.7
+fc7_protein_RU: 366.6
+fc8_protein_RU: 343.9
+
+protein_floated_BIP: BIP-0437-01
+protein_floated_conc_uM: 0.02
+protein_floated_MW: 8477.97
