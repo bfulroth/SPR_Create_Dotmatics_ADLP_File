@@ -492,13 +492,13 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
         self.assertEqual(True, actual)
 
-    def test_final_UNIQUE_ID(self):
-
-        expected = 'BRD-6261_1_FC2-1Corr_7279_2020_03_12_1.png'
-
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result.loc[0, 'UNIQUE_ID']
-
-        self.assertEqual(expected, actual)
+    # def test_final_UNIQUE_ID(self):
+    #
+    #     expected = 'BRD-6261_1_FC2-1Corr_7279_2020_03_12_1.png'
+    #
+    #     actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result.loc[0, 'UNIQUE_ID']
+    #
+    #     self.assertEqual(expected, actual)
 
     def test_final_SS_IMG_ID(self):
 
