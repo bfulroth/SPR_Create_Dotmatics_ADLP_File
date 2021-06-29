@@ -259,8 +259,8 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
     def test_final_df_KD_1_1_BINDING_UM(self):
 
-        expected = pd.Series(data=[np.NaN, np.NaN, np.NaN, 0.314, 0.134, 0.18899999999999997, 0.159, 0.0719, 0.106,
-                                   0.602, 0.22499999999999998, 0.36299999999999993, np.NaN, np.NaN, np.NaN, np.NaN,
+        expected = pd.Series(data=[np.NaN, np.NaN, np.NaN, 0.314, 0.134, 0.189, 0.159, 0.0719, 0.106,
+                                   0.602, 0.225, 0.3623, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
@@ -274,8 +274,8 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
     def test_final_df_chi2_1_1_binding(self):
 
-        expected = pd.Series(data=[np.NaN, np.NaN, np.NaN, 0.27, 0.0879, 0.452, 0.21600000000000003, 0.218,
-                                   0.606, 1.77, 0.7909999999999999, 0.8909999999999999, np.NaN, np.NaN, np.NaN,
+        expected = pd.Series(data=[np.NaN, np.NaN, np.NaN, 0.27, 0.0879, 0.452, 0.216, 0.218,
+                                   0.606, 1.77, 0.791, 0.891, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
