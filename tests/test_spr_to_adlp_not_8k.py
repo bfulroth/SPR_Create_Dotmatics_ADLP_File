@@ -302,13 +302,11 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
-                                   np.NaN])
+                                   np.NaN]).tolist()
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['FITTED_RMAX_1_1_BINDING']
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['FITTED_RMAX_1_1_BINDING'].tolist()
 
-        result = expected.equals(actual)
-
-        self.assertEqual(True, result)
+        self.assertEqual(actual, expected)
 
     def test_final_df_FC(self):
 
