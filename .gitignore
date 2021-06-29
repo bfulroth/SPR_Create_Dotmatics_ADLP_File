@@ -31,3 +31,4 @@ script_spr_setup_file/__pycache__/
 script_spr_to_adlp_not_8k/__pycache__/
 tests/__pycache__/
 __pycache__/
+*.pyc
