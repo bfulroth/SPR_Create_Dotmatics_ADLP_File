@@ -136,30 +136,30 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
     def test_final_df_col_PROJECT_CODE(self):
 
         expected = True
-        actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['PROJECT_CODE'].all() == '7279')
+        actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['PROJECT_CODE'] == '7279')
 
-        self.assertEqual(expected, actual)
+        self.assertEqual(expected, actual.all())
 
     def test_final_df_col_CURVE_VALID(self):
 
         expected = True
-        actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['CURVE_VALID'].all() == '')
+        actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['CURVE_VALID'] == '')
         
-        self.assertEqual(expected, actual)
+        self.assertEqual(expected, actual.all())
         
     def test_final_df_col_STEADY_STATE_IMG(self):
         
         expected = True
-        actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['STEADY_STATE_IMG'].all() == '')
+        actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['STEADY_STATE_IMG'] == '')
         
-        self.assertEqual(expected, actual)
+        self.assertEqual(expected, actual.all())
         
     def test_final_df_col_1to1_IMG(self):
         
         expected = True
-        actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['1to1_IMG'].all() == '')
+        actual = (SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['1to1_IMG'] == '')
         
-        self.assertEqual(expected, actual)
+        self.assertEqual(expected, actual.all())
 
     def test_final_df_col_TOP_COMPUND_UM(self):
 
@@ -433,9 +433,9 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
         expected = 'Biacore1'
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['INSTRUMENT'].all() == expected
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['INSTRUMENT'] == expected
 
-        self.assertEqual(True, actual)
+        self.assertEqual(True, actual.all())
 
     def test_final_ASSAY_MODE(self):
 
@@ -451,57 +451,57 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
         expected = '2020_03_12'
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['EXP_DATE'].all() == expected
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['EXP_DATE'] == expected
 
-        self.assertEqual(True, actual)
+        self.assertEqual(True, actual.all())
 
     def test_final_NUCLEOTIDE(self):
 
         expected = 'GMPPCP'
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['NUCLEOTIDE'].all() == expected
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['NUCLEOTIDE'] == expected
 
-        self.assertEqual(True, actual)
+        self.assertEqual(True, actual.all())
 
     def test_final_CHIP_LOT(self):
 
         expected = '10285867'
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['CHIP_LOT'].all() == expected
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['CHIP_LOT'] == expected
 
-        self.assertEqual(True, actual)
+        self.assertEqual(True, actual.all())
 
     def test_final_OPERATOR(self):
 
         expected = 'bfulroth'
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['OPERATOR'].all() == expected
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['OPERATOR'] == expected
 
-        self.assertEqual(True, actual)
+        self.assertEqual(True, actual.all())
 
     def test_final_PROTOCOL_ID(self):
 
         expected = 'KRAS_SPR_Assay_v5'
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['PROTOCOL_ID'].all() == expected
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['PROTOCOL_ID'] == expected
 
-        self.assertEqual(True, actual)
+        self.assertEqual(True, actual.all())
 
     def test_final_RAW_DATA_FILE(self):
 
         expected = '200312_7279_affinity'
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['RAW_DATA_FILE'].all() == expected
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['RAW_DATA_FILE'] == expected
 
-        self.assertEqual(True, actual)
+        self.assertEqual(True, actual.all())
 
     def test_final_DIR_FOLDER(self):
 
         expected = 'Biacore1/Ben/KRAS'
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['DIR_FOLDER'].all() == expected
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['DIR_FOLDER'] == expected
 
-        self.assertEqual(True, actual)
+        self.assertEqual(True, actual.all())
 
     # def test_final_UNIQUE_ID(self):
     #
