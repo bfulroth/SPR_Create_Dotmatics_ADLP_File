@@ -297,9 +297,9 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
         expected = ''
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['U_VALUE_1_1_BINDING']
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['U_VALUE_1_1_BINDING'] == expected
 
-        self.assertEqual(actual.all(), expected)
+        self.assertEqual(True, actual.all())
 
     def test_final_df_U_FITTED_RMAX_1_1_BINDING(self):
 
