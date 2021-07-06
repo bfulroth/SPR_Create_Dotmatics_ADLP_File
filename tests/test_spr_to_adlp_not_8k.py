@@ -443,6 +443,8 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
         actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['ASSAY_MODE'].all() == expected
 
+        print(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['ASSAY_MODE'])
+
         self.assertEqual(True, actual)
 
     def test_final_EXP_DATE(self):
