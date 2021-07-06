@@ -259,33 +259,39 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
     def test_final_df_KD_1_1_BINDING_UM(self):
 
-        expected = pd.Series(data=[np.NaN, np.NaN, np.NaN, 0.314, 0.134, 0.189, 0.159, 0.0719, 0.106,
-                                   0.602, 0.225, 0.3623, np.NaN, np.NaN, np.NaN, np.NaN,
+        expected = list(pd.Series(data=[np.NaN, np.NaN, np.NaN, 0.314, 0.134, 0.189, 0.159, 0.0719, 0.106,
+                                   0.602, 0.225, 0.363, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
-                                   np.NaN, np.NaN])
+                                   np.NaN, np.NaN]))
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['KD_1_1_BINDING_UM']
+        expected = [round(num, 3) for num in expected]
+        expected = [0 if x != x else x for x in expected]
 
-        result = expected.equals(actual)
+        actual = list(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['KD_1_1_BINDING_UM'])
+        actual = [round(num, 3) for num in actual]
+        actual = [0 if x != x else x for x in actual]
 
-        self.assertEqual(True, result)
+        self.assertEqual(expected, actual)
 
     def test_final_df_chi2_1_1_binding(self):
 
-        expected = pd.Series(data=[np.NaN, np.NaN, np.NaN, 0.27, 0.0879, 0.452, 0.216, 0.218,
+        expected = list(pd.Series(data=[np.NaN, np.NaN, np.NaN, 0.27, 0.0879, 0.452, 0.216, 0.218,
                                    0.606, 1.77, 0.791, 0.891, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
-                                   np.NaN, np.NaN, np.NaN])
+                                   np.NaN, np.NaN, np.NaN]))
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['chi2_1_1_binding']
+        expected = [round(num, 3) for num in expected]
+        expected = [0 if x != x else x for x in expected]
 
-        result = expected.equals(actual)
+        actual = list(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['chi2_1_1_binding'])
+        actual = [round(num, 3) for num in actual]
+        actual = [0 if x != x else x for x in actual]
 
-        self.assertEqual(True, result)
+        self.assertEqual(expected, actual)
 
     def test_final_df_U_VALUE_1_1_BINDING(self):
 
@@ -297,14 +303,19 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
     def test_final_df_U_FITTED_RMAX_1_1_BINDING(self):
 
-        expected = pd.Series(data=[np.NaN, np.NaN, np.NaN, 37.6, 53.0, 36.2, 37.9, 55.7, 37.5, 32.7, 45.5,
+        expected = list(pd.Series(data=[np.NaN, np.NaN, np.NaN, 37.6, 53.0, 36.2, 37.9, 55.7, 37.5, 32.7, 45.5,
                                    33.9, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
                                    np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN, np.NaN,
-                                   np.NaN]).tolist()
+                                   np.NaN]))
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['FITTED_RMAX_1_1_BINDING'].tolist()
+        expected = [round(num, 3) for num in expected]
+        expected = [0 if x != x else x for x in expected]
+
+        actual = list(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['FITTED_RMAX_1_1_BINDING'])
+        actual = [round(num, 3) for num in actual]
+        actual = [0 if x != x else x for x in actual]
 
         self.assertEqual(actual, expected)
 
