@@ -441,11 +441,11 @@ class SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1(TestCase):
 
         expected = 'Multi-Cycle'
 
-        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['ASSAY_MODE'].all() == expected
+        actual = SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['ASSAY_MODE'] == expected
 
-        print(SPR_to_ADLP_not_8k_Final_Df_3_FC_1_Ref_Biacore1.df_result['ASSAY_MODE'])
+        print(actual)
 
-        self.assertEqual(True, actual)
+        self.assertEqual(True, actual.all())
 
     def test_final_EXP_DATE(self):
 
