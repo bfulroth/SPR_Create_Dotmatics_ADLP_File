@@ -1,10 +1,12 @@
 name: SPR_Create_Dotmatics_ADLP_File
 channels:
   - conda-forge
+  - jsandhu
   - defaults
 dependencies:
   - pandas
   - rdkit
+  - oracle-instantclient
   - pip=20.0.2
   - setuptools=46.1.3
   - cryptography
@@ -20,4 +22,3 @@ dependencies:
     - xlrd==1.2.0
     - xlsxwriter==1.2.8
     - openpyxl
-prefix: /Users/bfulroth/.conda/envs/SPR_Create_Dotmatics_ADLP_File
