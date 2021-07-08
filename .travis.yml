@@ -1,7 +1,7 @@
 language: python
 dist: xenial
 python:
-- 3.7
+- 3.8
 install:
   # On Ubuntu apt-get is used to install aps.
   - sudo apt-get update
