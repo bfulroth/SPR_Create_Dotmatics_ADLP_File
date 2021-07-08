@@ -3,7 +3,7 @@
 
 [![Build Status](https://travis-ci.com/bfulroth/SPR_Create_Dotmatics_ADLP_File.svg?branch=master)](https://travis-ci.com/bfulroth/SPR_Create_Dotmatics_ADLP_File)
 
-![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/bfulroth/SPR_Create_Dotmatics_ADLP_File?style=for-the-badge)
+![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/bfulroth/SPR_Create_Dotmatics_ADLP_File?label=Version&style=for-the-badge)
 
 Project for processing SPR Data for upload to Dotmatics via ADLP
 
