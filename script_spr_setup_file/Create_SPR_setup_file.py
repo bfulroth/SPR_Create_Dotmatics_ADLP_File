@@ -15,7 +15,9 @@ else:
 
 # Use argparse to parse the arguments instead of click.
 parser = argparse.ArgumentParser(description='Script for Creating an SPR setup file.')
-parser.add_argument("-c", "--clip", action='store_true', default=False)
+parser.add_argument("-c", "--clip", help="Option to indicate setup table contents are on the clipboard.",
+                    action='store_true',
+                    default=False)
 
 
 def spr_setup_sheet(args=None):
