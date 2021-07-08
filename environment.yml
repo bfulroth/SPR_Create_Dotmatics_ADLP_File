@@ -1,7 +1,9 @@
 name: SPR_Create_Dotmatics_ADLP_File
 channels:
   - conda-forge
+  - kadrlica
   - jsandhu
+  - signals
   - defaults
 dependencies:
   - pandas
