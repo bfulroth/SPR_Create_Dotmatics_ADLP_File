@@ -1,4 +1,4 @@
-name: SPR_ADLP_ENV_3
+name: SPR_ADLP_ENV
 channels:
   - conda-forge
   - kadrlica
