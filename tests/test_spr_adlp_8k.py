@@ -64,9 +64,6 @@ class SPR_to_ADLP_8K_Cli(TestCase):
         :return: None
         """
 
-        #TODO Need to fix this test.  It works locally but fails on Travis?  Tried changing the test path as well as
-        # the same version of Pytest that is run locally.
-
         # Define the Return value of the mocked rename_images function
         mock_3.side_effect = [SPR_to_ADLP_8K_Cli.df_ss_txt_test, SPR_to_ADLP_8K_Cli.df_senso_txt_test]
 
