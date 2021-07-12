@@ -73,7 +73,7 @@ class SPR_to_ADLP_8K_Cli(TestCase):
         # Use the click CliRunner object for testing Click implemented Cli programs.
         runner = CliRunner()
         result = runner.invoke(main, ['--config_file',
-                                      './tests/fixtures/Biacore8k_Test_Files/200708_8K_Config.txt',
+                                      'tests/fixtures/Biacore8k_Test_Files/200708_8K_Config.txt',
                                                             '--save_file','Test.xlsx'])
 
         print(result.output)
