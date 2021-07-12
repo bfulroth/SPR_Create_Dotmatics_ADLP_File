@@ -214,8 +214,8 @@ def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
         r_ss, c_ss = _find_cell(sh=sheet_ss, searched_value=val)
         r_senso, c_senso = _find_cell(sh=sheet_senso, searched_value=val)
 
-        df_ss_txt = pd.read_excel(path_ss_txt, skiprows=r_ss)
-        df_senso_txt = pd.read_excel(path_senso_txt, skiprows=r_senso)
+        df_ss_txt = pd.read_excel(path_ss_txt, skiprows=r_ss, engine='openpyxl')
+        df_senso_txt = pd.read_excel(path_senso_txt, skiprows=r_senso, engine='openpyxl')
 
     except Exception:
         raise RuntimeError('Issue reading in data from either steady state or kinetic Excels files.')
@@ -227,7 +227,7 @@ def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
     """
 
     # Save images in a temporary directory in case of a crash.
-    # Note that a significant amount of code is nested in this context mangager so that if a crash occurres the images
+    # Note that a significant amount of code is nested in this context manager so that if a crash occurs the images
     # are returned to their original state.
     with tempfile.TemporaryDirectory() as tmp_img_dir:
 
