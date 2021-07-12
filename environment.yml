@@ -14,8 +14,8 @@ dependencies:
   - setuptools==49.6.0
   - cryptography==3.4.7
   - click==8.0.1
-  - pytest==5.4.1
-  - pytest-cov==2.8.1
+  - pytest==6.2.4
+  - pytest-cov==2.12.1
   - python-dotenv==0.18.0
   - setuptools-scm==6.0.1
   - sqlalchemy==1.4.20
