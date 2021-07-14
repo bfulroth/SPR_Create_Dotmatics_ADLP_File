@@ -5,7 +5,6 @@ import platform
 import argparse
 import numpy as np
 from _version import __version__
-from exceptions import SaveFileError
 
 # Get the users Home Directory
 if platform.system() == "Windows":
