@@ -5,6 +5,7 @@ import platform
 import argparse
 import numpy as np
 from _version import __version__
+from exceptions import SaveFileError
 
 # Get the users Home Directory
 if platform.system() == "Windows":
@@ -331,7 +332,8 @@ def save_output_file(df_final):
 
     # Save file path for server Iron
     if platform.system() == "Windows":
-        save_file_path_iron = os.path.join('tdts_users', 'SPR Setup Files', now + '_spr_setup_affinity_APPVersion_' +
+        save_file_path_iron = os.path.join('iron', 'tdts_users', 'SPR Setup Files',
+                                           now + '_spr_setup_affinity_APPVersion_' +
                                            str(__version__))
     else:
         save_file_path_iron = os.path.join('/Volumes', 'tdts_users', 'SPR Setup Files',
@@ -346,7 +348,7 @@ def save_output_file(df_final):
     save_file_path_desk = save_file_path_desk + '.xlsx'
 
     # Option 2 save to Desktop due to some PC's using one-drive in path.
-    save_file_path_desk_opt_2 = os.path.join(homedir,'OneDrive - The Broad Institute', 'Desktop',
+    save_file_path_desk_opt_2 = os.path.join(homedir, 'OneDrive - The Broad Institute', 'Desktop',
                                              now + '_spr_setup_affinity_APPVersion_' + str(__version__))
     save_file_path_desk_opt_2 = save_file_path_desk_opt_2.replace('.', '_')
     save_file_path_desk_opt_2 = save_file_path_desk_opt_2 + '.xlsx'
@@ -355,19 +357,21 @@ def save_output_file(df_final):
         df_final.to_excel(save_file_path_iron)
         print('Setup file has been placed on Iron in folder: SRP Setup Files')
 
-    except:
+    except FileNotFoundError:
         print('Issue connecting to Iron. Mount drive and try again.')
         print('Attempting to save file to desktop...')
         print('')
-
         try:
             df_final.to_excel(save_file_path_desk)
-        except:
-            df_final.to_excel(save_file_path_desk_opt_2)
-        finally:
-            print('File created on desktop.')
+            print('File saved to desktop.')
+        except FileNotFoundError:
+            print('Issue saving to desktop.  Trying another option to save to desktop...')
+            try:
+                df_final.to_excel(save_file_path_desk_opt_2)
+                print('File saved to desktop.')
+            except FileNotFoundError:
+                print('Issue saving to desktop.')
 
 
 if __name__ == '__main__':
-
     spr_setup_sheet(args=None)
