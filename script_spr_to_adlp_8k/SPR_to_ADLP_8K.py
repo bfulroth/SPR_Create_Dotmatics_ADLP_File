@@ -114,7 +114,22 @@ def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
     # ADLP save file path
     # Note the version is saved to the file name so that data can be linked to the script version.
     save_file = save_file.replace('.xlsx', '')
-    adlp_save_file_path = os.path.join(homedir, 'Desktop', save_file + '_APPVersion_' + str(__version__))
+
+    # Check that the path to the desktop is legit
+    if os.path.isdir(os.path.join(homedir, 'Desktop')):
+        adlp_save_file_path = os.path.join(homedir, 'Desktop', save_file + '_APPVersion_' + str(__version__))
+
+    # If it's not legit. Which has happened on some PC's using One Drive, try another path with OneDrive.
+    elif os.path.isdir(os.path.join(homedir, 'OneDrive - The Broad Institute', 'Desktop')):
+        adlp_save_file_path = os.path.join(homedir, 'OneDrive - The Broad Institute', 'Desktop', save_file +
+                                           '_APPVersion_' + str(__version__))
+
+    # If neither desktop paths work then try saving to the Iron server.
+    else:
+        adlp_save_file_path = os.path.join('iron', 'tdts_users', 'SPR Setup Files', save_file +
+                                           '_APPVersion_' + str(__version__))
+        print('Note: Your Result file will be saved to Iron/tdts_users/SPR Setup Files')
+
     adlp_save_file_path = adlp_save_file_path.replace('.', '_')
     adlp_save_file_path = adlp_save_file_path + '.xlsx'
 
