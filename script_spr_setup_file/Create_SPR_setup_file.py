@@ -358,15 +358,16 @@ def save_output_file(df_final):
 
     except FileNotFoundError:
         print('Issue connecting to Iron. Mount drive and try again.')
-        print('Attempting to save file to desktop...')
+        print('Attempting to save file to: OneDrive - The Broad Institute\\Desktop')
         print('')
         try:
-            df_final.to_excel(save_file_path_desk)
+            df_final.to_excel(save_file_path_desk_opt_2)
             print('File saved to desktop.')
         except FileNotFoundError:
-            print('Issue saving to desktop.  Trying another option to save to desktop...')
+            print(f'Issue saving to desktop OneDrive - The Broad Institute\\Desktop.'
+                  f'Trying to save to {homedir}\\Desktop')
             try:
-                df_final.to_excel(save_file_path_desk_opt_2)
+                df_final.to_excel(save_file_path_desk)
                 print('File saved to desktop.')
             except FileNotFoundError:
                 print('Issue saving to desktop.')
