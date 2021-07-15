@@ -128,7 +128,9 @@ def spr_create_dot_upload_file(config_file, save_file, clip, structures=False):
     else:
         adlp_save_file_path = os.path.join('iron', 'tdts_users', 'SPR Setup Files', save_file +
                                            '_APPVersion_' + str(__version__))
+        print('')
         print('Note: Your Result file will be saved to Iron/tdts_users/SPR Setup Files')
+        print('')
 
     adlp_save_file_path = adlp_save_file_path.replace('.', '_')
     adlp_save_file_path = adlp_save_file_path + '.xlsx'
